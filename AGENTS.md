@@ -4,7 +4,7 @@ This document provides guidelines for AI coding agents working in this repositor
 
 ## Project Overview
 
-This is a **monorepo** for a Vite plugin that provides developer tools for inspecting web components. It uses **Bun** as the package manager and npm workspaces for monorepo management.
+This is a **monorepo** for a Vite plugin that provides developer tools for inspecting web components. It uses **Bun** as the package manager with workspace support.
 
 **Structure:**
 - `packages/vite-web-component-dev-tools/` - The Vite plugin package
