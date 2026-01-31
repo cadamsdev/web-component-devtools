@@ -314,10 +314,26 @@ function injectStyles(position: string): void {
     '}',
     '',
     '.wc-element-highlight {',
-    '  outline: 2px solid #667eea !important;',
-    '  outline-offset: 2px !important;',
-    '  background: rgba(102, 126, 234, 0.1) !important;',
-    '  transition: all 0.2s ease !important;',
+    '  outline: 3px solid #667eea !important;',
+    '  outline-offset: 4px !important;',
+    '  background: rgba(102, 126, 234, 0.2) !important;',
+    '  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3), 0 0 20px rgba(102, 126, 234, 0.4) !important;',
+    '  position: relative !important;',
+    '  z-index: 999997 !important;',
+    '  animation: wc-highlight-pulse 0.6s ease-in-out 3 !important;',
+    '}',
+    '',
+    '@keyframes wc-highlight-pulse {',
+    '  0%, 100% {',
+    '    outline-width: 3px;',
+    '    outline-offset: 4px;',
+    '    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3), 0 0 20px rgba(102, 126, 234, 0.4);',
+    '  }',
+    '  50% {',
+    '    outline-width: 5px;',
+    '    outline-offset: 6px;',
+    '    box-shadow: 0 0 0 8px rgba(102, 126, 234, 0.4), 0 0 30px rgba(102, 126, 234, 0.6);',
+    '  }',
     '}',
     '',
     '.wc-locate-btn {',
@@ -764,7 +780,7 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
     highlightElement(instance.element);
     setTimeout(() => {
       unhighlightElement(instance.element);
-    }, 2000);
+    }, 3000);
   });
   header.appendChild(locateBtn);
 
