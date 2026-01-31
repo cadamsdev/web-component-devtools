@@ -1,33 +1,12 @@
 // Web Component Dev Tools Client Script
 // This script is injected into the page to provide debugging tools for web components
 
-interface AttributeInfo {
-  name: string;
-  value: string | null;
-}
-
-interface PropertyInfo {
-  name: string;
-  value: unknown;
-  type: string;
-}
-
-interface MethodInfo {
-  name: string;
-}
-
-interface SlotInfo {
-  name: string;
-  hasContent: boolean;
-}
-
-interface ComponentInfo {
-  name: string;
-  count: number;
-  instances: Element[];
-  attributes: Map<string, Set<string | null>>;
-  properties: Map<string, Set<unknown>>;
-  methods: Set<string>;
+interface InstanceInfo {
+  element: Element;
+  tagName: string;
+  attributes: Map<string, string | null>;
+  properties: Map<string, unknown>;
+  methods: string[];
   slots: Map<string, boolean>;
 }
 
@@ -139,19 +118,38 @@ function injectStyles(position: string): void {
     '  border-radius: 8px;',
     '  padding: 12px;',
     '  margin-bottom: 12px;',
+    '  transition: all 0.2s ease;',
+    '}',
+    '',
+    '.wc-component:hover {',
+    '  border-color: #667eea;',
+    '  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);',
+    '  transform: translateY(-1px);',
+    '}',
+    '',
+    '.wc-instance-header {',
+    '  display: flex;',
+    '  align-items: center;',
+    '  justify-content: space-between;',
+    '  margin-bottom: 8px;',
+    '}',
+    '',
+    '.wc-instance-badge {',
+    '  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);',
+    '  color: white;',
+    '  padding: 2px 8px;',
+    '  border-radius: 12px;',
+    '  font-weight: 600;',
+    '  font-size: 11px;',
+    '  margin-right: 8px;',
     '}',
     '',
     '.wc-component-name {',
     '  font-weight: 600;',
     '  color: #2d3748;',
-    '  margin-bottom: 8px;',
     '  font-size: 14px;',
-    '}',
-    '',
-    '.wc-component-count {',
-    '  color: #718096;',
-    '  font-size: 12px;',
-    '  margin-bottom: 8px;',
+    '  display: flex;',
+    '  align-items: center;',
     '}',
     '',
     '.wc-section {',
@@ -272,6 +270,13 @@ function injectStyles(position: string): void {
     '  font-size: 14px;',
     '  color: #2d3748;',
     '}',
+    '',
+    '.wc-element-highlight {',
+    '  outline: 2px solid #667eea !important;',
+    '  outline-offset: 2px !important;',
+    '  background: rgba(102, 126, 234, 0.1) !important;',
+    '  transition: all 0.2s ease !important;',
+    '}',
   ].join('\n');
 
   const styleEl = document.createElement('style');
@@ -330,8 +335,8 @@ function setupEventListeners(button: HTMLButtonElement, panel: HTMLDivElement): 
   }
 }
 
-function scanWebComponents(): Map<string, ComponentInfo> {
-    const components = new Map<string, ComponentInfo>();
+function scanWebComponents(): InstanceInfo[] {
+    const instances: InstanceInfo[] = [];
 
     // Use TreeWalker for efficient DOM traversal - only visits element nodes
     const walker = document.createTreeWalker(
@@ -352,32 +357,21 @@ function scanWebComponents(): Map<string, ComponentInfo> {
       const element = node as Element;
       const tagName = element.nodeName.toLowerCase();
 
-      if (!components.has(tagName)) {
-        components.set(tagName, {
-          name: tagName,
-          count: 0,
-          instances: [],
-          attributes: new Map<string, Set<string | null>>(),
-          properties: new Map<string, Set<unknown>>(),
-          methods: new Set<string>(),
-          slots: new Map<string, boolean>(),
-        });
-      }
-
-      const component = components.get(tagName)!;
-      component.count++;
-      component.instances.push(element);
+      const instanceInfo: InstanceInfo = {
+        element,
+        tagName,
+        attributes: new Map<string, string | null>(),
+        properties: new Map<string, unknown>(),
+        methods: [],
+        slots: new Map<string, boolean>(),
+      };
 
       // Collect attributes with their values
       const attrs = element.attributes;
       for (let i = 0; i < attrs.length; i++) {
         const attrName = attrs[i].name;
         const attrValue = attrs[i].value;
-        
-        if (!component.attributes.has(attrName)) {
-          component.attributes.set(attrName, new Set());
-        }
-        component.attributes.get(attrName)!.add(attrValue);
+        instanceInfo.attributes.set(attrName, attrValue);
       }
 
       // Collect properties (from the element instance)
@@ -402,10 +396,7 @@ function scanWebComponents(): Map<string, ComponentInfo> {
           if (descriptor.get) {
             try {
               const value = elementAsAny[propName];
-              if (!component.properties.has(propName)) {
-                component.properties.set(propName, new Set());
-              }
-              component.properties.get(propName)!.add(value);
+              instanceInfo.properties.set(propName, value);
             } catch (e) {
               // Skip properties that throw errors
             }
@@ -413,7 +404,7 @@ function scanWebComponents(): Map<string, ComponentInfo> {
           
           // If it's a function and not a property accessor, it's a method
           if (typeof descriptor.value === 'function' && !descriptor.get && !descriptor.set) {
-            component.methods.add(propName);
+            instanceInfo.methods.push(propName);
           }
         }
       }
@@ -425,29 +416,25 @@ function scanWebComponents(): Map<string, ComponentInfo> {
           const slotName = slot.getAttribute('name') || 'default';
           const assignedNodes = slot.assignedNodes();
           const hasContent = assignedNodes.length > 0;
-          
-          // Track if any instance has content in this slot
-          if (component.slots.has(slotName)) {
-            component.slots.set(slotName, component.slots.get(slotName)! || hasContent);
-          } else {
-            component.slots.set(slotName, hasContent);
-          }
+          instanceInfo.slots.set(slotName, hasContent);
         });
       }
+
+      instances.push(instanceInfo);
     }
 
-  return components;
+  return instances;
 }
 
 function updateComponentList(): void {
   const content = document.getElementById('wc-devtools-content');
   if (!content) return;
 
-  const components = scanWebComponents();
+  const instances = scanWebComponents();
 
   content.innerHTML = '';
 
-  if (components.size === 0) {
+  if (instances.length === 0) {
     const noComponents = document.createElement('div');
     noComponents.className = 'wc-no-components';
     noComponents.textContent = 'No web components found on this page.';
@@ -455,17 +442,15 @@ function updateComponentList(): void {
     return;
   }
 
-  const totalInstances = Array.from(components.values()).reduce(
-    (sum, c) => sum + c.count,
-    0
-  );
+  // Count unique component types
+  const componentTypes = new Set(instances.map(inst => inst.tagName));
 
-  const stats = createStatsElement(components.size, totalInstances);
+  const stats = createStatsElement(componentTypes.size, instances.length);
   content.appendChild(stats);
 
-  components.forEach((component) => {
-    const componentEl = createComponentElement(component);
-    content.appendChild(componentEl);
+  instances.forEach((instance, index) => {
+    const instanceEl = createInstanceElement(instance, index + 1);
+    content.appendChild(instanceEl);
   });
 }
 
@@ -495,22 +480,43 @@ function createStatsElement(uniqueCount: number, totalCount: number): HTMLDivEle
   return stats;
 }
 
-function createComponentElement(component: ComponentInfo): HTMLDivElement {
-  const componentDiv = document.createElement('div');
-  componentDiv.className = 'wc-component';
+function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivElement {
+  const instanceDiv = document.createElement('div');
+  instanceDiv.className = 'wc-component';
 
-  const name = document.createElement('div');
-  name.className = 'wc-component-name';
-  name.textContent = `<${component.name}>`;
-  componentDiv.appendChild(name);
+  // Header with component name and instance number
+  const header = document.createElement('div');
+  header.className = 'wc-instance-header';
 
-  const count = document.createElement('div');
-  count.className = 'wc-component-count';
-  count.textContent = `${component.count} instance${component.count !== 1 ? 's' : ''}`;
-  componentDiv.appendChild(count);
+  const nameAndIndex = document.createElement('div');
+  nameAndIndex.className = 'wc-component-name';
+  
+  const indexBadge = document.createElement('span');
+  indexBadge.className = 'wc-instance-badge';
+  indexBadge.textContent = `#${index}`;
+  nameAndIndex.appendChild(indexBadge);
+  
+  nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
+  
+  header.appendChild(nameAndIndex);
+  instanceDiv.appendChild(header);
+
+  // Add hover effect to entire card
+  instanceDiv.style.cursor = 'pointer';
+  instanceDiv.addEventListener('mouseenter', () => {
+    highlightElement(instance.element);
+  });
+
+  instanceDiv.addEventListener('mouseleave', () => {
+    unhighlightElement(instance.element);
+  });
+
+  instanceDiv.addEventListener('click', () => {
+    instance.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 
   // Attributes Section
-  if (component.attributes.size > 0) {
+  if (instance.attributes.size > 0) {
     const attributesSection = document.createElement('div');
     attributesSection.className = 'wc-section';
 
@@ -522,37 +528,33 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
     const attributesDiv = document.createElement('div');
     attributesDiv.className = 'wc-component-attributes';
 
-    component.attributes.forEach((values, attrName) => {
-      const uniqueValues = Array.from(values);
-      
-      uniqueValues.forEach((value) => {
-        const attrSpan = document.createElement('span');
-        attrSpan.className = 'wc-attribute';
+    instance.attributes.forEach((value, attrName) => {
+      const attrSpan = document.createElement('span');
+      attrSpan.className = 'wc-attribute';
 
-        const attrNameSpan = document.createElement('span');
-        attrNameSpan.className = 'wc-attribute-name';
-        attrNameSpan.textContent = attrName;
-        attrSpan.appendChild(attrNameSpan);
+      const attrNameSpan = document.createElement('span');
+      attrNameSpan.className = 'wc-attribute-name';
+      attrNameSpan.textContent = attrName;
+      attrSpan.appendChild(attrNameSpan);
 
-        if (value !== null && value !== '') {
-          attrSpan.appendChild(document.createTextNode('="'));
-          const attrValueSpan = document.createElement('span');
-          attrValueSpan.className = 'wc-attribute-value';
-          attrValueSpan.textContent = value;
-          attrSpan.appendChild(attrValueSpan);
-          attrSpan.appendChild(document.createTextNode('"'));
-        }
+      if (value !== null && value !== '') {
+        attrSpan.appendChild(document.createTextNode('="'));
+        const attrValueSpan = document.createElement('span');
+        attrValueSpan.className = 'wc-attribute-value';
+        attrValueSpan.textContent = value;
+        attrSpan.appendChild(attrValueSpan);
+        attrSpan.appendChild(document.createTextNode('"'));
+      }
 
-        attributesDiv.appendChild(attrSpan);
-      });
+      attributesDiv.appendChild(attrSpan);
     });
 
     attributesSection.appendChild(attributesDiv);
-    componentDiv.appendChild(attributesSection);
+    instanceDiv.appendChild(attributesSection);
   }
 
   // Properties Section
-  if (component.properties.size > 0) {
+  if (instance.properties.size > 0) {
     const propertiesSection = document.createElement('div');
     propertiesSection.className = 'wc-section';
 
@@ -561,41 +563,37 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
     propTitle.textContent = 'Properties';
     propertiesSection.appendChild(propTitle);
 
-    component.properties.forEach((values, propName) => {
-      const uniqueValues = Array.from(values);
-      
-      uniqueValues.forEach((value) => {
-        const propDiv = document.createElement('div');
-        propDiv.className = 'wc-property';
+    instance.properties.forEach((value, propName) => {
+      const propDiv = document.createElement('div');
+      propDiv.className = 'wc-property';
 
-        const propNameSpan = document.createElement('span');
-        propNameSpan.className = 'wc-property-name';
-        propNameSpan.textContent = propName;
-        propDiv.appendChild(propNameSpan);
+      const propNameSpan = document.createElement('span');
+      propNameSpan.className = 'wc-property-name';
+      propNameSpan.textContent = propName;
+      propDiv.appendChild(propNameSpan);
 
-        propDiv.appendChild(document.createTextNode(': '));
+      propDiv.appendChild(document.createTextNode(': '));
 
-        const propValueSpan = document.createElement('span');
-        propValueSpan.className = 'wc-property-value';
-        propValueSpan.textContent = formatPropertyValue(value);
-        propDiv.appendChild(propValueSpan);
+      const propValueSpan = document.createElement('span');
+      propValueSpan.className = 'wc-property-value';
+      propValueSpan.textContent = formatPropertyValue(value);
+      propDiv.appendChild(propValueSpan);
 
-        propDiv.appendChild(document.createTextNode(' '));
+      propDiv.appendChild(document.createTextNode(' '));
 
-        const propTypeSpan = document.createElement('span');
-        propTypeSpan.className = 'wc-property-type';
-        propTypeSpan.textContent = `(${getValueType(value)})`;
-        propDiv.appendChild(propTypeSpan);
+      const propTypeSpan = document.createElement('span');
+      propTypeSpan.className = 'wc-property-type';
+      propTypeSpan.textContent = `(${getValueType(value)})`;
+      propDiv.appendChild(propTypeSpan);
 
-        propertiesSection.appendChild(propDiv);
-      });
+      propertiesSection.appendChild(propDiv);
     });
 
-    componentDiv.appendChild(propertiesSection);
+    instanceDiv.appendChild(propertiesSection);
   }
 
   // Methods Section
-  if (component.methods.size > 0) {
+  if (instance.methods.length > 0) {
     const methodsSection = document.createElement('div');
     methodsSection.className = 'wc-section';
 
@@ -606,7 +604,7 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
 
     const methodsDiv = document.createElement('div');
 
-    Array.from(component.methods).sort().forEach((methodName) => {
+    instance.methods.sort().forEach((methodName) => {
       const methodSpan = document.createElement('span');
       methodSpan.className = 'wc-method';
 
@@ -619,11 +617,11 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
     });
 
     methodsSection.appendChild(methodsDiv);
-    componentDiv.appendChild(methodsSection);
+    instanceDiv.appendChild(methodsSection);
   }
 
   // Slots Section
-  if (component.slots.size > 0) {
+  if (instance.slots.size > 0) {
     const slotsSection = document.createElement('div');
     slotsSection.className = 'wc-section';
 
@@ -634,7 +632,7 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
 
     const slotsDiv = document.createElement('div');
 
-    component.slots.forEach((hasContent, slotName) => {
+    instance.slots.forEach((hasContent, slotName) => {
       const slotSpan = document.createElement('span');
       slotSpan.className = hasContent ? 'wc-slot has-content' : 'wc-slot';
 
@@ -654,10 +652,10 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
     });
 
     slotsSection.appendChild(slotsDiv);
-    componentDiv.appendChild(slotsSection);
+    instanceDiv.appendChild(slotsSection);
   }
 
-  return componentDiv;
+  return instanceDiv;
 }
 
 function formatPropertyValue(value: unknown): string {
@@ -683,6 +681,14 @@ function getValueType(value: unknown): string {
   if (value === undefined) return 'undefined';
   if (Array.isArray(value)) return 'array';
   return typeof value;
+}
+
+function highlightElement(element: Element): void {
+  element.classList.add('wc-element-highlight');
+}
+
+function unhighlightElement(element: Element): void {
+  element.classList.remove('wc-element-highlight');
 }
 
 function watchForChanges(panel: HTMLDivElement): void {
