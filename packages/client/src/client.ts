@@ -16,6 +16,9 @@ const expandedStates = new Map<Element, boolean>();
 // Track if we're currently updating to avoid recursive updates
 let isUpdating = false;
 
+// Track the current search filter
+let searchFilter = '';
+
 interface DevToolsConfig {
   position: string;
 }
@@ -116,6 +119,32 @@ function injectStyles(position: string): void {
     '',
     '.wc-devtools-close:hover {',
     '  background: rgba(255, 255, 255, 0.2);',
+    '}',
+    '',
+    '.wc-devtools-search {',
+    '  padding: 12px 16px;',
+    '  background: #f7fafc;',
+    '  border-bottom: 1px solid #e2e8f0;',
+    '}',
+    '',
+    '.wc-devtools-search input {',
+    '  width: 100%;',
+    '  padding: 8px 12px;',
+    '  border: 1px solid #cbd5e0;',
+    '  border-radius: 6px;',
+    '  font-size: 14px;',
+    '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;',
+    '  outline: none;',
+    '  transition: border-color 0.2s, box-shadow 0.2s;',
+    '}',
+    '',
+    '.wc-devtools-search input:focus {',
+    '  border-color: #667eea;',
+    '  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);',
+    '}',
+    '',
+    '.wc-devtools-search input::placeholder {',
+    '  color: #a0aec0;',
     '}',
     '',
     '.wc-devtools-content {',
@@ -392,12 +421,28 @@ function createPanel(): HTMLDivElement {
   closeBtn.textContent = '×';
   header.appendChild(closeBtn);
 
+  // Search bar section
+  const searchSection = document.createElement('div');
+  searchSection.className = 'wc-devtools-search';
+
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Filter by tag name...';
+  searchInput.id = 'wc-devtools-search-input';
+  searchInput.addEventListener('input', (e) => {
+    searchFilter = (e.target as HTMLInputElement).value.toLowerCase().trim();
+    updateComponentList();
+  });
+
+  searchSection.appendChild(searchInput);
+
   const content = document.createElement('div');
   content.className = 'wc-devtools-content';
   content.id = 'wc-devtools-content';
   content.textContent = 'Loading...';
 
   panel.appendChild(header);
+  panel.appendChild(searchSection);
   panel.appendChild(content);
 
   return panel;
@@ -689,6 +734,11 @@ function updateComponentList(): void {
 
   const instances = scanWebComponents();
 
+  // Apply search filter
+  const filteredInstances = searchFilter
+    ? instances.filter(inst => inst.tagName.includes(searchFilter))
+    : instances;
+
   content.innerHTML = '';
 
   if (instances.length === 0) {
@@ -700,13 +750,22 @@ function updateComponentList(): void {
     return;
   }
 
-  // Count unique component types
-  const componentTypes = new Set(instances.map(inst => inst.tagName));
+  if (filteredInstances.length === 0) {
+    const noComponents = document.createElement('div');
+    noComponents.className = 'wc-no-components';
+    noComponents.textContent = `No components matching "${searchFilter}".`;
+    content.appendChild(noComponents);
+    isUpdating = false;
+    return;
+  }
 
-  const stats = createStatsElement(componentTypes.size, instances.length);
+  // Count unique component types in filtered results
+  const componentTypes = new Set(filteredInstances.map(inst => inst.tagName));
+
+  const stats = createStatsElement(componentTypes.size, filteredInstances.length);
   content.appendChild(stats);
 
-  instances.forEach((instance, index) => {
+  filteredInstances.forEach((instance, index) => {
     const instanceEl = createInstanceElement(instance, index + 1);
     content.appendChild(instanceEl);
   });
