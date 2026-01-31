@@ -8,6 +8,7 @@ interface InstanceInfo {
   properties: Map<string, unknown>;
   methods: string[];
   slots: Map<string, boolean>;
+  expanded: boolean;
 }
 
 interface DevToolsConfig {
@@ -131,7 +132,14 @@ function injectStyles(position: string): void {
     '  display: flex;',
     '  align-items: center;',
     '  justify-content: space-between;',
-    '  margin-bottom: 8px;',
+    '  margin-bottom: 0;',
+    '  padding: 4px;',
+    '  border-radius: 4px;',
+    '  transition: background 0.2s;',
+    '}',
+    '',
+    '.wc-instance-header:hover {',
+    '  background: rgba(102, 126, 234, 0.05);',
     '}',
     '',
     '.wc-instance-badge {',
@@ -150,6 +158,29 @@ function injectStyles(position: string): void {
     '  font-size: 14px;',
     '  display: flex;',
     '  align-items: center;',
+    '  flex: 1;',
+    '}',
+    '',
+    '.wc-expand-indicator {',
+    '  color: #718096;',
+    '  font-size: 18px;',
+    '  margin-left: 8px;',
+    '  transition: transform 0.2s;',
+    '  user-select: none;',
+    '}',
+    '',
+    '.wc-component.expanded .wc-expand-indicator {',
+    '  transform: rotate(90deg);',
+    '}',
+    '',
+    '.wc-component-details {',
+    '  max-height: 0;',
+    '  overflow: hidden;',
+    '  transition: max-height 0.3s ease;',
+    '}',
+    '',
+    '.wc-component.expanded .wc-component-details {',
+    '  max-height: 2000px;',
     '}',
     '',
     '.wc-section {',
@@ -364,6 +395,7 @@ function scanWebComponents(): InstanceInfo[] {
         properties: new Map<string, unknown>(),
         methods: [],
         slots: new Map<string, boolean>(),
+        expanded: false,
       };
 
       // Collect attributes with their values
@@ -482,7 +514,7 @@ function createStatsElement(uniqueCount: number, totalCount: number): HTMLDivEle
 
 function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivElement {
   const instanceDiv = document.createElement('div');
-  instanceDiv.className = 'wc-component';
+  instanceDiv.className = instance.expanded ? 'wc-component expanded' : 'wc-component';
 
   // Header with component name and instance number
   const header = document.createElement('div');
@@ -499,10 +531,20 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
   
   header.appendChild(nameAndIndex);
+
+  // Add expand/collapse indicator
+  const expandIndicator = document.createElement('span');
+  expandIndicator.className = 'wc-expand-indicator';
+  expandIndicator.textContent = '▶';
+  header.appendChild(expandIndicator);
+
   instanceDiv.appendChild(header);
 
-  // Add hover effect to entire card
-  instanceDiv.style.cursor = 'pointer';
+  // Create details container
+  const detailsContainer = document.createElement('div');
+  detailsContainer.className = 'wc-component-details';
+
+  // Add hover effect to highlight element in page
   instanceDiv.addEventListener('mouseenter', () => {
     highlightElement(instance.element);
   });
@@ -511,7 +553,16 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
     unhighlightElement(instance.element);
   });
 
-  instanceDiv.addEventListener('click', () => {
+  // Toggle expand/collapse on header click
+  header.style.cursor = 'pointer';
+  header.addEventListener('click', (e) => {
+    e.stopPropagation();
+    instance.expanded = !instance.expanded;
+    instanceDiv.classList.toggle('expanded');
+  });
+
+  // Scroll to element on double-click
+  instanceDiv.addEventListener('dblclick', () => {
     instance.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
@@ -550,7 +601,7 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
     });
 
     attributesSection.appendChild(attributesDiv);
-    instanceDiv.appendChild(attributesSection);
+    detailsContainer.appendChild(attributesSection);
   }
 
   // Properties Section
@@ -589,7 +640,7 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
       propertiesSection.appendChild(propDiv);
     });
 
-    instanceDiv.appendChild(propertiesSection);
+    detailsContainer.appendChild(propertiesSection);
   }
 
   // Methods Section
@@ -617,7 +668,7 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
     });
 
     methodsSection.appendChild(methodsDiv);
-    instanceDiv.appendChild(methodsSection);
+    detailsContainer.appendChild(methodsSection);
   }
 
   // Slots Section
@@ -652,8 +703,10 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
     });
 
     slotsSection.appendChild(slotsDiv);
-    instanceDiv.appendChild(slotsSection);
+    detailsContainer.appendChild(slotsSection);
   }
+
+  instanceDiv.appendChild(detailsContainer);
 
   return instanceDiv;
 }
