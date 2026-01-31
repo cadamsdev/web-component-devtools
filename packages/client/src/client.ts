@@ -8,8 +8,10 @@ interface InstanceInfo {
   properties: Map<string, unknown>;
   methods: string[];
   slots: Map<string, boolean>;
-  expanded: boolean;
 }
+
+// Track expanded state separately to persist across re-renders
+const expandedStates = new Map<Element, boolean>();
 
 interface DevToolsConfig {
   position: string;
@@ -395,7 +397,6 @@ function scanWebComponents(): InstanceInfo[] {
         properties: new Map<string, unknown>(),
         methods: [],
         slots: new Map<string, boolean>(),
-        expanded: false,
       };
 
       // Collect attributes with their values
@@ -514,7 +515,8 @@ function createStatsElement(uniqueCount: number, totalCount: number): HTMLDivEle
 
 function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivElement {
   const instanceDiv = document.createElement('div');
-  instanceDiv.className = instance.expanded ? 'wc-component expanded' : 'wc-component';
+  const isExpanded = expandedStates.get(instance.element) || false;
+  instanceDiv.className = isExpanded ? 'wc-component expanded' : 'wc-component';
 
   // Header with component name and instance number
   const header = document.createElement('div');
@@ -553,16 +555,25 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
     unhighlightElement(instance.element);
   });
 
-  // Toggle expand/collapse on header click
+  // Toggle expand/collapse on header click only
   header.style.cursor = 'pointer';
   header.addEventListener('click', (e) => {
     e.stopPropagation();
-    instance.expanded = !instance.expanded;
+    e.preventDefault();
+    const newExpandedState = !expandedStates.get(instance.element);
+    expandedStates.set(instance.element, newExpandedState);
     instanceDiv.classList.toggle('expanded');
   });
 
-  // Scroll to element on double-click
-  instanceDiv.addEventListener('dblclick', () => {
+  // Prevent clicks on details from bubbling up
+  detailsContainer.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Scroll to element on double-click of the header
+  header.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
     instance.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
@@ -746,8 +757,44 @@ function unhighlightElement(element: Element): void {
 
 function watchForChanges(panel: HTMLDivElement): void {
   let updateTimeout: ReturnType<typeof setTimeout>;
-  const observer = new MutationObserver(() => {
-    if (panel.classList.contains('visible')) {
+  const observer = new MutationObserver((mutations) => {
+    // Only update if the panel is visible
+    if (!panel.classList.contains('visible')) {
+      return;
+    }
+
+    // Check if any mutations affect custom elements (contain hyphen in tag name)
+    const hasCustomElementChanges = mutations.some(mutation => {
+      // Check added nodes
+      if (mutation.addedNodes.length > 0) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+            // Check if it's a custom element or contains custom elements
+            if (element.nodeName.includes('-') || element.querySelector('[is], *[is], *')) {
+              return true;
+            }
+          }
+        }
+      }
+      
+      // Check removed nodes
+      if (mutation.removedNodes.length > 0) {
+        for (const node of mutation.removedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+            if (element.nodeName.includes('-')) {
+              return true;
+            }
+          }
+        }
+      }
+      
+      return false;
+    });
+
+    // Only update if there were actual changes to custom elements
+    if (hasCustomElementChanges) {
       clearTimeout(updateTimeout);
       updateTimeout = setTimeout(() => {
         updateComponentList();
