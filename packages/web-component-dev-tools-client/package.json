@@ -1,0 +1,35 @@
+{
+  "name": "web-component-dev-tools-client",
+  "version": "1.0.0",
+  "description": "Client-side script for web component developer tools",
+  "type": "module",
+  "main": "./dist/client.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    },
+    "./client": {
+      "import": "./dist/client.js",
+      "default": "./dist/client.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch"
+  },
+  "keywords": [
+    "web-components",
+    "dev-tools",
+    "custom-elements",
+    "debugging"
+  ],
+  "devDependencies": {
+    "tsdown": "^0.20.1",
+    "typescript": "^5.3.3"
+  }
+}

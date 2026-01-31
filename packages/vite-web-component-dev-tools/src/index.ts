@@ -1,10 +1,8 @@
 import type { Plugin } from 'vite';
 import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const require = createRequire(import.meta.url);
 
 export interface WebComponentDevToolsOptions {
   /**
@@ -32,8 +30,9 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
       // Load the client script once when config is resolved
       if (isDev && enabled) {
         try {
-          const clientPath = join(__dirname, 'client.js');
-          clientScript = readFileSync(clientPath, 'utf-8');
+          // Resolve the client package and read the client.js file
+          const clientPackagePath = require.resolve('web-component-dev-tools-client/client');
+          clientScript = readFileSync(clientPackagePath, 'utf-8');
         } catch (error) {
           console.error('[vite-web-component-dev-tools] Failed to load client script:', error);
         }
