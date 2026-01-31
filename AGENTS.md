@@ -18,22 +18,22 @@ This project uses **Bun**. Use `bun install` for dependencies.
 ### Build Commands
 ```bash
 # Build all workspaces
-npm run build
+bun run build
 
 # Build only the plugin
-npm run build:plugin
+bun run build:plugin
 
 # Build the plugin in watch mode
-cd packages/vite-web-component-dev-tools && npm run dev
+cd packages/vite-web-component-dev-tools && bun run dev
 ```
 
 ### Development Commands
 ```bash
 # Run the example app in dev mode
-npm run dev
+bun run dev
 
 # Preview production build
-cd apps/react-lit-example && npm run preview
+cd apps/react-lit-example && bun run preview
 ```
 
 ### Linting and Formatting
