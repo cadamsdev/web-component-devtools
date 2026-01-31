@@ -10,6 +10,7 @@ import {
   formatEventDetail 
 } from './utils';
 import type { EventLog } from './types';
+import { PropertyEditor } from './property-editor';
 
 export function createButton(): HTMLButtonElement {
   const button = document.createElement('button');
@@ -23,7 +24,9 @@ export function createPanel(
   onSearch: (value: string) => void,
   onTabSwitch: (tabName: string) => void,
   onToggleMonitoring: () => void,
-  onClearEvents: () => void
+  onClearEvents: () => void,
+  onUndo?: () => void,
+  onRedo?: () => void
 ): HTMLDivElement {
   const panel = document.createElement('div');
   panel.id = 'wc-devtools-panel';
@@ -71,6 +74,45 @@ export function createPanel(
   });
 
   searchSection.appendChild(searchInput);
+
+  // Undo/Redo controls (only for components tab)
+  const undoRedoControls = document.createElement('div');
+  undoRedoControls.className = 'wc-undo-redo-controls';
+  undoRedoControls.dataset.tabContent = 'components';
+
+  const undoBtn = document.createElement('button');
+  undoBtn.className = 'wc-undo-btn';
+  undoBtn.title = 'Undo (Ctrl+Z)';
+  undoBtn.id = 'wc-undo-btn';
+  undoBtn.disabled = true;
+  undoBtn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 7v6h6"/>
+      <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/>
+    </svg>
+  `;
+  if (onUndo) {
+    undoBtn.addEventListener('click', onUndo);
+  }
+  undoRedoControls.appendChild(undoBtn);
+
+  const redoBtn = document.createElement('button');
+  redoBtn.className = 'wc-redo-btn';
+  redoBtn.title = 'Redo (Ctrl+Y)';
+  redoBtn.id = 'wc-redo-btn';
+  redoBtn.disabled = true;
+  redoBtn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 7v6h-6"/>
+      <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/>
+    </svg>
+  `;
+  if (onRedo) {
+    redoBtn.addEventListener('click', onRedo);
+  }
+  undoRedoControls.appendChild(redoBtn);
+
+  searchSection.appendChild(undoRedoControls);
 
   // Events controls section
   const eventsControls = document.createElement('div');
@@ -148,7 +190,9 @@ export function createStatsElement(uniqueCount: number, totalCount: number): HTM
 export function createInstanceElement(
   instance: InstanceInfo, 
   index: number, 
-  expandedStates: Map<Element, boolean>
+  expandedStates: Map<Element, boolean>,
+  propertyEditor?: PropertyEditor,
+  onUpdate?: () => void
 ): HTMLDivElement {
   const instanceDiv = document.createElement('div');
   const isExpanded = expandedStates.get(instance.element) || false;
@@ -250,24 +294,14 @@ export function createInstanceElement(
     attributesDiv.className = 'wc-component-attributes';
 
     instance.attributes.forEach((value, attrName) => {
-      const attrSpan = document.createElement('span');
-      attrSpan.className = 'wc-attribute';
-
-      const attrNameSpan = document.createElement('span');
-      attrNameSpan.className = 'wc-attribute-name';
-      attrNameSpan.textContent = attrName;
-      attrSpan.appendChild(attrNameSpan);
-
-      if (value !== null && value !== '') {
-        attrSpan.appendChild(document.createTextNode('="'));
-        const attrValueSpan = document.createElement('span');
-        attrValueSpan.className = 'wc-attribute-value';
-        attrValueSpan.textContent = value;
-        attrSpan.appendChild(attrValueSpan);
-        attrSpan.appendChild(document.createTextNode('"'));
-      }
-
-      attributesDiv.appendChild(attrSpan);
+      const attrRow = createEditableAttribute(
+        instance.element,
+        attrName,
+        value,
+        propertyEditor,
+        onUpdate
+      );
+      attributesDiv.appendChild(attrRow);
     });
 
     attributesSection.appendChild(attributesDiv);
@@ -285,29 +319,14 @@ export function createInstanceElement(
     propertiesSection.appendChild(propTitle);
 
     instance.properties.forEach((value, propName) => {
-      const propDiv = document.createElement('div');
-      propDiv.className = 'wc-property';
-
-      const propNameSpan = document.createElement('span');
-      propNameSpan.className = 'wc-property-name';
-      propNameSpan.textContent = propName;
-      propDiv.appendChild(propNameSpan);
-
-      propDiv.appendChild(document.createTextNode(': '));
-
-      const propValueSpan = document.createElement('span');
-      propValueSpan.className = 'wc-property-value';
-      propValueSpan.textContent = formatPropertyValue(value);
-      propDiv.appendChild(propValueSpan);
-
-      propDiv.appendChild(document.createTextNode(' '));
-
-      const propTypeSpan = document.createElement('span');
-      propTypeSpan.className = 'wc-property-type';
-      propTypeSpan.textContent = `(${getValueType(value)})`;
-      propDiv.appendChild(propTypeSpan);
-
-      propertiesSection.appendChild(propDiv);
+      const propRow = createEditableProperty(
+        instance.element,
+        propName,
+        value,
+        propertyEditor,
+        onUpdate
+      );
+      propertiesSection.appendChild(propRow);
     });
 
     detailsContainer.appendChild(propertiesSection);
@@ -439,4 +458,308 @@ export function createEventLogElement(log: EventLog): HTMLDivElement {
   logDiv.style.cursor = 'pointer';
   
   return logDiv;
+}
+
+/**
+ * Create an editable attribute row
+ */
+function createEditableAttribute(
+  element: Element,
+  attrName: string,
+  value: string | null,
+  propertyEditor?: PropertyEditor,
+  onUpdate?: () => void
+): HTMLDivElement {
+  const attrRow = document.createElement('div');
+  attrRow.className = 'wc-editable-attr';
+
+  const attrNameSpan = document.createElement('span');
+  attrNameSpan.className = 'wc-attribute-name';
+  attrNameSpan.textContent = attrName;
+  attrRow.appendChild(attrNameSpan);
+
+  attrRow.appendChild(document.createTextNode('="'));
+
+  const attrValueContainer = document.createElement('span');
+  attrValueContainer.className = 'wc-editable-value-container';
+
+  const attrValueSpan = document.createElement('span');
+  attrValueSpan.className = 'wc-attribute-value wc-editable-value';
+  attrValueSpan.textContent = value || '';
+  attrValueSpan.title = 'Click to edit';
+  attrValueContainer.appendChild(attrValueSpan);
+
+  const editIcon = document.createElement('span');
+  editIcon.className = 'wc-edit-icon';
+  editIcon.innerHTML = '✎';
+  editIcon.title = 'Edit attribute';
+  attrValueContainer.appendChild(editIcon);
+
+  attrRow.appendChild(attrValueContainer);
+  attrRow.appendChild(document.createTextNode('"'));
+
+  // Make it editable
+  if (propertyEditor) {
+    attrValueContainer.style.cursor = 'pointer';
+    attrValueContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      makeAttributeEditable(
+        element,
+        attrName,
+        value || '',
+        attrValueSpan,
+        propertyEditor,
+        onUpdate
+      );
+    });
+  }
+
+  return attrRow;
+}
+
+/**
+ * Create an editable property row
+ */
+function createEditableProperty(
+  element: Element,
+  propName: string,
+  value: unknown,
+  propertyEditor?: PropertyEditor,
+  onUpdate?: () => void
+): HTMLDivElement {
+  const propDiv = document.createElement('div');
+  propDiv.className = 'wc-property wc-editable-prop';
+
+  const propNameSpan = document.createElement('span');
+  propNameSpan.className = 'wc-property-name';
+  propNameSpan.textContent = propName;
+  propDiv.appendChild(propNameSpan);
+
+  propDiv.appendChild(document.createTextNode(': '));
+
+  const valueContainer = document.createElement('span');
+  valueContainer.className = 'wc-editable-value-container';
+
+  const propValueSpan = document.createElement('span');
+  propValueSpan.className = 'wc-property-value wc-editable-value';
+  propValueSpan.textContent = formatPropertyValue(value);
+  propValueSpan.title = 'Click to edit';
+  valueContainer.appendChild(propValueSpan);
+
+  const editIcon = document.createElement('span');
+  editIcon.className = 'wc-edit-icon';
+  editIcon.innerHTML = '✎';
+  editIcon.title = 'Edit property';
+  valueContainer.appendChild(editIcon);
+
+  propDiv.appendChild(valueContainer);
+  propDiv.appendChild(document.createTextNode(' '));
+
+  const propTypeSpan = document.createElement('span');
+  propTypeSpan.className = 'wc-property-type';
+  const valueType = getValueType(value);
+  propTypeSpan.textContent = `(${valueType})`;
+  propDiv.appendChild(propTypeSpan);
+
+  // Make it editable
+  if (propertyEditor) {
+    valueContainer.style.cursor = 'pointer';
+    valueContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      makePropertyEditable(
+        element,
+        propName,
+        value,
+        valueType,
+        propValueSpan,
+        propertyEditor,
+        onUpdate
+      );
+    });
+  }
+
+  return propDiv;
+}
+
+/**
+ * Make an attribute value editable inline
+ */
+function makeAttributeEditable(
+  element: Element,
+  attrName: string,
+  currentValue: string,
+  valueSpan: HTMLSpanElement,
+  propertyEditor: PropertyEditor,
+  onUpdate?: () => void
+): void {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'wc-inline-editor';
+  input.value = currentValue;
+  input.style.width = `${Math.max(100, currentValue.length * 8)}px`;
+
+  const errorSpan = document.createElement('span');
+  errorSpan.className = 'wc-edit-error';
+  errorSpan.style.display = 'none';
+
+  const save = () => {
+    const newValue = input.value;
+    
+    // Update the attribute
+    propertyEditor.setAttribute(element, attrName, newValue, onUpdate);
+    
+    // Restore display
+    valueSpan.textContent = newValue;
+    valueSpan.style.display = '';
+    input.remove();
+    errorSpan.remove();
+  };
+
+  const cancel = () => {
+    valueSpan.style.display = '';
+    input.remove();
+    errorSpan.remove();
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      save();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancel();
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    save();
+  });
+
+  // Replace value span with input
+  valueSpan.style.display = 'none';
+  valueSpan.parentNode?.insertBefore(input, valueSpan);
+  valueSpan.parentNode?.insertBefore(errorSpan, valueSpan);
+  
+  input.focus();
+  input.select();
+}
+
+/**
+ * Make a property value editable inline
+ */
+function makePropertyEditable(
+  element: Element,
+  propName: string,
+  currentValue: unknown,
+  valueType: string,
+  valueSpan: HTMLSpanElement,
+  propertyEditor: PropertyEditor,
+  onUpdate?: () => void
+): void {
+  const currentValueStr = formatPropertyValueForEdit(currentValue);
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'wc-inline-editor';
+  input.value = currentValueStr;
+  input.style.width = `${Math.max(100, currentValueStr.length * 8)}px`;
+  input.placeholder = `Enter ${valueType} value`;
+
+  const errorSpan = document.createElement('span');
+  errorSpan.className = 'wc-edit-error';
+  errorSpan.style.display = 'none';
+
+  const save = () => {
+    const newValueStr = input.value;
+    
+    // Validate the new value
+    const validation = propertyEditor.validateValue(newValueStr, valueType);
+    
+    if (!validation.valid) {
+      // Show error
+      errorSpan.textContent = validation.error || 'Invalid value';
+      errorSpan.style.display = 'block';
+      input.classList.add('error');
+      return;
+    }
+
+    // Update the property
+    propertyEditor.setProperty(element, propName, validation.value, onUpdate);
+    
+    // Restore display
+    valueSpan.textContent = formatPropertyValue(validation.value);
+    valueSpan.style.display = '';
+    input.remove();
+    errorSpan.remove();
+  };
+
+  const cancel = () => {
+    valueSpan.style.display = '';
+    input.remove();
+    errorSpan.remove();
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      save();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancel();
+    }
+  });
+
+  input.addEventListener('input', () => {
+    // Clear error on input
+    if (errorSpan.style.display !== 'none') {
+      errorSpan.style.display = 'none';
+      input.classList.remove('error');
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    // Small delay to allow Enter key to process
+    setTimeout(save, 100);
+  });
+
+  // Replace value span with input
+  valueSpan.style.display = 'none';
+  valueSpan.parentNode?.insertBefore(input, valueSpan);
+  valueSpan.parentNode?.insertBefore(errorSpan, valueSpan);
+  
+  input.focus();
+  input.select();
+}
+
+/**
+ * Update undo/redo button states
+ */
+export function updateUndoRedoButtons(canUndo: boolean, canRedo: boolean): void {
+  const undoBtn = document.getElementById('wc-undo-btn') as HTMLButtonElement;
+  const redoBtn = document.getElementById('wc-redo-btn') as HTMLButtonElement;
+  
+  if (undoBtn) {
+    undoBtn.disabled = !canUndo;
+  }
+  if (redoBtn) {
+    redoBtn.disabled = !canRedo;
+  }
+}
+
+/**
+ * Format a property value for editing (convert to string representation)
+ */
+function formatPropertyValueForEdit(value: unknown): string {
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value) || typeof value === 'object') {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
 }

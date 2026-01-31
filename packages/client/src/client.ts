@@ -8,10 +8,13 @@ import {
   createPanel, 
   createStatsElement, 
   createInstanceElement,
-  createEventLogElement 
+  createEventLogElement,
+  updateUndoRedoButtons
 } from './ui';
 import { scanWebComponents } from './scanner';
 import { EventMonitor } from './event-monitor';
+import { UndoManager } from './undo-manager';
+import { PropertyEditor } from './property-editor';
 
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
@@ -25,6 +28,12 @@ let searchFilter = '';
 // Event monitor instance
 const eventMonitor = new EventMonitor();
 
+// Undo manager instance
+const undoManager = new UndoManager();
+
+// Property editor instance
+const propertyEditor = new PropertyEditor(undoManager);
+
 export function initDevTools(config: DevToolsConfig) {
   const { position } = config;
 
@@ -35,7 +44,9 @@ export function initDevTools(config: DevToolsConfig) {
     handleSearch,
     handleTabSwitch,
     handleToggleMonitoring,
-    handleClearEvents
+    handleClearEvents,
+    handleUndo,
+    handleRedo
   );
 
   document.body.appendChild(button);
@@ -46,6 +57,17 @@ export function initDevTools(config: DevToolsConfig) {
   
   // Set up event monitor callback
   eventMonitor.setUpdateCallback(updateEventsList);
+  
+  // Set up undo manager callback
+  undoManager.setOnChangeCallback(() => {
+    updateUndoRedoButtons(undoManager.canUndo(), undoManager.canRedo());
+  });
+  
+  // Initialize undo/redo button states
+  updateUndoRedoButtons(undoManager.canUndo(), undoManager.canRedo());
+  
+  // Set up keyboard shortcuts
+  setupKeyboardShortcuts();
 }
 
 function handleSearch(value: string): void {
@@ -76,6 +98,48 @@ function handleToggleMonitoring(): void {
 
 function handleClearEvents(): void {
   eventMonitor.clearLogs();
+}
+
+function handleUndo(): void {
+  if (undoManager.undo()) {
+    updateComponentList();
+  }
+}
+
+function handleRedo(): void {
+  if (undoManager.redo()) {
+    updateComponentList();
+  }
+}
+
+function setupKeyboardShortcuts(): void {
+  document.addEventListener('keydown', (e) => {
+    // Only handle shortcuts when the panel is visible
+    const panel = document.getElementById('wc-devtools-panel');
+    if (!panel || !panel.classList.contains('visible')) {
+      return;
+    }
+
+    // Check if we're in an input or textarea
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      // Allow shortcuts even when in input, but don't let them propagate to the page
+      e.stopPropagation();
+    }
+
+    // Undo: Ctrl+Z or Cmd+Z
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      handleUndo();
+    }
+
+    // Redo: Ctrl+Y or Cmd+Y or Ctrl+Shift+Z or Cmd+Shift+Z
+    if (((e.ctrlKey || e.metaKey) && e.key === 'y') || 
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z')) {
+      e.preventDefault();
+      handleRedo();
+    }
+  });
 }
 
 function updatePanelPosition(
@@ -360,7 +424,13 @@ function updateComponentList(): void {
   content.appendChild(stats);
 
   filteredInstances.forEach((instance, index) => {
-    const instanceEl = createInstanceElement(instance, index + 1, expandedStates);
+    const instanceEl = createInstanceElement(
+      instance, 
+      index + 1, 
+      expandedStates,
+      propertyEditor,
+      updateComponentList
+    );
     content.appendChild(instanceEl);
   });
 
