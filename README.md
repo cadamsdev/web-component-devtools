@@ -2,6 +2,13 @@
 
 A Vite plugin that provides developer tools for inspecting web components on your page. Shows a fixed button that opens a panel displaying information about all web components in use.
 
+## Monorepo Structure
+
+This is a monorepo containing:
+
+- `packages/vite-web-component-dev-tools` - The Vite plugin
+- `apps/react-lit-example` - Example React app using Lit web components
+
 ## Features
 
 - Fixed button overlay for easy access
@@ -11,6 +18,19 @@ A Vite plugin that provides developer tools for inspecting web components on you
 - Real-time updates when DOM changes
 - Configurable button position
 - Only active in development mode by default
+
+## Quick Start
+
+```bash
+# Install dependencies for all workspaces
+npm install
+
+# Build the plugin
+npm run build:plugin
+
+# Run the example app
+npm run dev
+```
 
 ## Installation
 
@@ -93,10 +113,32 @@ The dev tools will show:
 npm install
 
 # Build the plugin
-npm run build
+npm run build:plugin
 
-# Watch mode for development
+# Run the example app
 npm run dev
+```
+
+## Project Structure
+
+```
+vite-web-component-dev-tools/
+├── packages/
+│   └── vite-web-component-dev-tools/  # The Vite plugin package
+│       ├── src/
+│       │   └── index.ts
+│       ├── package.json
+│       └── tsconfig.json
+├── apps/
+│   └── react-lit-example/             # Example React + Lit app
+│       ├── src/
+│       │   ├── components/            # Lit web components
+│       │   ├── App.tsx
+│       │   └── main.tsx
+│       ├── package.json
+│       └── vite.config.ts
+├── package.json                        # Root workspace config
+└── README.md
 ```
 
 ## License
