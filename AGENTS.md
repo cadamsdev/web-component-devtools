@@ -4,11 +4,17 @@ This document provides guidelines for AI coding agents working in this repositor
 
 ## Project Overview
 
-This is a **monorepo** for a Vite plugin that provides developer tools for inspecting web components. It uses **Bun** as the package manager with workspace support.
+This is a **monorepo** for developer tools that help inspect web components. It uses **Bun** as the package manager with workspace support.
 
 **Structure:**
+- `packages/web-component-dev-tools-client/` - The client-side script (build-tool agnostic)
 - `packages/vite-web-component-dev-tools/` - The Vite plugin package
 - `apps/react-lit-example/` - Example React + Lit application
+
+**Architecture:**
+The project is split into two packages:
+1. **Client Package** (`web-component-dev-tools-client`) - Contains the UI and functionality for debugging web components. This package is build-tool agnostic and can be used by any build tool plugin (Vite, Webpack, Rollup, etc.).
+2. **Vite Plugin** (`vite-web-component-dev-tools`) - A Vite-specific plugin that injects the client script into the page during development. It depends on the client package.
 
 ## Build, Lint, and Test Commands
 
@@ -20,10 +26,14 @@ This project uses **Bun**. Use `bun install` for dependencies.
 # Build all workspaces
 bun run build
 
-# Build only the plugin
+# Build only the client package
+bun run build:client
+
+# Build only the Vite plugin
 bun run build:plugin
 
-# Build the plugin in watch mode
+# Build in watch mode
+cd packages/web-component-dev-tools-client && bun run dev
 cd packages/vite-web-component-dev-tools && bun run dev
 ```
 
@@ -47,7 +57,8 @@ cd apps/react-lit-example && bun run preview
 ### File Organization
 - One export per file is preferred for components
 - Use barrel exports (`index.ts`) to re-export from directories
-- Keep plugin code self-contained (CSS/HTML embedded in single file)
+- Keep client code separate from plugin code for reusability
+- Use DOM manipulation instead of template strings for building HTML elements (easier to maintain)
 
 ### TypeScript
 
@@ -218,9 +229,30 @@ useEffect(() => {
 <my-button ref={buttonRef} label="Click Me"></my-button>
 ```
 
-### Vite Plugin Development
+### Build Tool Plugin Development
 
-**Plugin Structure:**
+**General Pattern for Any Build Tool:**
+
+Build tool plugins should load the client script from the `web-component-dev-tools-client` package:
+
+```typescript
+import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+
+const require = createRequire(import.meta.url);
+
+// Resolve and load the client script
+const clientScriptPath = require.resolve('web-component-dev-tools-client/client');
+const clientScript = readFileSync(clientScriptPath, 'utf-8');
+
+// Inject into HTML with configuration
+const script = `
+  window.__WC_DEVTOOLS_CONFIG__ = ${JSON.stringify({ position: 'bottom-right' })};
+  ${clientScript}
+`;
+```
+
+**Vite Plugin Structure:**
 ```typescript
 export function pluginName(options: OptionsType = {}): Plugin {
   const { option1 = defaultValue } = options;
@@ -230,6 +262,7 @@ export function pluginName(options: OptionsType = {}): Plugin {
     
     configResolved(config) {
       // Access resolved config
+      // Load client script here (once)
     },
     
     transformIndexHtml(html) {
@@ -246,6 +279,7 @@ export function pluginName(options: OptionsType = {}): Plugin {
 **Conditional Injection:**
 - Only inject dev tools in development mode
 - Check `config.mode === 'development'`
+- Load the client script once in `configResolved` hook, not on every HTML transformation
 
 ### Error Handling
 
@@ -285,18 +319,53 @@ enabled?: boolean;
 ## Common Patterns
 
 ### Workspace Dependencies
-In package.json:
+In package.json (for internal workspace packages):
 ```json
 "dependencies": {
-  "vite-web-component-dev-tools": "workspace:*"
+  "web-component-dev-tools-client": "workspace:*"
+}
+```
+
+Example: The Vite plugin depends on the client package:
+```json
+{
+  "name": "vite-web-component-dev-tools",
+  "dependencies": {
+    "web-component-dev-tools-client": "workspace:*"
+  }
 }
 ```
 
 ### Exporting from Packages
-Main plugin export pattern:
+
+**Client Package Export Pattern:**
 ```typescript
+// src/index.ts - Re-export for programmatic usage
+export { initDevTools } from './client';
+export interface DevToolsConfig { /* ... */ }
+```
+
+**Vite Plugin Export Pattern:**
+```typescript
+// src/index.ts
 export function webComponentDevTools(options) { /* ... */ }
 export default webComponentDevTools;
+```
+
+**Package.json Exports:**
+```json
+{
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    },
+    "./client": {
+      "import": "./dist/client.js",
+      "default": "./dist/client.js"
+    }
+  }
+}
 ```
 
 ### MutationObserver Usage
@@ -315,13 +384,19 @@ observer.observe(document.body, {
 
 ## Important Notes
 
-1. **TypeScript Compilation:** Plugin uses `tsc` directly (no bundler)
-2. **ESM Only:** All packages use ES modules
-3. **Peer Dependencies:** Plugin has Vite as peer dependency
-4. **Shadow DOM:** Lit components use shadow DOM by default
-5. **Event Composition:** Custom events must use `composed: true` to cross shadow boundaries
-6. **No Tests:** Add tests before making breaking changes if possible
-7. **No CI/CD:** Manual testing required for now
+1. **Build System:** All packages use `tsdown` for building (powered by rolldown)
+2. **Client Package:** 
+   - Builds to both IIFE (`dist/client.js`) and ESM (`dist/index.mjs`) formats
+   - IIFE format is used for inline injection by build tool plugins
+   - ESM format is available for programmatic usage
+3. **ESM Only:** All packages use ES modules
+4. **Peer Dependencies:** Vite plugin has Vite as peer dependency
+5. **Package Dependencies:** Vite plugin depends on the client package using `workspace:*`
+6. **Shadow DOM:** Lit components use shadow DOM by default
+7. **Event Composition:** Custom events must use `composed: true` to cross shadow boundaries
+8. **No Tests:** Add tests before making breaking changes if possible
+9. **No CI/CD:** Manual testing required for now
+10. **Build Order:** The client package must be built before the Vite plugin (handled automatically by workspace dependencies)
 
 ## Git Workflow
 
