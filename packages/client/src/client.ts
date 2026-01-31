@@ -13,6 +13,9 @@ interface InstanceInfo {
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
 
+// Track if we're currently updating to avoid recursive updates
+let isUpdating = false;
+
 interface DevToolsConfig {
   position: string;
 }
@@ -461,7 +464,9 @@ function scanWebComponents(): InstanceInfo[] {
 
 function updateComponentList(): void {
   const content = document.getElementById('wc-devtools-content');
-  if (!content) return;
+  if (!content || isUpdating) return;
+
+  isUpdating = true;
 
   const instances = scanWebComponents();
 
@@ -472,6 +477,7 @@ function updateComponentList(): void {
     noComponents.className = 'wc-no-components';
     noComponents.textContent = 'No web components found on this page.';
     content.appendChild(noComponents);
+    isUpdating = false;
     return;
   }
 
@@ -485,6 +491,8 @@ function updateComponentList(): void {
     const instanceEl = createInstanceElement(instance, index + 1);
     content.appendChild(instanceEl);
   });
+
+  isUpdating = false;
 }
 
 function createStatsElement(uniqueCount: number, totalCount: number): HTMLDivElement {
@@ -758,6 +766,11 @@ function unhighlightElement(element: Element): void {
 function watchForChanges(panel: HTMLDivElement): void {
   let updateTimeout: ReturnType<typeof setTimeout>;
   const observer = new MutationObserver((mutations) => {
+    // Don't process mutations if we're currently updating
+    if (isUpdating) {
+      return;
+    }
+
     // Only update if the panel is visible
     if (!panel.classList.contains('visible')) {
       return;
@@ -765,6 +778,23 @@ function watchForChanges(panel: HTMLDivElement): void {
 
     // Check if any mutations affect custom elements (contain hyphen in tag name)
     const hasCustomElementChanges = mutations.some(mutation => {
+      // Ignore mutations inside the devtools panel itself
+      if (mutation.target === panel || panel.contains(mutation.target as Node)) {
+        return false;
+      }
+
+      // Ignore mutations to the devtools button or panel
+      const target = mutation.target as Element;
+      if (target.id === 'wc-devtools-btn' || target.id === 'wc-devtools-panel') {
+        return false;
+      }
+
+      // Ignore if mutation target is inside devtools content
+      const devtoolsContent = document.getElementById('wc-devtools-content');
+      if (devtoolsContent && (mutation.target === devtoolsContent || devtoolsContent.contains(mutation.target as Node))) {
+        return false;
+      }
+
       // Check added nodes
       if (mutation.addedNodes.length > 0) {
         for (const node of mutation.addedNodes) {
