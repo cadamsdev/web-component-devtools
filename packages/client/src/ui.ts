@@ -360,8 +360,8 @@ export function createInstanceElement(
     detailsContainer.appendChild(methodsSection);
   }
 
-  // Slots Section
-  if (instance.slots.size > 0) {
+  // Slots Section - Enhanced with slot assignments
+  if (instance.slots.size > 0 || (instance.shadowDOM && instance.shadowDOM.slotAssignments.size > 0)) {
     const slotsSection = document.createElement('div');
     slotsSection.className = 'wc-section';
 
@@ -372,24 +372,125 @@ export function createInstanceElement(
 
     const slotsDiv = document.createElement('div');
 
-    instance.slots.forEach((hasContent, slotName) => {
-      const slotSpan = document.createElement('span');
-      slotSpan.className = hasContent ? 'wc-slot has-content' : 'wc-slot';
+    // If we have shadow DOM info with slot assignments, use the detailed view
+    if (instance.shadowDOM && instance.shadowDOM.slotAssignments.size > 0) {
+      instance.shadowDOM.slotAssignments.forEach((assignment, slotName) => {
+        const slotContainer = document.createElement('div');
+        slotContainer.className = 'wc-slot-detail';
+        
+        const slotHeader = document.createElement('div');
+        slotHeader.className = assignment.hasContent ? 'wc-slot has-content' : 'wc-slot';
+        
+        const slotNameSpan = document.createElement('span');
+        slotNameSpan.className = 'wc-slot-name';
+        slotNameSpan.textContent = slotName === 'default' ? '<slot>' : `<slot name="${slotName}">`;
+        slotHeader.appendChild(slotNameSpan);
+        
+        slotHeader.appendChild(document.createTextNode(' '));
+        
+        const slotStatusSpan = document.createElement('span');
+        slotStatusSpan.className = 'wc-slot-status';
+        slotStatusSpan.textContent = assignment.hasContent 
+          ? `(${assignment.assignedElements.length} element${assignment.assignedElements.length !== 1 ? 's' : ''})`
+          : '(empty)';
+        slotHeader.appendChild(slotStatusSpan);
+        
+        // Add hover effect to highlight the slot element
+        slotHeader.style.cursor = assignment.hasContent ? 'pointer' : 'default';
+        if (assignment.hasContent) {
+          slotHeader.addEventListener('mouseenter', () => {
+            if (document.body.contains(assignment.slotElement)) {
+              highlightElement(assignment.slotElement);
+            }
+          });
+          
+          slotHeader.addEventListener('mouseleave', () => {
+            if (document.body.contains(assignment.slotElement)) {
+              unhighlightElement(assignment.slotElement);
+            }
+          });
+        }
+        
+        slotContainer.appendChild(slotHeader);
+        
+        // Show assigned elements
+        if (assignment.assignedElements.length > 0) {
+          const assignedDiv = document.createElement('div');
+          assignedDiv.className = 'wc-slot-assigned-inline';
+          
+          assignment.assignedElements.forEach((el, idx) => {
+            if (idx > 0) {
+              assignedDiv.appendChild(document.createTextNode(', '));
+            }
+            
+            const elSpan = document.createElement('span');
+            elSpan.className = 'wc-slot-assigned-tag';
+            
+            let text = `<${el.nodeName.toLowerCase()}`;
+            const id = el.getAttribute('id');
+            const className = el.getAttribute('class');
+            
+            if (id) text += `#${id}`;
+            else if (className) text += `.${className.split(' ')[0]}`;
+            
+            text += '>';
+            elSpan.textContent = text;
+            
+            // Add hover effect
+            elSpan.style.cursor = 'pointer';
+            elSpan.addEventListener('mouseenter', () => {
+              if (document.body.contains(el)) {
+                highlightElement(el);
+              }
+            });
+            
+            elSpan.addEventListener('mouseleave', () => {
+              if (document.body.contains(el)) {
+                unhighlightElement(el);
+              }
+            });
+            
+            // Click to scroll to element
+            elSpan.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (document.body.contains(el)) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                highlightElement(el);
+                setTimeout(() => {
+                  unhighlightElement(el);
+                }, 3000);
+              }
+            });
+            
+            assignedDiv.appendChild(elSpan);
+          });
+          
+          slotContainer.appendChild(assignedDiv);
+        }
+        
+        slotsDiv.appendChild(slotContainer);
+      });
+    } else {
+      // Fallback to simple view if no shadow DOM info
+      instance.slots.forEach((hasContent, slotName) => {
+        const slotSpan = document.createElement('span');
+        slotSpan.className = hasContent ? 'wc-slot has-content' : 'wc-slot';
 
-      const slotNameSpan = document.createElement('span');
-      slotNameSpan.className = 'wc-slot-name';
-      slotNameSpan.textContent = slotName === 'default' ? '<slot>' : `<slot name="${slotName}">`;
-      slotSpan.appendChild(slotNameSpan);
+        const slotNameSpan = document.createElement('span');
+        slotNameSpan.className = 'wc-slot-name';
+        slotNameSpan.textContent = slotName === 'default' ? '<slot>' : `<slot name="${slotName}">`;
+        slotSpan.appendChild(slotNameSpan);
 
-      slotSpan.appendChild(document.createTextNode(' '));
+        slotSpan.appendChild(document.createTextNode(' '));
 
-      const slotStatusSpan = document.createElement('span');
-      slotStatusSpan.className = 'wc-slot-status';
-      slotStatusSpan.textContent = hasContent ? '(has content)' : '(empty)';
-      slotSpan.appendChild(slotStatusSpan);
+        const slotStatusSpan = document.createElement('span');
+        slotStatusSpan.className = 'wc-slot-status';
+        slotStatusSpan.textContent = hasContent ? '(has content)' : '(empty)';
+        slotSpan.appendChild(slotStatusSpan);
 
-      slotsDiv.appendChild(slotSpan);
-    });
+        slotsDiv.appendChild(slotSpan);
+      });
+    }
 
     slotsSection.appendChild(slotsDiv);
     detailsContainer.appendChild(slotsSection);
@@ -897,6 +998,19 @@ function createSlotAssignmentElement(assignment: SlotAssignment): HTMLDivElement
   
   div.appendChild(header);
   
+  // Add hover effect to highlight the slot element itself
+  div.addEventListener('mouseenter', () => {
+    if (document.body.contains(assignment.slotElement)) {
+      highlightElement(assignment.slotElement);
+    }
+  });
+  
+  div.addEventListener('mouseleave', () => {
+    if (document.body.contains(assignment.slotElement)) {
+      unhighlightElement(assignment.slotElement);
+    }
+  });
+  
   // Show assigned elements
   if (assignment.assignedElements.length > 0) {
     const elementsDiv = document.createElement('div');
@@ -920,6 +1034,32 @@ function createSlotAssignmentElement(assignment: SlotAssignment): HTMLDivElement
       text += '>';
       
       elDiv.textContent = text;
+      
+      // Add hover effect to highlight individual slotted elements
+      elDiv.style.cursor = 'pointer';
+      elDiv.addEventListener('mouseenter', () => {
+        if (document.body.contains(el)) {
+          highlightElement(el);
+        }
+      });
+      
+      elDiv.addEventListener('mouseleave', () => {
+        if (document.body.contains(el)) {
+          unhighlightElement(el);
+        }
+      });
+      
+      // Click to scroll to element
+      elDiv.addEventListener('click', () => {
+        if (document.body.contains(el)) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          highlightElement(el);
+          setTimeout(() => {
+            unhighlightElement(el);
+          }, 3000);
+        }
+      });
+      
       elementsDiv.appendChild(elDiv);
     });
     
