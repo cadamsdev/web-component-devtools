@@ -10,6 +10,14 @@ interface InstanceInfo {
   slots: Map<string, boolean>;
 }
 
+interface EventLog {
+  timestamp: number;
+  eventType: string;
+  tagName: string;
+  element: Element;
+  detail: unknown;
+}
+
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
 
@@ -18,6 +26,12 @@ let isUpdating = false;
 
 // Track the current search filter
 let searchFilter = '';
+
+// Track events
+const eventLogs: EventLog[] = [];
+const MAX_EVENT_LOGS = 100;
+let isEventMonitoringEnabled = false;
+const eventListeners = new Map<Element, Map<string, EventListener>>();
 
 interface DevToolsConfig {
   position: string;
@@ -37,6 +51,8 @@ export function initDevTools(config: DevToolsConfig) {
   setupEventListeners(button, panel, position);
 
   watchForChanges(panel);
+  
+  setupEventMonitoring();
 }
 
 function injectStyles(position: string): void {
@@ -390,6 +406,152 @@ function injectStyles(position: string): void {
     '  width: 14px;',
     '  height: 14px;',
     '}',
+    '',
+    '.wc-devtools-tabs {',
+    '  display: flex;',
+    '  background: #f7fafc;',
+    '  border-bottom: 2px solid #e2e8f0;',
+    '}',
+    '',
+    '.wc-devtools-tab {',
+    '  flex: 1;',
+    '  padding: 12px 16px;',
+    '  background: none;',
+    '  border: none;',
+    '  font-size: 14px;',
+    '  font-weight: 500;',
+    '  color: #718096;',
+    '  cursor: pointer;',
+    '  transition: all 0.2s;',
+    '  border-bottom: 2px solid transparent;',
+    '  margin-bottom: -2px;',
+    '}',
+    '',
+    '.wc-devtools-tab:hover {',
+    '  color: #667eea;',
+    '  background: rgba(102, 126, 234, 0.05);',
+    '}',
+    '',
+    '.wc-devtools-tab.active {',
+    '  color: #667eea;',
+    '  border-bottom-color: #667eea;',
+    '  background: white;',
+    '}',
+    '',
+    '.wc-devtools-tab-content {',
+    '  display: none;',
+    '}',
+    '',
+    '.wc-devtools-tab-content.active {',
+    '  display: block;',
+    '}',
+    '',
+    '.wc-events-controls {',
+    '  display: flex;',
+    '  gap: 8px;',
+    '  padding: 12px 16px;',
+    '  background: #f7fafc;',
+    '  border-bottom: 1px solid #e2e8f0;',
+    '}',
+    '',
+    '.wc-events-toggle {',
+    '  flex: 1;',
+    '  padding: 8px 16px;',
+    '  background: #667eea;',
+    '  color: white;',
+    '  border: none;',
+    '  border-radius: 6px;',
+    '  font-size: 14px;',
+    '  font-weight: 500;',
+    '  cursor: pointer;',
+    '  transition: all 0.2s;',
+    '}',
+    '',
+    '.wc-events-toggle:hover {',
+    '  background: #5568d3;',
+    '}',
+    '',
+    '.wc-events-toggle.monitoring {',
+    '  background: #48bb78;',
+    '}',
+    '',
+    '.wc-events-toggle.monitoring:hover {',
+    '  background: #38a169;',
+    '}',
+    '',
+    '.wc-events-clear {',
+    '  padding: 8px 16px;',
+    '  background: #e2e8f0;',
+    '  color: #2d3748;',
+    '  border: none;',
+    '  border-radius: 6px;',
+    '  font-size: 14px;',
+    '  font-weight: 500;',
+    '  cursor: pointer;',
+    '  transition: all 0.2s;',
+    '}',
+    '',
+    '.wc-events-clear:hover {',
+    '  background: #cbd5e0;',
+    '}',
+    '',
+    '.wc-event-log {',
+    '  background: #f7fafc;',
+    '  border: 1px solid #e2e8f0;',
+    '  border-radius: 8px;',
+    '  padding: 12px;',
+    '  margin-bottom: 8px;',
+    '  font-size: 12px;',
+    '  transition: all 0.2s ease;',
+    '}',
+    '',
+    '.wc-event-log:hover {',
+    '  border-color: #667eea;',
+    '  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);',
+    '}',
+    '',
+    '.wc-event-header {',
+    '  display: flex;',
+    '  align-items: center;',
+    '  justify-content: space-between;',
+    '  margin-bottom: 6px;',
+    '}',
+    '',
+    '.wc-event-type {',
+    '  font-weight: 600;',
+    '  color: #667eea;',
+    '  font-family: "Monaco", "Courier New", monospace;',
+    '}',
+    '',
+    '.wc-event-timestamp {',
+    '  color: #718096;',
+    '  font-size: 11px;',
+    '}',
+    '',
+    '.wc-event-source {',
+    '  color: #805ad5;',
+    '  font-weight: 500;',
+    '  margin-bottom: 4px;',
+    '}',
+    '',
+    '.wc-event-detail {',
+    '  background: white;',
+    '  padding: 8px;',
+    '  border-radius: 4px;',
+    '  border: 1px solid #e2e8f0;',
+    '  color: #2d3748;',
+    '  font-family: "Monaco", "Courier New", monospace;',
+    '  white-space: pre-wrap;',
+    '  word-break: break-word;',
+    '  max-height: 200px;',
+    '  overflow-y: auto;',
+    '}',
+    '',
+    '.wc-no-events {',
+    '  text-align: center;',
+    '  color: #718096;',
+    '  padding: 32px;',
+    '}',
   ].join('\n');
 
   const styleEl = document.createElement('style');
@@ -421,9 +583,26 @@ function createPanel(): HTMLDivElement {
   closeBtn.textContent = '×';
   header.appendChild(closeBtn);
 
-  // Search bar section
+  // Tabs section
+  const tabsSection = document.createElement('div');
+  tabsSection.className = 'wc-devtools-tabs';
+
+  const componentsTab = document.createElement('button');
+  componentsTab.className = 'wc-devtools-tab active';
+  componentsTab.textContent = 'Components';
+  componentsTab.dataset.tab = 'components';
+  tabsSection.appendChild(componentsTab);
+
+  const eventsTab = document.createElement('button');
+  eventsTab.className = 'wc-devtools-tab';
+  eventsTab.textContent = 'Events';
+  eventsTab.dataset.tab = 'events';
+  tabsSection.appendChild(eventsTab);
+
+  // Search bar section (only for components tab)
   const searchSection = document.createElement('div');
   searchSection.className = 'wc-devtools-search';
+  searchSection.dataset.tabContent = 'components';
 
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
@@ -436,14 +615,49 @@ function createPanel(): HTMLDivElement {
 
   searchSection.appendChild(searchInput);
 
-  const content = document.createElement('div');
-  content.className = 'wc-devtools-content';
-  content.id = 'wc-devtools-content';
-  content.textContent = 'Loading...';
+  // Events controls section
+  const eventsControls = document.createElement('div');
+  eventsControls.className = 'wc-events-controls';
+  eventsControls.dataset.tabContent = 'events';
+  eventsControls.style.display = 'none';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'wc-events-toggle';
+  toggleBtn.textContent = 'Start Monitoring';
+  toggleBtn.id = 'wc-events-toggle';
+  toggleBtn.addEventListener('click', toggleEventMonitoring);
+  eventsControls.appendChild(toggleBtn);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'wc-events-clear';
+  clearBtn.textContent = 'Clear';
+  clearBtn.addEventListener('click', clearEventLogs);
+  eventsControls.appendChild(clearBtn);
+
+  // Components content
+  const componentsContent = document.createElement('div');
+  componentsContent.className = 'wc-devtools-content wc-devtools-tab-content active';
+  componentsContent.id = 'wc-devtools-content';
+  componentsContent.dataset.tab = 'components';
+  componentsContent.textContent = 'Loading...';
+
+  // Events content
+  const eventsContent = document.createElement('div');
+  eventsContent.className = 'wc-devtools-content wc-devtools-tab-content';
+  eventsContent.id = 'wc-devtools-events';
+  eventsContent.dataset.tab = 'events';
+  eventsContent.innerHTML = '<div class="wc-no-events">Start monitoring to see events</div>';
 
   panel.appendChild(header);
+  panel.appendChild(tabsSection);
   panel.appendChild(searchSection);
-  panel.appendChild(content);
+  panel.appendChild(eventsControls);
+  panel.appendChild(componentsContent);
+  panel.appendChild(eventsContent);
+
+  // Tab switching logic
+  componentsTab.addEventListener('click', () => switchTab('components'));
+  eventsTab.addEventListener('click', () => switchTab('events'));
 
   return panel;
 }
@@ -455,27 +669,9 @@ function updatePanelPosition(button: HTMLButtonElement, panel: HTMLDivElement, h
   const gap = 20; // Gap between button and panel
   const margin = 20; // Minimum margin from viewport edges
   
-  // Make panel visible temporarily to get its actual height
-  const wasVisible = panel.classList.contains('visible');
-  if (!wasVisible) {
-    panel.style.visibility = 'hidden';
-    panel.style.display = 'flex';
-  }
-  
-  // Get actual height, but ensure it's at least reasonable and doesn't exceed max
-  let panelHeight = panel.offsetHeight;
-  if (panelHeight < 200) {
-    // Panel hasn't fully rendered yet, use max height as estimate
-    panelHeight = maxPanelHeight;
-  } else {
-    panelHeight = Math.min(panelHeight, maxPanelHeight);
-  }
-  
-  // Restore visibility state
-  if (!wasVisible) {
-    panel.style.visibility = '';
-    panel.style.display = '';
-  }
+  // Use max height as estimate for positioning to avoid layout issues
+  // The panel will naturally size itself with max-height constraint from CSS
+  const panelHeight = maxPanelHeight;
   
   let left: number;
   let top: number;
@@ -632,6 +828,258 @@ function setupEventListeners(button: HTMLButtonElement, panel: HTMLDivElement, i
     closeBtn.addEventListener('click', () => {
       panel.classList.remove('visible');
     });
+  }
+}
+
+function switchTab(tabName: string): void {
+  // Update tab buttons
+  const tabs = document.querySelectorAll('.wc-devtools-tab');
+  tabs.forEach(tab => {
+    const button = tab as HTMLButtonElement;
+    if (button.dataset.tab === tabName) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
+
+  // Update tab content
+  const contents = document.querySelectorAll('.wc-devtools-tab-content');
+  contents.forEach(content => {
+    const div = content as HTMLDivElement;
+    if (div.dataset.tab === tabName) {
+      div.classList.add('active');
+    } else {
+      div.classList.remove('active');
+    }
+  });
+
+  // Update controls visibility
+  const allControls = document.querySelectorAll('[data-tab-content]');
+  allControls.forEach(control => {
+    const div = control as HTMLDivElement;
+    if (div.dataset.tabContent === tabName) {
+      div.style.display = '';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+
+  // Refresh content when switching to events tab
+  if (tabName === 'events') {
+    updateEventsList();
+  }
+}
+
+function setupEventMonitoring(): void {
+  // This will be called when monitoring is enabled
+  // We'll track all custom elements and their events
+}
+
+function toggleEventMonitoring(): void {
+  isEventMonitoringEnabled = !isEventMonitoringEnabled;
+  
+  const toggleBtn = document.getElementById('wc-events-toggle');
+  if (!toggleBtn) return;
+
+  if (isEventMonitoringEnabled) {
+    toggleBtn.textContent = 'Stop Monitoring';
+    toggleBtn.classList.add('monitoring');
+    startMonitoring();
+  } else {
+    toggleBtn.textContent = 'Start Monitoring';
+    toggleBtn.classList.remove('monitoring');
+    stopMonitoring();
+  }
+  
+  updateEventsList();
+}
+
+function startMonitoring(): void {
+  const instances = scanWebComponents();
+  
+  instances.forEach(instance => {
+    const element = instance.element;
+    
+    // Get all event names from the element's prototype
+    const eventNames = getCustomEventNames(element);
+    
+    // Also listen for common custom events
+    const commonEvents = ['change', 'input', 'click', 'submit', 'close', 'open', 'load', 'error'];
+    const allEvents = new Set([...eventNames, ...commonEvents]);
+    
+    const listenersMap = new Map<string, EventListener>();
+    
+    allEvents.forEach(eventName => {
+      const listener = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        eventLogs.unshift({
+          timestamp: Date.now(),
+          eventType: event.type,
+          tagName: element.tagName.toLowerCase(),
+          element: element,
+          detail: customEvent.detail
+        });
+        
+        // Keep only the last MAX_EVENT_LOGS events
+        if (eventLogs.length > MAX_EVENT_LOGS) {
+          eventLogs.splice(MAX_EVENT_LOGS);
+        }
+        
+        // Update the events list if the events tab is active
+        const eventsContent = document.getElementById('wc-devtools-events');
+        if (eventsContent && eventsContent.classList.contains('active')) {
+          updateEventsList();
+        }
+      };
+      
+      element.addEventListener(eventName, listener);
+      listenersMap.set(eventName, listener);
+    });
+    
+    eventListeners.set(element, listenersMap);
+  });
+}
+
+function stopMonitoring(): void {
+  // Remove all event listeners
+  eventListeners.forEach((listenersMap, element) => {
+    listenersMap.forEach((listener, eventName) => {
+      element.removeEventListener(eventName, listener);
+    });
+  });
+  
+  eventListeners.clear();
+}
+
+function getCustomEventNames(element: Element): string[] {
+  const eventNames: string[] = [];
+  
+  // Try to find event names from property descriptors
+  const proto = Object.getPrototypeOf(element);
+  if (proto && proto !== HTMLElement.prototype) {
+    const descriptors = Object.getOwnPropertyDescriptors(proto);
+    
+    for (const propName in descriptors) {
+      // Look for properties that might be event handlers (on* pattern)
+      if (propName.startsWith('on') && propName.length > 2) {
+        const eventName = propName.substring(2);
+        eventNames.push(eventName);
+      }
+    }
+  }
+  
+  return eventNames;
+}
+
+function clearEventLogs(): void {
+  eventLogs.length = 0;
+  updateEventsList();
+}
+
+function updateEventsList(): void {
+  const eventsContent = document.getElementById('wc-devtools-events');
+  if (!eventsContent) return;
+  
+  eventsContent.innerHTML = '';
+  
+  if (eventLogs.length === 0) {
+    const noEvents = document.createElement('div');
+    noEvents.className = 'wc-no-events';
+    noEvents.textContent = isEventMonitoringEnabled 
+      ? 'No events captured yet' 
+      : 'Start monitoring to see events';
+    eventsContent.appendChild(noEvents);
+    return;
+  }
+  
+  eventLogs.forEach(log => {
+    const logDiv = document.createElement('div');
+    logDiv.className = 'wc-event-log';
+    
+    const header = document.createElement('div');
+    header.className = 'wc-event-header';
+    
+    const eventType = document.createElement('span');
+    eventType.className = 'wc-event-type';
+    eventType.textContent = log.eventType;
+    header.appendChild(eventType);
+    
+    const timestamp = document.createElement('span');
+    timestamp.className = 'wc-event-timestamp';
+    timestamp.textContent = formatTimestamp(log.timestamp);
+    header.appendChild(timestamp);
+    
+    logDiv.appendChild(header);
+    
+    const source = document.createElement('div');
+    source.className = 'wc-event-source';
+    source.textContent = `<${log.tagName}>`;
+    logDiv.appendChild(source);
+    
+    if (log.detail !== undefined && log.detail !== null) {
+      const detail = document.createElement('div');
+      detail.className = 'wc-event-detail';
+      detail.textContent = formatEventDetail(log.detail);
+      logDiv.appendChild(detail);
+    }
+    
+    // Add hover effect to highlight element
+    logDiv.addEventListener('mouseenter', () => {
+      if (document.body.contains(log.element)) {
+        highlightElement(log.element);
+      }
+    });
+    
+    logDiv.addEventListener('mouseleave', () => {
+      if (document.body.contains(log.element)) {
+        unhighlightElement(log.element);
+      }
+    });
+    
+    // Click to scroll to element
+    logDiv.addEventListener('click', () => {
+      if (document.body.contains(log.element)) {
+        log.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        highlightElement(log.element);
+        setTimeout(() => {
+          unhighlightElement(log.element);
+        }, 3000);
+      }
+    });
+    
+    logDiv.style.cursor = 'pointer';
+    
+    eventsContent.appendChild(logDiv);
+  });
+}
+
+function formatTimestamp(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+  
+  if (diff < 1000) {
+    return 'just now';
+  } else if (diff < 60000) {
+    return `${Math.floor(diff / 1000)}s ago`;
+  } else if (diff < 3600000) {
+    return `${Math.floor(diff / 60000)}m ago`;
+  } else {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString();
+  }
+}
+
+function formatEventDetail(detail: unknown): string {
+  if (detail === null) return 'null';
+  if (detail === undefined) return 'undefined';
+  if (typeof detail === 'string') return detail;
+  if (typeof detail === 'number' || typeof detail === 'boolean') return String(detail);
+  
+  try {
+    return JSON.stringify(detail, null, 2);
+  } catch {
+    return String(detail);
   }
 }
 
