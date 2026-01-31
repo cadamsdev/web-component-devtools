@@ -1,6 +1,6 @@
 # Example: Creating a Webpack Plugin
 
-Here's an example of how you could create a Webpack plugin using the `web-component-dev-tools-client` package:
+Here's an example of how you could create a Webpack plugin using the `client` package:
 
 ```typescript
 // webpack-web-component-dev-tools.ts
@@ -34,7 +34,7 @@ export class WebpackWebComponentDevTools {
     }
 
     // Load the client script
-    const clientScriptPath = require.resolve('web-component-dev-tools-client/client');
+    const clientScriptPath = require.resolve('client/client');
     const clientScript = readFileSync(clientScriptPath, 'utf-8');
 
     compiler.hooks.compilation.tap('WebpackWebComponentDevTools', (compilation) => {

@@ -1,4 +1,4 @@
-# web-component-dev-tools-client
+# client
 
 Client-side script for web component developer tools. This package provides the UI and functionality for debugging web components on a page.
 
@@ -15,7 +15,7 @@ import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
-const clientScriptPath = require.resolve('web-component-dev-tools-client/client');
+const clientScriptPath = require.resolve('client/client');
 const clientScript = readFileSync(clientScriptPath, 'utf-8');
 ```
 
@@ -24,7 +24,7 @@ const clientScript = readFileSync(clientScriptPath, 'utf-8');
 You can also import and initialize the dev tools programmatically:
 
 ```typescript
-import { initDevTools } from 'web-component-dev-tools-client';
+import { initDevTools } from 'client';
 
 initDevTools({
   position: 'bottom-right'

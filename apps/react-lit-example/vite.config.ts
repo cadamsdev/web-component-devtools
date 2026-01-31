@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { webComponentDevTools } from 'vite-web-component-dev-tools'
+import { webComponentDevTools } from 'vite-plugin'
 
 // https://vitejs.dev/config/
 export default defineConfig({

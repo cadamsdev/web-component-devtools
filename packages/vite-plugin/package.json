@@ -1,5 +1,5 @@
 {
-  "name": "vite-web-component-dev-tools",
+  "name": "vite-plugin",
   "version": "1.0.0",
   "description": "A Vite plugin that provides developer tools for inspecting web components",
   "type": "module",
@@ -30,7 +30,7 @@
     "vite": "^4.0.0 || ^5.0.0"
   },
   "dependencies": {
-    "web-component-dev-tools-client": "workspace:*"
+    "client": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",

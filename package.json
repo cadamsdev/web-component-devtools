@@ -10,8 +10,8 @@
   "scripts": {
     "build": "bun run --filter '*' build",
     "dev": "bun run --filter react-lit-example dev",
-    "build:plugin": "bun run --filter vite-web-component-dev-tools build",
-    "build:client": "bun run --filter web-component-dev-tools-client build"
+    "build:plugin": "bun run --filter vite-plugin build",
+    "build:client": "bun run --filter client build"
   },
   "keywords": [
     "vite",

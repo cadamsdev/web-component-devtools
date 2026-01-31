@@ -7,14 +7,14 @@ This document provides guidelines for AI coding agents working in this repositor
 This is a **monorepo** for developer tools that help inspect web components. It uses **Bun** as the package manager with workspace support.
 
 **Structure:**
-- `packages/web-component-dev-tools-client/` - The client-side script (build-tool agnostic)
-- `packages/vite-web-component-dev-tools/` - The Vite plugin package
+- `packages/client/` - The client-side script (build-tool agnostic)
+- `packages/vite-plugin/` - The Vite plugin package
 - `apps/react-lit-example/` - Example React + Lit application
 
 **Architecture:**
 The project is split into two packages:
-1. **Client Package** (`web-component-dev-tools-client`) - Contains the UI and functionality for debugging web components. This package is build-tool agnostic and can be used by any build tool plugin (Vite, Webpack, Rollup, etc.).
-2. **Vite Plugin** (`vite-web-component-dev-tools`) - A Vite-specific plugin that injects the client script into the page during development. It depends on the client package.
+1. **Client Package** (`client`) - Contains the UI and functionality for debugging web components. This package is build-tool agnostic and can be used by any build tool plugin (Vite, Webpack, Rollup, etc.).
+2. **Vite Plugin** (`vite-plugin`) - A Vite-specific plugin that injects the client script into the page during development. It depends on the client package.
 
 ## Build, Lint, and Test Commands
 
@@ -33,8 +33,8 @@ bun run build:client
 bun run build:plugin
 
 # Build in watch mode
-cd packages/web-component-dev-tools-client && bun run dev
-cd packages/vite-web-component-dev-tools && bun run dev
+cd packages/client && bun run dev
+cd packages/vite-plugin && bun run dev
 ```
 
 ### Development Commands
@@ -84,7 +84,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { Plugin } from 'vite';
 
 // 2. Internal imports (workspace packages)
-import { webComponentDevTools } from 'vite-web-component-dev-tools';
+import { webComponentDevTools } from 'vite-plugin';
 
 // 3. Relative imports
 import './components';
@@ -233,7 +233,7 @@ useEffect(() => {
 
 **General Pattern for Any Build Tool:**
 
-Build tool plugins should load the client script from the `web-component-dev-tools-client` package:
+Build tool plugins should load the client script from the `client` package:
 
 ```typescript
 import { createRequire } from 'node:module';
@@ -242,7 +242,7 @@ import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 
 // Resolve and load the client script
-const clientScriptPath = require.resolve('web-component-dev-tools-client/client');
+const clientScriptPath = require.resolve('client/client');
 const clientScript = readFileSync(clientScriptPath, 'utf-8');
 
 // Inject into HTML with configuration
@@ -322,16 +322,16 @@ enabled?: boolean;
 In package.json (for internal workspace packages):
 ```json
 "dependencies": {
-  "web-component-dev-tools-client": "workspace:*"
+  "client": "workspace:*"
 }
 ```
 
 Example: The Vite plugin depends on the client package:
 ```json
 {
-  "name": "vite-web-component-dev-tools",
+  "name": "vite-plugin",
   "dependencies": {
-    "web-component-dev-tools-client": "workspace:*"
+    "client": "workspace:*"
   }
 }
 ```

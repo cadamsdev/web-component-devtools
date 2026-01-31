@@ -22,7 +22,7 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
   let clientScript: string | null = null;
 
   return {
-    name: 'vite-web-component-dev-tools',
+    name: 'vite-plugin',
 
     configResolved(config) {
       isDev = config.mode === 'development';
@@ -31,10 +31,10 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
       if (isDev && enabled) {
         try {
           // Resolve the client package and read the client.js file
-          const clientPackagePath = require.resolve('web-component-dev-tools-client/client');
+          const clientPackagePath = require.resolve('client/client');
           clientScript = readFileSync(clientPackagePath, 'utf-8');
         } catch (error) {
-          console.error('[vite-web-component-dev-tools] Failed to load client script:', error);
+          console.error('[vite-plugin] Failed to load client script:', error);
         }
       }
     },
