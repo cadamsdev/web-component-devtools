@@ -31,7 +31,7 @@ export function initDevTools(config: DevToolsConfig) {
   document.body.appendChild(button);
   document.body.appendChild(panel);
 
-  setupEventListeners(button, panel);
+  setupEventListeners(button, panel, position);
 
   watchForChanges(panel);
 }
@@ -46,20 +46,25 @@ function injectStyles(position: string): void {
     '  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);',
     '  border: none;',
     '  border-radius: 50%;',
-    '  cursor: pointer;',
+    '  cursor: grab;',
     '  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);',
     '  z-index: 999999;',
     '  display: flex;',
     '  align-items: center;',
     '  justify-content: center;',
-    '  transition: all 0.3s ease;',
+    '  transition: transform 0.3s ease, box-shadow 0.3s ease;',
     '  font-size: 24px;',
     '  color: white;',
+    '  user-select: none;',
     '}',
     '',
     '#wc-devtools-btn:hover {',
     '  transform: scale(1.1);',
     '  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);',
+    '}',
+    '',
+    '#wc-devtools-btn:active {',
+    '  cursor: grabbing;',
     '}',
     '',
     '#wc-devtools-panel {',
@@ -75,6 +80,7 @@ function injectStyles(position: string): void {
     '  flex-direction: column;',
     '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;',
     '  overflow: hidden;',
+    '  transition: left 0.2s ease, top 0.2s ease;',
     '}',
     '',
     '#wc-devtools-panel.visible {',
@@ -381,12 +387,183 @@ function createPanel(): HTMLDivElement {
   return panel;
 }
 
-function setupEventListeners(button: HTMLButtonElement, panel: HTMLDivElement): void {
-  button.addEventListener('click', () => {
-    const isVisible = panel.classList.toggle('visible');
-    if (isVisible) {
-      updateComponentList();
+function updatePanelPosition(button: HTMLButtonElement, panel: HTMLDivElement, hasButtonBeenDragged: boolean, initialPosition: string): void {
+  const buttonRect = button.getBoundingClientRect();
+  const panelWidth = 500;
+  const maxPanelHeight = 700;
+  const gap = 20; // Gap between button and panel
+  const margin = 20; // Minimum margin from viewport edges
+  
+  // Make panel visible temporarily to get its actual height
+  const wasVisible = panel.classList.contains('visible');
+  if (!wasVisible) {
+    panel.style.visibility = 'hidden';
+    panel.style.display = 'flex';
+  }
+  
+  // Get actual height, but ensure it's at least reasonable and doesn't exceed max
+  let panelHeight = panel.offsetHeight;
+  if (panelHeight < 200) {
+    // Panel hasn't fully rendered yet, use max height as estimate
+    panelHeight = maxPanelHeight;
+  } else {
+    panelHeight = Math.min(panelHeight, maxPanelHeight);
+  }
+  
+  // Restore visibility state
+  if (!wasVisible) {
+    panel.style.visibility = '';
+    panel.style.display = '';
+  }
+  
+  let left: number;
+  let top: number;
+  
+  // If button hasn't been dragged, position panel above it based on initial position
+  if (!hasButtonBeenDragged) {
+    // Align panel based on initial button position
+    if (initialPosition.includes('left')) {
+      left = buttonRect.left;
+    } else if (initialPosition.includes('right')) {
+      left = buttonRect.right - panelWidth;
+    } else {
+      // Center align
+      left = buttonRect.left + (buttonRect.width / 2) - (panelWidth / 2);
     }
+    
+    // Ensure left position doesn't go off screen
+    left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
+    
+    // Try to position panel above the button first
+    top = buttonRect.top - panelHeight - gap;
+    
+    // If panel would go above viewport, position below button instead
+    if (top < margin) {
+      top = buttonRect.bottom + gap;
+      
+      // Check if it would go below viewport when positioned below
+      if (top + panelHeight + margin > window.innerHeight) {
+        // Not enough space above or below - position it in the best available spot
+        const spaceAbove = buttonRect.top - margin;
+        const spaceBelow = window.innerHeight - buttonRect.bottom - margin;
+        
+        if (spaceAbove > spaceBelow) {
+          // More space above - position at top with margin
+          top = margin;
+        } else {
+          // More space below - position at bottom with margin
+          top = window.innerHeight - panelHeight - margin;
+        }
+      }
+    }
+  } else {
+    // Button has been dragged - use smart positioning
+    // Determine best position based on button location
+    const spaceRight = window.innerWidth - buttonRect.right;
+    const spaceLeft = buttonRect.left;
+    const spaceBottom = window.innerHeight - buttonRect.bottom;
+    const spaceTop = buttonRect.top;
+    
+    // Try to position panel to the right or left of button first
+    if (spaceRight >= panelWidth + gap + margin) {
+      // Position to the right
+      left = buttonRect.right + gap;
+      top = Math.max(margin, Math.min(buttonRect.top, window.innerHeight - panelHeight - margin));
+    } else if (spaceLeft >= panelWidth + gap + margin) {
+      // Position to the left
+      left = buttonRect.left - panelWidth - gap;
+      top = Math.max(margin, Math.min(buttonRect.top, window.innerHeight - panelHeight - margin));
+    } else if (spaceBottom >= panelHeight + gap + margin) {
+      // Position below
+      left = Math.max(margin, Math.min(buttonRect.left, window.innerWidth - panelWidth - margin));
+      top = buttonRect.bottom + gap;
+    } else if (spaceTop >= panelHeight + gap + margin) {
+      // Position above
+      left = Math.max(margin, Math.min(buttonRect.left, window.innerWidth - panelWidth - margin));
+      top = buttonRect.top - panelHeight - gap;
+    } else {
+      // Not enough space anywhere - center on screen and constrain
+      left = (window.innerWidth - panelWidth) / 2;
+      top = (window.innerHeight - panelHeight) / 2;
+    }
+  }
+  
+  // Final constraints to ensure panel stays within viewport
+  left = Math.max(margin, Math.min(left, window.innerWidth - panelWidth - margin));
+  top = Math.max(margin, Math.min(top, window.innerHeight - panelHeight - margin));
+  
+  panel.style.left = `${left}px`;
+  panel.style.top = `${top}px`;
+  panel.style.right = 'auto';
+  panel.style.bottom = 'auto';
+}
+
+function setupEventListeners(button: HTMLButtonElement, panel: HTMLDivElement, initialPosition: string): void {
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let initialX = 0;
+  let initialY = 0;
+  let hasMoved = false;
+  let hasButtonBeenDragged = false;
+
+  button.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    hasMoved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    
+    const rect = button.getBoundingClientRect();
+    initialX = rect.left;
+    initialY = rect.top;
+    
+    // Prevent text selection while dragging
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+    
+    // Consider it a drag if moved more than 5 pixels
+    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+      hasMoved = true;
+    }
+    
+    if (hasMoved) {
+      hasButtonBeenDragged = true;
+      const newX = initialX + deltaX;
+      const newY = initialY + deltaY;
+      
+      // Constrain to viewport
+      const maxX = window.innerWidth - button.offsetWidth;
+      const maxY = window.innerHeight - button.offsetHeight;
+      
+      const constrainedX = Math.max(0, Math.min(newX, maxX));
+      const constrainedY = Math.max(0, Math.min(newY, maxY));
+      
+      button.style.left = `${constrainedX}px`;
+      button.style.top = `${constrainedY}px`;
+      button.style.right = 'auto';
+      button.style.bottom = 'auto';
+      
+      // Update panel position to follow button
+      updatePanelPosition(button, panel, hasButtonBeenDragged, initialPosition);
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging && !hasMoved) {
+      // It was a click, not a drag
+      const isVisible = panel.classList.toggle('visible');
+      if (isVisible) {
+        updatePanelPosition(button, panel, hasButtonBeenDragged, initialPosition);
+        updateComponentList();
+      }
+    }
+    isDragging = false;
   });
 
   const closeBtn = panel.querySelector('.wc-devtools-close');
