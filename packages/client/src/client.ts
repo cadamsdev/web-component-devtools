@@ -313,6 +313,32 @@ function injectStyles(position: string): void {
     '  background: rgba(102, 126, 234, 0.1) !important;',
     '  transition: all 0.2s ease !important;',
     '}',
+    '',
+    '.wc-locate-btn {',
+    '  background: #667eea;',
+    '  color: white;',
+    '  border: none;',
+    '  border-radius: 4px;',
+    '  padding: 6px;',
+    '  cursor: pointer;',
+    '  transition: all 0.2s ease;',
+    '  margin-right: 8px;',
+    '  display: flex;',
+    '  align-items: center;',
+    '  justify-content: center;',
+    '  width: 24px;',
+    '  height: 24px;',
+    '}',
+    '',
+    '.wc-locate-btn:hover {',
+    '  background: #5568d3;',
+    '  transform: scale(1.1);',
+    '}',
+    '',
+    '.wc-locate-btn svg {',
+    '  width: 14px;',
+    '  height: 14px;',
+    '}',
   ].join('\n');
 
   const styleEl = document.createElement('style');
@@ -541,6 +567,29 @@ function createInstanceElement(instance: InstanceInfo, index: number): HTMLDivEl
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
   
   header.appendChild(nameAndIndex);
+
+  // Add locate button
+  const locateBtn = document.createElement('button');
+  locateBtn.className = 'wc-locate-btn';
+  locateBtn.title = 'Scroll to element in page';
+  locateBtn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+  `;
+  locateBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    instance.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Flash highlight
+    highlightElement(instance.element);
+    setTimeout(() => {
+      unhighlightElement(instance.element);
+    }, 2000);
+  });
+  header.appendChild(locateBtn);
 
   // Add expand/collapse indicator
   const expandIndicator = document.createElement('span');
