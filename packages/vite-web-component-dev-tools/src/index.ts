@@ -236,33 +236,43 @@ function getDevToolsScript(position: string): string {
       function scanWebComponents() {
         const components = new Map();
         
-        // Get all custom elements
-        const allElements = document.querySelectorAll('*');
-        
-        allElements.forEach(el => {
-          const tagName = el.tagName.toLowerCase();
-          
-          // Check if it's a custom element (contains hyphen)
-          if (tagName.includes('-')) {
-            if (!components.has(tagName)) {
-              components.set(tagName, {
-                name: tagName,
-                count: 0,
-                instances: [],
-                attributes: new Set()
-              });
+        // Use TreeWalker for efficient DOM traversal - only visits element nodes
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_ELEMENT,
+          {
+            acceptNode: (node) => {
+              // Filter for custom elements (contains hyphen)
+              return node.nodeName.includes('-') 
+                ? NodeFilter.FILTER_ACCEPT 
+                : NodeFilter.FILTER_SKIP;
             }
-            
-            const component = components.get(tagName);
-            component.count++;
-            component.instances.push(el);
-            
-            // Collect attributes
-            Array.from(el.attributes).forEach(attr => {
-              component.attributes.add(attr.name);
+          }
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+          const tagName = node.nodeName.toLowerCase();
+          
+          if (!components.has(tagName)) {
+            components.set(tagName, {
+              name: tagName,
+              count: 0,
+              instances: [],
+              attributes: new Set()
             });
           }
-        });
+          
+          const component = components.get(tagName);
+          component.count++;
+          component.instances.push(node);
+          
+          // Collect attributes (more efficient than Array.from)
+          const attrs = node.attributes;
+          for (let i = 0; i < attrs.length; i++) {
+            component.attributes.add(attrs[i].name);
+          }
+        }
         
         return components;
       }
@@ -306,17 +316,22 @@ function getDevToolsScript(position: string): string {
         content.innerHTML = html;
       }
       
-      // Watch for DOM changes
+      // Watch for DOM changes with debouncing
+      let updateTimeout;
       const observer = new MutationObserver(() => {
         if (panel.classList.contains('visible')) {
-          updateComponentList();
+          // Debounce updates to avoid excessive rescans
+          clearTimeout(updateTimeout);
+          updateTimeout = setTimeout(() => {
+            updateComponentList();
+          }, 300);
         }
       });
       
       observer.observe(document.body, {
         childList: true,
         subtree: true,
-        attributes: true
+        attributes: false  // Don't watch attribute changes - reduces noise
       });
     })();
   `;
