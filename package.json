@@ -1,0 +1,36 @@
+{
+  "name": "vite-web-component-dev-tools",
+  "version": "1.0.0",
+  "description": "A Vite plugin that provides developer tools for inspecting web components",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "vite",
+    "plugin",
+    "web-components",
+    "dev-tools",
+    "custom-elements"
+  ],
+  "peerDependencies": {
+    "vite": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  }
+}
