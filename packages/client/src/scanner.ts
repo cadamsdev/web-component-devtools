@@ -1,6 +1,6 @@
 // Component scanner for Web Component Dev Tools
 
-import type { InstanceInfo } from './types';
+import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment } from './types';
 
 export function scanWebComponents(): InstanceInfo[] {
   const instances: InstanceInfo[] = [];
@@ -31,6 +31,7 @@ export function scanWebComponents(): InstanceInfo[] {
       properties: new Map<string, unknown>(),
       methods: [],
       slots: new Map<string, boolean>(),
+      shadowDOM: null,
     };
 
     // Collect attributes with their values
@@ -85,10 +86,144 @@ export function scanWebComponents(): InstanceInfo[] {
         const hasContent = assignedNodes.length > 0;
         instanceInfo.slots.set(slotName, hasContent);
       });
+      
+      // Collect shadow DOM information
+      instanceInfo.shadowDOM = scanShadowDOM(element.shadowRoot);
     }
 
     instances.push(instanceInfo);
   }
 
   return instances;
+}
+
+/**
+ * Scan shadow DOM and extract detailed information
+ */
+function scanShadowDOM(shadowRoot: ShadowRoot): ShadowDOMInfo {
+  const shadowInfo: ShadowDOMInfo = {
+    hasShadowRoot: true,
+    mode: shadowRoot.mode,
+    adoptedStyleSheets: shadowRoot.adoptedStyleSheets?.length || 0,
+    styleSheets: Array.from(shadowRoot.adoptedStyleSheets || []),
+    customProperties: new Map<string, string>(),
+    slotAssignments: new Map<string, SlotAssignment>(),
+    children: [],
+  };
+  
+  // Extract CSS custom properties from adopted stylesheets
+  try {
+    shadowRoot.adoptedStyleSheets?.forEach((sheet) => {
+      try {
+        Array.from(sheet.cssRules).forEach((rule) => {
+          if (rule instanceof CSSStyleRule) {
+            const style = rule.style;
+            for (let i = 0; i < style.length; i++) {
+              const prop = style[i];
+              if (prop.startsWith('--')) {
+                const value = style.getPropertyValue(prop);
+                shadowInfo.customProperties.set(prop, value);
+              }
+            }
+          }
+        });
+      } catch (e) {
+        // Cross-origin or other security errors
+      }
+    });
+  } catch (e) {
+    // Handle errors gracefully
+  }
+  
+  // Also check inline styles and style elements for custom properties
+  const styleElements = shadowRoot.querySelectorAll('style');
+  styleElements.forEach((styleEl) => {
+    try {
+      const sheet = styleEl.sheet;
+      if (sheet) {
+        Array.from(sheet.cssRules).forEach((rule) => {
+          if (rule instanceof CSSStyleRule) {
+            const style = rule.style;
+            for (let i = 0; i < style.length; i++) {
+              const prop = style[i];
+              if (prop.startsWith('--')) {
+                const value = style.getPropertyValue(prop);
+                shadowInfo.customProperties.set(prop, value);
+              }
+            }
+          }
+        });
+      }
+    } catch (e) {
+      // Handle errors gracefully
+    }
+  });
+  
+  // Scan slot assignments
+  const slots = shadowRoot.querySelectorAll('slot');
+  slots.forEach((slot) => {
+    const slotName = slot.getAttribute('name') || 'default';
+    const assignedNodes = slot.assignedNodes();
+    const assignedElements = slot.assignedElements();
+    
+    const assignment: SlotAssignment = {
+      slotName,
+      slotElement: slot,
+      assignedNodes: Array.from(assignedNodes),
+      assignedElements: Array.from(assignedElements),
+      hasContent: assignedNodes.length > 0,
+    };
+    
+    shadowInfo.slotAssignments.set(slotName, assignment);
+  });
+  
+  // Build tree of shadow DOM children
+  shadowInfo.children = buildShadowDOMTree(shadowRoot.childNodes);
+  
+  return shadowInfo;
+}
+
+/**
+ * Recursively build a tree representation of shadow DOM nodes
+ */
+function buildShadowDOMTree(nodes: NodeListOf<ChildNode> | Node[]): ShadowDOMNode[] {
+  const tree: ShadowDOMNode[] = [];
+  
+  for (const node of Array.from(nodes)) {
+    const shadowNode: ShadowDOMNode = {
+      nodeType: node.nodeType,
+      nodeName: node.nodeName,
+      nodeValue: node.nodeValue,
+      textContent: node.nodeType === Node.TEXT_NODE ? node.textContent : null,
+      attributes: new Map(),
+      isSlot: false,
+      children: [],
+    };
+    
+    // For element nodes, extract attributes
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as Element;
+      const attrs = element.attributes;
+      
+      for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i];
+        shadowNode.attributes.set(attr.name, attr.value);
+      }
+      
+      // Check if it's a slot element
+      if (element.nodeName.toLowerCase() === 'slot') {
+        shadowNode.isSlot = true;
+        shadowNode.slotName = element.getAttribute('name') || 'default';
+      }
+      
+      // Recursively build children
+      if (element.childNodes.length > 0) {
+        shadowNode.children = buildShadowDOMTree(element.childNodes);
+      }
+    }
+    
+    tree.push(shadowNode);
+  }
+  
+  return tree;
 }

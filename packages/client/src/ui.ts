@@ -1,6 +1,6 @@
 // UI components for Web Component Dev Tools
 
-import type { InstanceInfo } from './types';
+import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment } from './types';
 import { 
   highlightElement, 
   unhighlightElement, 
@@ -395,6 +395,12 @@ export function createInstanceElement(
     detailsContainer.appendChild(slotsSection);
   }
 
+  // Shadow DOM Section
+  if (instance.shadowDOM) {
+    const shadowSection = createShadowDOMSection(instance.shadowDOM);
+    detailsContainer.appendChild(shadowSection);
+  }
+
   instanceDiv.appendChild(detailsContainer);
 
   return instanceDiv;
@@ -762,4 +768,255 @@ function formatPropertyValueForEdit(value: unknown): string {
     }
   }
   return String(value);
+}
+
+/**
+ * Create a Shadow DOM section showing the shadow root tree
+ */
+function createShadowDOMSection(shadowInfo: ShadowDOMInfo): HTMLDivElement {
+  const section = document.createElement('div');
+  section.className = 'wc-section';
+  
+  const title = document.createElement('div');
+  title.className = 'wc-section-title';
+  title.textContent = 'Shadow DOM';
+  section.appendChild(title);
+  
+  // Shadow root info
+  const infoDiv = document.createElement('div');
+  infoDiv.className = 'wc-shadow-info';
+  
+  const modeSpan = document.createElement('span');
+  modeSpan.className = 'wc-shadow-mode';
+  modeSpan.textContent = `Mode: ${shadowInfo.mode}`;
+  infoDiv.appendChild(modeSpan);
+  
+  if (shadowInfo.adoptedStyleSheets > 0) {
+    const stylesSpan = document.createElement('span');
+    stylesSpan.className = 'wc-shadow-stylesheets';
+    stylesSpan.textContent = ` • ${shadowInfo.adoptedStyleSheets} adopted stylesheet${shadowInfo.adoptedStyleSheets > 1 ? 's' : ''}`;
+    infoDiv.appendChild(stylesSpan);
+  }
+  
+  section.appendChild(infoDiv);
+  
+  // Custom properties
+  if (shadowInfo.customProperties.size > 0) {
+    const propsDiv = document.createElement('div');
+    propsDiv.className = 'wc-shadow-custom-props';
+    
+    const propsTitle = document.createElement('div');
+    propsTitle.className = 'wc-shadow-subsection-title';
+    propsTitle.textContent = 'CSS Custom Properties';
+    propsDiv.appendChild(propsTitle);
+    
+    shadowInfo.customProperties.forEach((value, prop) => {
+      const propRow = document.createElement('div');
+      propRow.className = 'wc-shadow-custom-prop';
+      
+      const propName = document.createElement('span');
+      propName.className = 'wc-shadow-prop-name';
+      propName.textContent = prop;
+      propRow.appendChild(propName);
+      
+      propRow.appendChild(document.createTextNode(': '));
+      
+      const propValue = document.createElement('span');
+      propValue.className = 'wc-shadow-prop-value';
+      propValue.textContent = value;
+      propRow.appendChild(propValue);
+      
+      propsDiv.appendChild(propRow);
+    });
+    
+    section.appendChild(propsDiv);
+  }
+  
+  // Slot assignments
+  if (shadowInfo.slotAssignments.size > 0) {
+    const slotsDiv = document.createElement('div');
+    slotsDiv.className = 'wc-shadow-slots';
+    
+    const slotsTitle = document.createElement('div');
+    slotsTitle.className = 'wc-shadow-subsection-title';
+    slotsTitle.textContent = 'Slot Assignments';
+    slotsDiv.appendChild(slotsTitle);
+    
+    shadowInfo.slotAssignments.forEach((assignment, slotName) => {
+      const slotDiv = createSlotAssignmentElement(assignment);
+      slotsDiv.appendChild(slotDiv);
+    });
+    
+    section.appendChild(slotsDiv);
+  }
+  
+  // Shadow DOM tree
+  if (shadowInfo.children.length > 0) {
+    const treeDiv = document.createElement('div');
+    treeDiv.className = 'wc-shadow-tree';
+    
+    const treeTitle = document.createElement('div');
+    treeTitle.className = 'wc-shadow-subsection-title';
+    treeTitle.textContent = 'Shadow DOM Tree';
+    treeDiv.appendChild(treeTitle);
+    
+    const treeContainer = document.createElement('div');
+    treeContainer.className = 'wc-shadow-tree-container';
+    
+    shadowInfo.children.forEach((node) => {
+      const nodeEl = createShadowDOMNodeElement(node, 0);
+      treeContainer.appendChild(nodeEl);
+    });
+    
+    treeDiv.appendChild(treeContainer);
+    section.appendChild(treeDiv);
+  }
+  
+  return section;
+}
+
+/**
+ * Create an element showing slot assignment details
+ */
+function createSlotAssignmentElement(assignment: SlotAssignment): HTMLDivElement {
+  const div = document.createElement('div');
+  div.className = assignment.hasContent ? 'wc-slot-assignment has-content' : 'wc-slot-assignment';
+  
+  const header = document.createElement('div');
+  header.className = 'wc-slot-assignment-header';
+  
+  const slotName = document.createElement('span');
+  slotName.className = 'wc-slot-assignment-name';
+  slotName.textContent = assignment.slotName === 'default' ? '<slot>' : `<slot name="${assignment.slotName}">`;
+  header.appendChild(slotName);
+  
+  const count = document.createElement('span');
+  count.className = 'wc-slot-assignment-count';
+  count.textContent = ` (${assignment.assignedElements.length} element${assignment.assignedElements.length !== 1 ? 's' : ''})`;
+  header.appendChild(count);
+  
+  div.appendChild(header);
+  
+  // Show assigned elements
+  if (assignment.assignedElements.length > 0) {
+    const elementsDiv = document.createElement('div');
+    elementsDiv.className = 'wc-slot-assigned-elements';
+    
+    assignment.assignedElements.forEach((el) => {
+      const elDiv = document.createElement('div');
+      elDiv.className = 'wc-slot-assigned-element';
+      
+      let text = `<${el.nodeName.toLowerCase()}`;
+      
+      // Add key attributes
+      const id = el.getAttribute('id');
+      const className = el.getAttribute('class');
+      const slot = el.getAttribute('slot');
+      
+      if (id) text += ` id="${id}"`;
+      if (className) text += ` class="${className}"`;
+      if (slot) text += ` slot="${slot}"`;
+      
+      text += '>';
+      
+      elDiv.textContent = text;
+      elementsDiv.appendChild(elDiv);
+    });
+    
+    div.appendChild(elementsDiv);
+  }
+  
+  return div;
+}
+
+/**
+ * Create a tree node element for shadow DOM visualization
+ */
+function createShadowDOMNodeElement(node: ShadowDOMNode, depth: number): HTMLDivElement {
+  const nodeDiv = document.createElement('div');
+  nodeDiv.className = 'wc-shadow-node';
+  nodeDiv.style.marginLeft = `${depth * 16}px`;
+  
+  // Skip text nodes that are just whitespace
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent?.trim();
+    if (!text) return nodeDiv;
+    
+    const textDiv = document.createElement('div');
+    textDiv.className = 'wc-shadow-text-node';
+    textDiv.textContent = `"${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`;
+    nodeDiv.appendChild(textDiv);
+    return nodeDiv;
+  }
+  
+  // Element nodes
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const header = document.createElement('div');
+    header.className = 'wc-shadow-node-header';
+    
+    // Expand/collapse indicator for nodes with children
+    if (node.children.length > 0) {
+      const expandBtn = document.createElement('span');
+      expandBtn.className = 'wc-shadow-node-expand';
+      expandBtn.textContent = '▶';
+      header.appendChild(expandBtn);
+      
+      // Make expandable
+      nodeDiv.classList.add('wc-shadow-node-expandable');
+      
+      expandBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nodeDiv.classList.toggle('expanded');
+      });
+    } else {
+      const spacer = document.createElement('span');
+      spacer.className = 'wc-shadow-node-spacer';
+      header.appendChild(spacer);
+    }
+    
+    // Tag name
+    const tagName = document.createElement('span');
+    tagName.className = node.isSlot ? 'wc-shadow-node-tag slot' : 'wc-shadow-node-tag';
+    tagName.textContent = `<${node.nodeName.toLowerCase()}`;
+    header.appendChild(tagName);
+    
+    // Attributes
+    if (node.attributes.size > 0) {
+      const attrsSpan = document.createElement('span');
+      attrsSpan.className = 'wc-shadow-node-attrs';
+      
+      const attrTexts: string[] = [];
+      node.attributes.forEach((value, name) => {
+        if (node.isSlot && name === 'name') {
+          attrTexts.push(` name="${value}"`);
+        } else if (value) {
+          attrTexts.push(` ${name}="${value}"`);
+        } else {
+          attrTexts.push(` ${name}`);
+        }
+      });
+      
+      attrsSpan.textContent = attrTexts.join('');
+      header.appendChild(attrsSpan);
+    }
+    
+    tagName.appendChild(document.createTextNode('>'));
+    
+    nodeDiv.appendChild(header);
+    
+    // Children
+    if (node.children.length > 0) {
+      const childrenDiv = document.createElement('div');
+      childrenDiv.className = 'wc-shadow-node-children';
+      
+      node.children.forEach((child) => {
+        const childEl = createShadowDOMNodeElement(child, depth + 1);
+        childrenDiv.appendChild(childEl);
+      });
+      
+      nodeDiv.appendChild(childrenDiv);
+    }
+  }
+  
+  return nodeDiv;
 }

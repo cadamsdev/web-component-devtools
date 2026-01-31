@@ -1,5 +1,34 @@
 // Type definitions for Web Component Dev Tools
 
+export interface ShadowDOMInfo {
+  hasShadowRoot: boolean;
+  mode: 'open' | 'closed' | null;
+  adoptedStyleSheets: number;
+  styleSheets: CSSStyleSheet[];
+  customProperties: Map<string, string>;
+  slotAssignments: Map<string, SlotAssignment>;
+  children: ShadowDOMNode[];
+}
+
+export interface SlotAssignment {
+  slotName: string;
+  slotElement: HTMLSlotElement;
+  assignedNodes: Node[];
+  assignedElements: Element[];
+  hasContent: boolean;
+}
+
+export interface ShadowDOMNode {
+  nodeType: number;
+  nodeName: string;
+  nodeValue: string | null;
+  textContent: string | null;
+  attributes: Map<string, string | null>;
+  isSlot: boolean;
+  slotName?: string;
+  children: ShadowDOMNode[];
+}
+
 export interface InstanceInfo {
   element: Element;
   tagName: string;
@@ -7,6 +36,7 @@ export interface InstanceInfo {
   properties: Map<string, unknown>;
   methods: string[];
   slots: Map<string, boolean>;
+  shadowDOM: ShadowDOMInfo | null;
 }
 
 export interface EventLog {
