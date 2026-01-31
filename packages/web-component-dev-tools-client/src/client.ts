@@ -1,11 +1,34 @@
 // Web Component Dev Tools Client Script
 // This script is injected into the page to provide debugging tools for web components
 
+interface AttributeInfo {
+  name: string;
+  value: string | null;
+}
+
+interface PropertyInfo {
+  name: string;
+  value: unknown;
+  type: string;
+}
+
+interface MethodInfo {
+  name: string;
+}
+
+interface SlotInfo {
+  name: string;
+  hasContent: boolean;
+}
+
 interface ComponentInfo {
   name: string;
   count: number;
   instances: Element[];
-  attributes: Set<string>;
+  attributes: Map<string, Set<string | null>>;
+  properties: Map<string, Set<unknown>>;
+  methods: Set<string>;
+  slots: Map<string, boolean>;
 }
 
 interface DevToolsConfig {
@@ -57,8 +80,8 @@ function injectStyles(position: string): void {
     '#wc-devtools-panel {',
     '  position: fixed;',
     `  ${getPositionStyles(position, true)}`,
-    '  width: 400px;',
-    '  max-height: 600px;',
+    '  width: 500px;',
+    '  max-height: 700px;',
     '  background: white;',
     '  border-radius: 12px;',
     '  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);',
@@ -131,6 +154,21 @@ function injectStyles(position: string): void {
     '  margin-bottom: 8px;',
     '}',
     '',
+    '.wc-section {',
+    '  margin-top: 12px;',
+    '  padding-top: 8px;',
+    '  border-top: 1px solid #e2e8f0;',
+    '}',
+    '',
+    '.wc-section-title {',
+    '  font-weight: 600;',
+    '  font-size: 12px;',
+    '  color: #4a5568;',
+    '  margin-bottom: 6px;',
+    '  text-transform: uppercase;',
+    '  letter-spacing: 0.5px;',
+    '}',
+    '',
     '.wc-component-attributes {',
     '  font-size: 12px;',
     '  color: #4a5568;',
@@ -152,6 +190,72 @@ function injectStyles(position: string): void {
     '',
     '.wc-attribute-value {',
     '  color: #2d3748;',
+    '}',
+    '',
+    '.wc-property {',
+    '  background: white;',
+    '  padding: 6px 10px;',
+    '  border-radius: 4px;',
+    '  margin: 4px 0;',
+    '  border: 1px solid #e2e8f0;',
+    '  font-size: 12px;',
+    '}',
+    '',
+    '.wc-property-name {',
+    '  color: #3182ce;',
+    '  font-weight: 500;',
+    '}',
+    '',
+    '.wc-property-value {',
+    '  color: #2d3748;',
+    '  font-family: "Monaco", "Courier New", monospace;',
+    '}',
+    '',
+    '.wc-property-type {',
+    '  color: #718096;',
+    '  font-style: italic;',
+    '  font-size: 11px;',
+    '}',
+    '',
+    '.wc-method {',
+    '  background: white;',
+    '  padding: 4px 8px;',
+    '  border-radius: 4px;',
+    '  margin: 4px 4px 4px 0;',
+    '  display: inline-block;',
+    '  border: 1px solid #e2e8f0;',
+    '  font-size: 12px;',
+    '  font-family: "Monaco", "Courier New", monospace;',
+    '}',
+    '',
+    '.wc-method-name {',
+    '  color: #d69e2e;',
+    '  font-weight: 500;',
+    '}',
+    '',
+    '.wc-slot {',
+    '  background: white;',
+    '  padding: 4px 8px;',
+    '  border-radius: 4px;',
+    '  margin: 4px 4px 4px 0;',
+    '  display: inline-block;',
+    '  border: 1px solid #e2e8f0;',
+    '  font-size: 12px;',
+    '}',
+    '',
+    '.wc-slot-name {',
+    '  color: #38a169;',
+    '  font-weight: 500;',
+    '}',
+    '',
+    '.wc-slot-status {',
+    '  color: #718096;',
+    '  font-size: 11px;',
+    '}',
+    '',
+    '.wc-slot.has-content {',
+    '  border-color: #38a169;',
+    '  background: #f0fff4;',
     '}',
     '',
     '.wc-no-components {',
@@ -253,7 +357,10 @@ function scanWebComponents(): Map<string, ComponentInfo> {
           name: tagName,
           count: 0,
           instances: [],
-          attributes: new Set<string>(),
+          attributes: new Map<string, Set<string | null>>(),
+          properties: new Map<string, Set<unknown>>(),
+          methods: new Set<string>(),
+          slots: new Map<string, boolean>(),
         });
       }
 
@@ -261,10 +368,71 @@ function scanWebComponents(): Map<string, ComponentInfo> {
       component.count++;
       component.instances.push(element);
 
-      // Collect attributes (more efficient than Array.from)
+      // Collect attributes with their values
       const attrs = element.attributes;
       for (let i = 0; i < attrs.length; i++) {
-        component.attributes.add(attrs[i].name);
+        const attrName = attrs[i].name;
+        const attrValue = attrs[i].value;
+        
+        if (!component.attributes.has(attrName)) {
+          component.attributes.set(attrName, new Set());
+        }
+        component.attributes.get(attrName)!.add(attrValue);
+      }
+
+      // Collect properties (from the element instance)
+      const elementAsAny = element as any;
+      
+      // Get properties from the element's prototype chain
+      const proto = Object.getPrototypeOf(element);
+      if (proto && proto !== HTMLElement.prototype) {
+        const descriptors = Object.getOwnPropertyDescriptors(proto);
+        
+        for (const propName in descriptors) {
+          const descriptor = descriptors[propName];
+          
+          // Skip private properties (starting with _), constructor, and standard HTMLElement methods
+          if (propName.startsWith('_') || 
+              propName === 'constructor' ||
+              propName in HTMLElement.prototype) {
+            continue;
+          }
+
+          // If it has a getter, it's a property
+          if (descriptor.get) {
+            try {
+              const value = elementAsAny[propName];
+              if (!component.properties.has(propName)) {
+                component.properties.set(propName, new Set());
+              }
+              component.properties.get(propName)!.add(value);
+            } catch (e) {
+              // Skip properties that throw errors
+            }
+          }
+          
+          // If it's a function and not a property accessor, it's a method
+          if (typeof descriptor.value === 'function' && !descriptor.get && !descriptor.set) {
+            component.methods.add(propName);
+          }
+        }
+      }
+
+      // Collect slots from shadow DOM
+      if (element.shadowRoot) {
+        const slots = element.shadowRoot.querySelectorAll('slot');
+        slots.forEach((slot) => {
+          const slotName = slot.getAttribute('name') || 'default';
+          const assignedNodes = slot.assignedNodes();
+          const hasContent = assignedNodes.length > 0;
+          
+          // Track if any instance has content in this slot
+          if (component.slots.has(slotName)) {
+            component.slots.set(slotName, component.slots.get(slotName)! || hasContent);
+          } else {
+            component.slots.set(slotName, hasContent);
+          }
+        });
       }
     }
 
@@ -341,31 +509,180 @@ function createComponentElement(component: ComponentInfo): HTMLDivElement {
   count.textContent = `${component.count} instance${component.count !== 1 ? 's' : ''}`;
   componentDiv.appendChild(count);
 
+  // Attributes Section
   if (component.attributes.size > 0) {
+    const attributesSection = document.createElement('div');
+    attributesSection.className = 'wc-section';
+
+    const attrTitle = document.createElement('div');
+    attrTitle.className = 'wc-section-title';
+    attrTitle.textContent = 'Attributes';
+    attributesSection.appendChild(attrTitle);
+
     const attributesDiv = document.createElement('div');
     attributesDiv.className = 'wc-component-attributes';
 
-    const attrLabel = document.createElement('strong');
-    attrLabel.textContent = 'Attributes:';
-    attributesDiv.appendChild(attrLabel);
-    attributesDiv.appendChild(document.createElement('br'));
+    component.attributes.forEach((values, attrName) => {
+      const uniqueValues = Array.from(values);
+      
+      uniqueValues.forEach((value) => {
+        const attrSpan = document.createElement('span');
+        attrSpan.className = 'wc-attribute';
 
-    Array.from(component.attributes).forEach((attr) => {
-      const attrSpan = document.createElement('span');
-      attrSpan.className = 'wc-attribute';
+        const attrNameSpan = document.createElement('span');
+        attrNameSpan.className = 'wc-attribute-name';
+        attrNameSpan.textContent = attrName;
+        attrSpan.appendChild(attrNameSpan);
 
-      const attrName = document.createElement('span');
-      attrName.className = 'wc-attribute-name';
-      attrName.textContent = attr;
-      attrSpan.appendChild(attrName);
+        if (value !== null && value !== '') {
+          attrSpan.appendChild(document.createTextNode('="'));
+          const attrValueSpan = document.createElement('span');
+          attrValueSpan.className = 'wc-attribute-value';
+          attrValueSpan.textContent = value;
+          attrSpan.appendChild(attrValueSpan);
+          attrSpan.appendChild(document.createTextNode('"'));
+        }
 
-      attributesDiv.appendChild(attrSpan);
+        attributesDiv.appendChild(attrSpan);
+      });
     });
 
-    componentDiv.appendChild(attributesDiv);
+    attributesSection.appendChild(attributesDiv);
+    componentDiv.appendChild(attributesSection);
+  }
+
+  // Properties Section
+  if (component.properties.size > 0) {
+    const propertiesSection = document.createElement('div');
+    propertiesSection.className = 'wc-section';
+
+    const propTitle = document.createElement('div');
+    propTitle.className = 'wc-section-title';
+    propTitle.textContent = 'Properties';
+    propertiesSection.appendChild(propTitle);
+
+    component.properties.forEach((values, propName) => {
+      const uniqueValues = Array.from(values);
+      
+      uniqueValues.forEach((value) => {
+        const propDiv = document.createElement('div');
+        propDiv.className = 'wc-property';
+
+        const propNameSpan = document.createElement('span');
+        propNameSpan.className = 'wc-property-name';
+        propNameSpan.textContent = propName;
+        propDiv.appendChild(propNameSpan);
+
+        propDiv.appendChild(document.createTextNode(': '));
+
+        const propValueSpan = document.createElement('span');
+        propValueSpan.className = 'wc-property-value';
+        propValueSpan.textContent = formatPropertyValue(value);
+        propDiv.appendChild(propValueSpan);
+
+        propDiv.appendChild(document.createTextNode(' '));
+
+        const propTypeSpan = document.createElement('span');
+        propTypeSpan.className = 'wc-property-type';
+        propTypeSpan.textContent = `(${getValueType(value)})`;
+        propDiv.appendChild(propTypeSpan);
+
+        propertiesSection.appendChild(propDiv);
+      });
+    });
+
+    componentDiv.appendChild(propertiesSection);
+  }
+
+  // Methods Section
+  if (component.methods.size > 0) {
+    const methodsSection = document.createElement('div');
+    methodsSection.className = 'wc-section';
+
+    const methodTitle = document.createElement('div');
+    methodTitle.className = 'wc-section-title';
+    methodTitle.textContent = 'Public Methods';
+    methodsSection.appendChild(methodTitle);
+
+    const methodsDiv = document.createElement('div');
+
+    Array.from(component.methods).sort().forEach((methodName) => {
+      const methodSpan = document.createElement('span');
+      methodSpan.className = 'wc-method';
+
+      const methodNameSpan = document.createElement('span');
+      methodNameSpan.className = 'wc-method-name';
+      methodNameSpan.textContent = `${methodName}()`;
+      methodSpan.appendChild(methodNameSpan);
+
+      methodsDiv.appendChild(methodSpan);
+    });
+
+    methodsSection.appendChild(methodsDiv);
+    componentDiv.appendChild(methodsSection);
+  }
+
+  // Slots Section
+  if (component.slots.size > 0) {
+    const slotsSection = document.createElement('div');
+    slotsSection.className = 'wc-section';
+
+    const slotTitle = document.createElement('div');
+    slotTitle.className = 'wc-section-title';
+    slotTitle.textContent = 'Slots';
+    slotsSection.appendChild(slotTitle);
+
+    const slotsDiv = document.createElement('div');
+
+    component.slots.forEach((hasContent, slotName) => {
+      const slotSpan = document.createElement('span');
+      slotSpan.className = hasContent ? 'wc-slot has-content' : 'wc-slot';
+
+      const slotNameSpan = document.createElement('span');
+      slotNameSpan.className = 'wc-slot-name';
+      slotNameSpan.textContent = slotName === 'default' ? '<slot>' : `<slot name="${slotName}">`;
+      slotSpan.appendChild(slotNameSpan);
+
+      slotSpan.appendChild(document.createTextNode(' '));
+
+      const slotStatusSpan = document.createElement('span');
+      slotStatusSpan.className = 'wc-slot-status';
+      slotStatusSpan.textContent = hasContent ? '(has content)' : '(empty)';
+      slotSpan.appendChild(slotStatusSpan);
+
+      slotsDiv.appendChild(slotSpan);
+    });
+
+    slotsSection.appendChild(slotsDiv);
+    componentDiv.appendChild(slotsSection);
   }
 
   return componentDiv;
+}
+
+function formatPropertyValue(value: unknown): string {
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (typeof value === 'string') return `"${value}"`;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === 'function') return '[Function]';
+  if (Array.isArray(value)) return `[${value.length} items]`;
+  if (typeof value === 'object') {
+    try {
+      const str = JSON.stringify(value);
+      return str.length > 50 ? `${str.substring(0, 47)}...` : str;
+    } catch {
+      return '[Object]';
+    }
+  }
+  return String(value);
+}
+
+function getValueType(value: unknown): string {
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (Array.isArray(value)) return 'array';
+  return typeof value;
 }
 
 function watchForChanges(panel: HTMLDivElement): void {
