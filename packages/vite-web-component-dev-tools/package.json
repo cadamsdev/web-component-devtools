@@ -16,8 +16,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "tsdown",
+    "dev": "tsdown --watch"
   },
   "keywords": [
     "vite",
@@ -30,6 +30,7 @@
     "vite": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
+    "tsdown": "^0.20.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.0"
   }
