@@ -1347,38 +1347,6 @@ function createShadowDOMSection(shadowInfo: ShadowDOMInfo): HTMLDivElement {
 
   section.appendChild(infoDiv);
 
-  // Custom properties
-  if (shadowInfo.customProperties.size > 0) {
-    const propsDiv = document.createElement('div');
-    propsDiv.className = 'wc-shadow-custom-props';
-
-    const propsTitle = document.createElement('div');
-    propsTitle.className = 'wc-shadow-subsection-title';
-    propsTitle.textContent = 'CSS Custom Properties';
-    propsDiv.appendChild(propsTitle);
-
-    shadowInfo.customProperties.forEach((value, prop) => {
-      const propRow = document.createElement('div');
-      propRow.className = 'wc-shadow-custom-prop';
-
-      const propName = document.createElement('span');
-      propName.className = 'wc-shadow-prop-name';
-      propName.textContent = prop;
-      propRow.appendChild(propName);
-
-      propRow.appendChild(document.createTextNode(': '));
-
-      const propValue = document.createElement('span');
-      propValue.className = 'wc-shadow-prop-value';
-      propValue.textContent = value;
-      propRow.appendChild(propValue);
-
-      propsDiv.appendChild(propRow);
-    });
-
-    section.appendChild(propsDiv);
-  }
-
   // Slot assignments
   if (shadowInfo.slotAssignments.size > 0) {
     const slotsDiv = document.createElement('div');
