@@ -11,6 +11,7 @@
     "build": "bun run --filter '*' build",
     "dev": "bun run --filter react-lit-example dev",
     "build:plugin": "bun run --filter vite-plugin build",
+    "build:webpack-plugin": "bun run --filter webpack-plugin build",
     "build:client": "bun run --filter client build"
   },
   "keywords": [
