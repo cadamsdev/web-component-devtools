@@ -47,7 +47,7 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
       if (enabled && (isDev || includeInProduction)) {
         try {
           // Resolve the client package and read the client.js file
-          const clientPackagePath = require.resolve('client/client');
+          const clientPackagePath = require.resolve('@cadamsdev/wc-devtools-client/client');
           clientScript = readFileSync(clientPackagePath, 'utf-8');
         } catch (error) {
           console.error('[vite-plugin] Failed to load client script:', error);
