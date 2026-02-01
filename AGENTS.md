@@ -9,12 +9,15 @@ This is a **monorepo** for developer tools that help inspect web components. It 
 **Structure:**
 - `packages/client/` - The client-side script (build-tool agnostic)
 - `packages/vite-plugin/` - The Vite plugin package
-- `apps/vite-example/` - Example React + Lit application
+- `packages/webpack-plugin/` - The Webpack plugin package
+- `apps/vite-example/` - Example React + Vite + Lit application
+- `apps/webpack-example/` - Example React + Webpack + Lit application
 
 **Architecture:**
-The project is split into two packages:
+The project is split into multiple packages:
 1. **Client Package** (`client`) - Contains the UI and functionality for debugging web components. This package is build-tool agnostic and can be used by any build tool plugin (Vite, Webpack, Rollup, etc.).
 2. **Vite Plugin** (`vite-plugin`) - A Vite-specific plugin that injects the client script into the page during development. It depends on the client package.
+3. **Webpack Plugin** (`webpack-plugin`) - A Webpack-specific plugin that injects the client script into the page during development. It depends on the client package.
 
 ## Build, Lint, and Test Commands
 
@@ -39,11 +42,15 @@ cd packages/vite-plugin && bun run dev
 
 ### Development Commands
 ```bash
-# Run the example app in dev mode
+# Run the Vite example app in dev mode
 bun run dev
+
+# Run the Webpack example app in dev mode
+bun run dev:webpack
 
 # Preview production build
 cd apps/vite-example && bun run preview
+cd apps/webpack-example && bun run preview
 ```
 
 ### Linting and Formatting
