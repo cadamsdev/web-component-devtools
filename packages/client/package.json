@@ -1,5 +1,5 @@
 {
-  "name": "@cadamsdev/web-component-dev-tools-client",
+  "name": "@cadamsdev/wc-devtools-client",
   "version": "0.0.0",
   "description": "Client-side script for web component developer tools",
   "type": "module",

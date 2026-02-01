@@ -30,7 +30,7 @@
     "webpack": "^5.0.0"
   },
   "dependencies": {
-    "@cadamsdev/web-component-dev-tools-client": "workspace:*"
+    "@cadamsdev/wc-devtools-client": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
