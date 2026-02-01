@@ -12,10 +12,10 @@
       "name": "vite-example",
       "version": "0.0.0",
       "dependencies": {
+        "@cadamsdev/web-component-dev-tools-vite-plugin": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-lit-components": "workspace:*",
-        "vite-plugin": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^18.2.43",
@@ -29,10 +29,10 @@
       "name": "webpack-example",
       "version": "0.0.0",
       "dependencies": {
+        "@cadamsdev/web-component-dev-tools-webpack-plugin": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-lit-components": "workspace:*",
-        "webpack-plugin": "workspace:*",
       },
       "devDependencies": {
         "@babel/core": "^7.23.6",
@@ -53,7 +53,7 @@
       },
     },
     "packages/client": {
-      "name": "client",
+      "name": "@cadamsdev/web-component-dev-tools-client",
       "version": "0.0.0",
       "devDependencies": {
         "tsdown": "^0.20.1",
@@ -88,10 +88,10 @@
       },
     },
     "packages/vite-plugin": {
-      "name": "vite-plugin",
+      "name": "@cadamsdev/web-component-dev-tools-vite-plugin",
       "version": "0.0.0",
       "dependencies": {
-        "client": "workspace:*",
+        "@cadamsdev/web-component-dev-tools-client": "workspace:*",
       },
       "devDependencies": {
         "@types/node": "^25.1.0",
@@ -104,10 +104,10 @@
       },
     },
     "packages/webpack-plugin": {
-      "name": "webpack-plugin",
+      "name": "@cadamsdev/web-component-dev-tools-webpack-plugin",
       "version": "0.0.0",
       "dependencies": {
-        "client": "workspace:*",
+        "@cadamsdev/web-component-dev-tools-client": "workspace:*",
       },
       "devDependencies": {
         "@types/node": "^25.1.0",
@@ -320,6 +320,12 @@
     "@babel/traverse": ["@babel/traverse@7.28.6", "", { "dependencies": { "@babel/code-frame": "^7.28.6", "@babel/generator": "^7.28.6", "@babel/helper-globals": "^7.28.0", "@babel/parser": "^7.28.6", "@babel/template": "^7.28.6", "@babel/types": "^7.28.6", "debug": "^4.3.1" } }, "sha512-fgWX62k02qtjqdSNTAGxmKYY/7FSL9WAS1o2Hu5+I5m9T0yxZzr4cnrfXQ/MX0rIifthCSs6FKTlzYbJcPtMNg=="],
 
     "@babel/types": ["@babel/types@7.28.6", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.28.5" } }, "sha512-0ZrskXVEHSWIqZM/sQZ4EV3jZJXRkio/WCxaqKZP1g//CEWEPSfeZFcms4XeKBCHU0ZKnIkdJeU/kF+eRp5lBg=="],
+
+    "@cadamsdev/web-component-dev-tools-client": ["@cadamsdev/web-component-dev-tools-client@workspace:packages/client"],
+
+    "@cadamsdev/web-component-dev-tools-vite-plugin": ["@cadamsdev/web-component-dev-tools-vite-plugin@workspace:packages/vite-plugin"],
+
+    "@cadamsdev/web-component-dev-tools-webpack-plugin": ["@cadamsdev/web-component-dev-tools-webpack-plugin@workspace:packages/webpack-plugin"],
 
     "@clack/core": ["@clack/core@0.4.2", "", { "dependencies": { "picocolors": "^1.0.0", "sisteransi": "^1.0.5" } }, "sha512-NYQfcEy8MWIxrT5Fj8nIVchfRFA26yYKJcvBS7WlUIlw2OmQOY9DhGGXMovyI5J5PpxrCPGkgUi207EBrjpBvg=="],
 
@@ -672,8 +678,6 @@
     "chrome-trace-event": ["chrome-trace-event@1.0.4", "", {}, "sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ=="],
 
     "clean-css": ["clean-css@5.3.3", "", { "dependencies": { "source-map": "~0.6.0" } }, "sha512-D5J+kHaVb/wKSFcyyV75uCn8fiY4sV38XJoe4CUyGQ+mOU/fMVYUdH1hJC+CJQ5uY3EnW27SbJYS4X8BiLrAFg=="],
-
-    "client": ["client@workspace:packages/client"],
 
     "clone-deep": ["clone-deep@4.0.1", "", { "dependencies": { "is-plain-object": "^2.0.4", "kind-of": "^6.0.2", "shallow-clone": "^3.0.0" } }, "sha512-neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ=="],
 
@@ -1279,8 +1283,6 @@
 
     "vite-example": ["vite-example@workspace:apps/vite-example"],
 
-    "vite-plugin": ["vite-plugin@workspace:packages/vite-plugin"],
-
     "watchpack": ["watchpack@2.5.1", "", { "dependencies": { "glob-to-regexp": "^0.4.1", "graceful-fs": "^4.1.2" } }, "sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg=="],
 
     "wbuf": ["wbuf@1.7.3", "", { "dependencies": { "minimalistic-assert": "^1.0.0" } }, "sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA=="],
@@ -1296,8 +1298,6 @@
     "webpack-example": ["webpack-example@workspace:apps/webpack-example"],
 
     "webpack-merge": ["webpack-merge@5.10.0", "", { "dependencies": { "clone-deep": "^4.0.1", "flat": "^5.0.2", "wildcard": "^2.0.0" } }, "sha512-+4zXKdx7UnO+1jaN4l2lHVD+mFvnlZQP/6ljaJVb4SZiwIKeUnrT5l0gkT8z+n4hKpC+jpOv6O9R+gLtag7pSA=="],
-
-    "webpack-plugin": ["webpack-plugin@workspace:packages/webpack-plugin"],
 
     "webpack-sources": ["webpack-sources@3.3.3", "", {}, "sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg=="],
 

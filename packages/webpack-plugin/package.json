@@ -1,5 +1,5 @@
 {
-  "name": "webpack-plugin",
+  "name": "@cadamsdev/web-component-dev-tools-webpack-plugin",
   "version": "0.0.0",
   "description": "A Webpack plugin that provides developer tools for inspecting web components",
   "type": "module",
@@ -30,7 +30,7 @@
     "webpack": "^5.0.0"
   },
   "dependencies": {
-    "client": "workspace:*"
+    "@cadamsdev/web-component-dev-tools-client": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",

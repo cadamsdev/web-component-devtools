@@ -12,7 +12,7 @@
     "react-lit-components": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vite-plugin": "workspace:*"
+    "@cadamsdev/web-component-dev-tools-vite-plugin": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
