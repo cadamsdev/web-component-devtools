@@ -1,0 +1,29 @@
+{
+  "name": "web-component-dev-tools-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo for the Web Component Dev Tools scripts, plugins and examples",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "dev": "bun run --filter react-lit-example dev",
+    "dev:webpack": "bun run --filter webpack-lit-example dev",
+    "build:plugin": "bun run --filter vite-plugin build",
+    "build:webpack-plugin": "bun run --filter webpack-plugin build",
+    "build:client": "bun run --filter client build"
+  },
+  "keywords": [
+    "vite",
+    "plugin",
+    "web-components",
+    "dev-tools",
+    "monorepo"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "bun": ">=1.0.0"
+  }
+}

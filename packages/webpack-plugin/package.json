@@ -1,0 +1,41 @@
+{
+  "name": "webpack-plugin",
+  "version": "1.0.0",
+  "description": "A Webpack plugin that provides developer tools for inspecting web components",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch"
+  },
+  "keywords": [
+    "webpack",
+    "plugin",
+    "web-components",
+    "dev-tools",
+    "custom-elements"
+  ],
+  "peerDependencies": {
+    "webpack": "^5.0.0"
+  },
+  "dependencies": {
+    "client": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "tsdown": "^0.20.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.0.0"
+  }
+}
