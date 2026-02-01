@@ -51,7 +51,7 @@ export function injectStyles(position: string): void {
     '  position: fixed;',
     `  ${getPositionStyles(position, true)}`,
     '  width: 500px;',
-    '  max-height: 700px;',
+    '  height: 700px;',
     '  background: white;',
     '  border-radius: 12px;',
     '  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);',
