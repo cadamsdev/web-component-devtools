@@ -30,6 +30,8 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
       methods: [],
       slots: new Map<string, boolean>(),
       shadowDOM: null,
+      nestedComponents: [],
+      parentComponent: null,
     };
 
     // Collect attributes with their values
@@ -111,6 +113,9 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
 
       // Collect shadow DOM information
       instanceInfo.shadowDOM = scanShadowDOM(element.shadowRoot);
+
+      // Scan for nested web components inside the shadow DOM
+      instanceInfo.nestedComponents = scanNestedWebComponents(element.shadowRoot, element, renderTracker);
     }
 
     // Collect CSS variables affecting this component
@@ -131,6 +136,147 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
   }
 
   return instances;
+}
+
+/**
+ * Scan for web components nested inside a shadow root
+ */
+function scanNestedWebComponents(
+  shadowRoot: ShadowRoot,
+  parentElement: Element,
+  renderTracker?: RenderTracker,
+): InstanceInfo[] {
+  const nestedComponents: InstanceInfo[] = [];
+
+  // Use TreeWalker to find custom elements inside shadow DOM
+  const walker = document.createTreeWalker(shadowRoot, NodeFilter.SHOW_ELEMENT, {
+    acceptNode: (node) => {
+      // Filter for custom elements (contains hyphen)
+      return (node as Element).nodeName.includes('-')
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_SKIP;
+    },
+  });
+
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    const element = node as Element;
+    const tagName = element.nodeName.toLowerCase();
+
+    const instanceInfo: InstanceInfo = {
+      element,
+      tagName,
+      attributes: new Map<string, string | null>(),
+      properties: new Map<string, unknown>(),
+      methods: [],
+      slots: new Map<string, boolean>(),
+      shadowDOM: null,
+      nestedComponents: [],
+      parentComponent: parentElement,
+    };
+
+    // Collect attributes with their values
+    const attrs = element.attributes;
+    for (let i = 0; i < attrs.length; i++) {
+      const attrName = attrs[i].name;
+      const attrValue = attrs[i].value;
+      instanceInfo.attributes.set(attrName, attrValue);
+    }
+
+    // Collect properties (from the element instance)
+    const elementAsAny = element as any;
+
+    // Get properties from the element's prototype chain
+    const proto = Object.getPrototypeOf(element);
+    if (proto && proto !== HTMLElement.prototype) {
+      const descriptors = Object.getOwnPropertyDescriptors(proto);
+
+      for (const propName in descriptors) {
+        const descriptor = descriptors[propName];
+
+        // Skip private properties (starting with _), constructor, and standard HTMLElement methods
+        if (
+          propName.startsWith('_') ||
+          propName === 'constructor' ||
+          propName in HTMLElement.prototype
+        ) {
+          continue;
+        }
+
+        // If it has a getter, it's a property
+        if (descriptor.get) {
+          try {
+            const value = elementAsAny[propName];
+            instanceInfo.properties.set(propName, value);
+          } catch (e) {
+            // Skip properties that throw errors
+          }
+        }
+
+        // If it's a function and not a property accessor, it's a method
+        if (typeof descriptor.value === 'function' && !descriptor.get && !descriptor.set) {
+          // Exclude Lit lifecycle methods from public methods
+          const litLifecycleMethods = [
+            'connectedCallback',
+            'disconnectedCallback',
+            'attributeChangedCallback',
+            'adoptedCallback',
+            'shouldUpdate',
+            'willUpdate',
+            'update',
+            'render',
+            'firstUpdated',
+            'updated',
+            'createRenderRoot',
+            'performUpdate',
+            'scheduleUpdate',
+            'requestUpdate',
+            'getUpdateComplete',
+          ];
+          
+          // Only include public methods (exclude private methods starting with _ and lifecycle methods)
+          if (!propName.startsWith('_') && !litLifecycleMethods.includes(propName)) {
+            instanceInfo.methods.push(propName);
+          }
+        }
+      }
+    }
+
+    // Collect slots from shadow DOM
+    if (element.shadowRoot) {
+      const slots = element.shadowRoot.querySelectorAll('slot');
+      slots.forEach((slot) => {
+        const slotName = slot.getAttribute('name') || 'default';
+        const assignedNodes = slot.assignedNodes();
+        const hasContent = assignedNodes.length > 0;
+        instanceInfo.slots.set(slotName, hasContent);
+      });
+
+      // Collect shadow DOM information
+      instanceInfo.shadowDOM = scanShadowDOM(element.shadowRoot);
+
+      // Recursively scan for nested components
+      instanceInfo.nestedComponents = scanNestedWebComponents(element.shadowRoot, element, renderTracker);
+    }
+
+    // Collect CSS variables affecting this component
+    try {
+      const cssVarInfo = getCSSVariables(element);
+      instanceInfo.cssVariables = cssVarInfo.variables;
+    } catch (e) {
+      // Handle errors gracefully
+      instanceInfo.cssVariables = [];
+    }
+
+    // Get render count if tracking is enabled
+    if (renderTracker && renderTracker.isEnabled()) {
+      instanceInfo.renderCount = renderTracker.getRenderCount(element);
+    }
+
+    nestedComponents.push(instanceInfo);
+  }
+
+  return nestedComponents;
 }
 
 /**

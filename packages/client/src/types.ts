@@ -49,6 +49,8 @@ export interface InstanceInfo {
   shadowDOM: ShadowDOMInfo | null;
   cssVariables?: CSSVariableInfo[];
   renderCount?: number;
+  nestedComponents?: InstanceInfo[];
+  parentComponent?: Element | null;
 }
 
 export interface EventPropagationPath {

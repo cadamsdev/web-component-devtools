@@ -616,9 +616,301 @@ export function createInstanceElement(
     detailsContainer.appendChild(treeSection);
   }
 
+  // Nested Components Section
+  if (instance.nestedComponents && instance.nestedComponents.length > 0) {
+    const nestedSection = document.createElement('div');
+    nestedSection.className = 'wc-section';
+
+    const nestedTitle = document.createElement('div');
+    nestedTitle.className = 'wc-section-title';
+    nestedTitle.textContent = `Nested Components (${instance.nestedComponents.length})`;
+    nestedSection.appendChild(nestedTitle);
+
+    const nestedContainer = document.createElement('div');
+    nestedContainer.className = 'wc-nested-components';
+
+    instance.nestedComponents.forEach((nestedInstance, nestedIndex) => {
+      const nestedEl = createNestedComponentElement(
+        nestedInstance,
+        nestedIndex,
+        expandedStates,
+        propertyEditor,
+        onUpdate,
+        a11yChecker,
+        onA11yBadgeClick,
+        a11yAuditCache,
+      );
+      nestedContainer.appendChild(nestedEl);
+    });
+
+    nestedSection.appendChild(nestedContainer);
+    detailsContainer.appendChild(nestedSection);
+  }
+
   instanceDiv.appendChild(detailsContainer);
 
   return instanceDiv;
+}
+
+/**
+ * Create a nested component element (similar to instance but for nested components in shadow DOM)
+ */
+function createNestedComponentElement(
+  instance: InstanceInfo,
+  index: number,
+  expandedStates: Map<Element, boolean>,
+  propertyEditor?: PropertyEditor,
+  onUpdate?: () => void,
+  a11yChecker?: import('./accessibility-checker').AccessibilityChecker,
+  onA11yBadgeClick?: (element: Element) => void,
+  a11yAuditCache?: WeakMap<Element, import('./accessibility-checker').A11yAuditResult>,
+): HTMLDivElement {
+  const nestedDiv = document.createElement('div');
+  const isExpanded = expandedStates.get(instance.element) || false;
+  nestedDiv.className = isExpanded ? 'wc-nested-component expanded' : 'wc-nested-component';
+
+  // Header with component name
+  const header = document.createElement('div');
+  header.className = 'wc-nested-header';
+
+  const nameAndBadge = document.createElement('div');
+  nameAndBadge.className = 'wc-nested-name';
+
+  const indexBadge = document.createElement('span');
+  indexBadge.className = 'wc-nested-badge';
+  indexBadge.textContent = `#${index + 1}`;
+  nameAndBadge.appendChild(indexBadge);
+
+  nameAndBadge.appendChild(document.createTextNode(` <${instance.tagName}>`));
+
+  // Add accessibility indicator badge
+  if (a11yChecker && a11yAuditCache) {
+    const a11yAudit = a11yAuditCache.get(instance.element);
+
+    if (a11yAudit) {
+      const a11yBadge = document.createElement('span');
+      a11yBadge.className = 'wc-a11y-badge';
+
+      const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
+      const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
+
+      let status: 'good' | 'warning' | 'error';
+      let icon: string;
+      let text: string;
+
+      if (errorCount > 0) {
+        status = 'error';
+        icon = '⚠';
+        text = `${errorCount} issue${errorCount !== 1 ? 's' : ''}`;
+      } else if (warningCount > 0) {
+        status = 'warning';
+        icon = '⚡';
+        text = `${warningCount} warning${warningCount !== 1 ? 's' : ''}`;
+      } else {
+        status = 'good';
+        icon = '✓';
+        text = 'accessible';
+      }
+
+      a11yBadge.classList.add(`wc-a11y-badge-${status}`);
+      a11yBadge.innerHTML = `${icon} ${text}`;
+      a11yBadge.title = `Accessibility Score: ${a11yAudit.score}/100\nClick to view details`;
+
+      a11yBadge.style.cursor = 'pointer';
+      a11yBadge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (onA11yBadgeClick) {
+          onA11yBadgeClick(instance.element);
+        }
+      });
+
+      nameAndBadge.appendChild(a11yBadge);
+    }
+  }
+
+  // Add render count badge if available
+  if (instance.renderCount !== undefined && instance.renderCount > 0) {
+    const renderBadge = document.createElement('span');
+    renderBadge.className = 'wc-render-count-badge';
+    renderBadge.textContent = `${instance.renderCount} render${instance.renderCount !== 1 ? 's' : ''}`;
+    renderBadge.title = `This component has re-rendered ${instance.renderCount} time${instance.renderCount !== 1 ? 's' : ''}`;
+    nameAndBadge.appendChild(renderBadge);
+  }
+
+  header.appendChild(nameAndBadge);
+
+  // Add locate button
+  const locateBtn = document.createElement('button');
+  locateBtn.className = 'wc-locate-btn';
+  locateBtn.title = 'Scroll to element in page';
+  locateBtn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+  `;
+  locateBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    instance.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    highlightElement(instance.element);
+    setTimeout(() => {
+      unhighlightElement(instance.element);
+    }, 3000);
+  });
+  header.appendChild(locateBtn);
+
+  // Add expand/collapse indicator
+  const expandIndicator = document.createElement('span');
+  expandIndicator.className = 'wc-expand-indicator';
+  expandIndicator.textContent = '▶';
+  header.appendChild(expandIndicator);
+
+  nestedDiv.appendChild(header);
+
+  // Create details container (same structure as main component)
+  const detailsContainer = document.createElement('div');
+  detailsContainer.className = 'wc-nested-details';
+
+  // Add hover effect
+  nestedDiv.addEventListener('mouseenter', () => {
+    highlightElement(instance.element);
+  });
+
+  nestedDiv.addEventListener('mouseleave', () => {
+    unhighlightElement(instance.element);
+  });
+
+  // Toggle expand/collapse
+  header.style.cursor = 'pointer';
+  header.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const newExpandedState = !expandedStates.get(instance.element);
+    expandedStates.set(instance.element, newExpandedState);
+    nestedDiv.classList.toggle('expanded');
+  });
+
+  detailsContainer.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Attributes Section
+  if (instance.attributes.size > 0) {
+    const attributesSection = document.createElement('div');
+    attributesSection.className = 'wc-section';
+
+    const attrTitle = document.createElement('div');
+    attrTitle.className = 'wc-section-title';
+    attrTitle.textContent = 'Attributes';
+    attributesSection.appendChild(attrTitle);
+
+    const attributesDiv = document.createElement('div');
+    attributesDiv.className = 'wc-component-attributes';
+
+    instance.attributes.forEach((value, attrName) => {
+      const attrRow = createEditableAttribute(
+        instance.element,
+        attrName,
+        value,
+        propertyEditor,
+        onUpdate,
+      );
+      attributesDiv.appendChild(attrRow);
+    });
+
+    attributesSection.appendChild(attributesDiv);
+    detailsContainer.appendChild(attributesSection);
+  }
+
+  // Properties Section
+  if (instance.properties.size > 0) {
+    const propertiesSection = document.createElement('div');
+    propertiesSection.className = 'wc-section';
+
+    const propTitle = document.createElement('div');
+    propTitle.className = 'wc-section-title';
+    propTitle.textContent = 'Properties';
+    propertiesSection.appendChild(propTitle);
+
+    instance.properties.forEach((value, propName) => {
+      const propRow = createEditableProperty(
+        instance.element,
+        propName,
+        value,
+        propertyEditor,
+        onUpdate,
+      );
+      propertiesSection.appendChild(propRow);
+    });
+
+    detailsContainer.appendChild(propertiesSection);
+  }
+
+  // Methods Section
+  if (instance.methods.length > 0) {
+    const methodsSection = document.createElement('div');
+    methodsSection.className = 'wc-section';
+
+    const methodTitle = document.createElement('div');
+    methodTitle.className = 'wc-section-title';
+    methodTitle.textContent = 'Public Methods';
+    methodsSection.appendChild(methodTitle);
+
+    const methodsDiv = document.createElement('div');
+
+    instance.methods.sort().forEach((methodName) => {
+      const methodSpan = document.createElement('span');
+      methodSpan.className = 'wc-method';
+
+      const methodNameSpan = document.createElement('span');
+      methodNameSpan.className = 'wc-method-name';
+      methodNameSpan.textContent = `${methodName}()`;
+      methodSpan.appendChild(methodNameSpan);
+
+      methodsDiv.appendChild(methodSpan);
+    });
+
+    methodsSection.appendChild(methodsDiv);
+    detailsContainer.appendChild(methodsSection);
+  }
+
+  // Recursively show nested components within this nested component
+  if (instance.nestedComponents && instance.nestedComponents.length > 0) {
+    const nestedNestedSection = document.createElement('div');
+    nestedNestedSection.className = 'wc-section';
+
+    const nestedNestedTitle = document.createElement('div');
+    nestedNestedTitle.className = 'wc-section-title';
+    nestedNestedTitle.textContent = `Nested Components (${instance.nestedComponents.length})`;
+    nestedNestedSection.appendChild(nestedNestedTitle);
+
+    const nestedNestedContainer = document.createElement('div');
+    nestedNestedContainer.className = 'wc-nested-components';
+
+    instance.nestedComponents.forEach((nestedInstance, nestedIndex) => {
+      const nestedEl = createNestedComponentElement(
+        nestedInstance,
+        nestedIndex,
+        expandedStates,
+        propertyEditor,
+        onUpdate,
+        a11yChecker,
+        onA11yBadgeClick,
+        a11yAuditCache,
+      );
+      nestedNestedContainer.appendChild(nestedEl);
+    });
+
+    nestedNestedSection.appendChild(nestedNestedContainer);
+    detailsContainer.appendChild(nestedNestedSection);
+  }
+
+  nestedDiv.appendChild(detailsContainer);
+
+  return nestedDiv;
 }
 
 export function createEventLogElement(
