@@ -14,7 +14,8 @@
     "build:plugin": "bun run --filter vite-plugin build",
     "build:webpack-plugin": "bun run --filter webpack-plugin build",
     "build:client": "bun run --filter client build",
-    "build:lit-components": "bun run --filter '@web-component-dev-tools/lit-components' build"
+    "build:lit-components": "bun run --filter '@web-component-dev-tools/lit-components' build",
+    "build:react-lit-components": "bun run --filter '@web-component-dev-tools/react-lit-components' build"
   },
   "keywords": [
     "vite",
