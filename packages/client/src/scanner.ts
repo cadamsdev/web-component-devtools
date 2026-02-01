@@ -72,7 +72,29 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
 
         // If it's a function and not a property accessor, it's a method
         if (typeof descriptor.value === 'function' && !descriptor.get && !descriptor.set) {
-          instanceInfo.methods.push(propName);
+          // Exclude Lit lifecycle methods from public methods
+          const litLifecycleMethods = [
+            'connectedCallback',
+            'disconnectedCallback',
+            'attributeChangedCallback',
+            'adoptedCallback',
+            'shouldUpdate',
+            'willUpdate',
+            'update',
+            'render',
+            'firstUpdated',
+            'updated',
+            'createRenderRoot',
+            'performUpdate',
+            'scheduleUpdate',
+            'requestUpdate',
+            'getUpdateComplete',
+          ];
+          
+          // Only include public methods (exclude private methods starting with _ and lifecycle methods)
+          if (!propName.startsWith('_') && !litLifecycleMethods.includes(propName)) {
+            instanceInfo.methods.push(propName);
+          }
         }
       }
     }
