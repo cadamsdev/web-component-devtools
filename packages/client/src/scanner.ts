@@ -2,8 +2,9 @@
 
 import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment } from './types';
 import { getCSSVariables } from './css-variable-tracker';
+import type { RenderTracker } from './render-tracker';
 
-export function scanWebComponents(): InstanceInfo[] {
+export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[] {
   const instances: InstanceInfo[] = [];
 
   // Use TreeWalker for efficient DOM traversal - only visits element nodes
@@ -99,6 +100,11 @@ export function scanWebComponents(): InstanceInfo[] {
     } catch (e) {
       // Handle errors gracefully
       instanceInfo.cssVariables = [];
+    }
+
+    // Get render count if tracking is enabled
+    if (renderTracker && renderTracker.isEnabled()) {
+      instanceInfo.renderCount = renderTracker.getRenderCount(element);
     }
 
     instances.push(instanceInfo);

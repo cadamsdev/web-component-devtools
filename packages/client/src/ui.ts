@@ -27,7 +27,9 @@ export function createPanel(
   onToggleMonitoring: () => void,
   onClearEvents: () => void,
   onUndo?: () => void,
-  onRedo?: () => void
+  onRedo?: () => void,
+  onToggleRenderTracking?: () => void,
+  onToggleRenderOverlay?: () => void
 ): HTMLDivElement {
   const panel = document.createElement('div');
   panel.id = 'wc-devtools-panel';
@@ -112,6 +114,39 @@ export function createPanel(
     redoBtn.addEventListener('click', onRedo);
   }
   undoRedoControls.appendChild(redoBtn);
+
+  // Add render tracking toggle
+  const renderTrackingToggle = document.createElement('button');
+  renderTrackingToggle.className = 'wc-render-tracking-toggle';
+  renderTrackingToggle.title = 'Toggle render count tracking';
+  renderTrackingToggle.id = 'wc-render-tracking-toggle';
+  renderTrackingToggle.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none">#</text>
+    </svg>
+  `;
+  if (onToggleRenderTracking) {
+    renderTrackingToggle.addEventListener('click', onToggleRenderTracking);
+  }
+  undoRedoControls.appendChild(renderTrackingToggle);
+
+  // Add render overlay toggle (show counts on page)
+  const renderOverlayToggle = document.createElement('button');
+  renderOverlayToggle.className = 'wc-render-overlay-toggle';
+  renderOverlayToggle.title = 'Show render counts on page';
+  renderOverlayToggle.id = 'wc-render-overlay-toggle';
+  renderOverlayToggle.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="18" cy="6" r="3" fill="currentColor"/>
+      <text x="18" y="8" text-anchor="middle" font-size="6" fill="white" stroke="none">#</text>
+    </svg>
+  `;
+  if (onToggleRenderOverlay) {
+    renderOverlayToggle.addEventListener('click', onToggleRenderOverlay);
+  }
+  undoRedoControls.appendChild(renderOverlayToggle);
 
   searchSection.appendChild(undoRedoControls);
 
@@ -212,6 +247,15 @@ export function createInstanceElement(
   nameAndIndex.appendChild(indexBadge);
   
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
+  
+  // Add render count badge if available
+  if (instance.renderCount !== undefined && instance.renderCount > 0) {
+    const renderBadge = document.createElement('span');
+    renderBadge.className = 'wc-render-count-badge';
+    renderBadge.textContent = `${instance.renderCount} render${instance.renderCount !== 1 ? 's' : ''}`;
+    renderBadge.title = `This component has re-rendered ${instance.renderCount} time${instance.renderCount !== 1 ? 's' : ''}`;
+    nameAndIndex.appendChild(renderBadge);
+  }
   
   header.appendChild(nameAndIndex);
 

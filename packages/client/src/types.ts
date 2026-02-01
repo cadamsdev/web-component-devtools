@@ -48,6 +48,7 @@ export interface InstanceInfo {
   slots: Map<string, boolean>;
   shadowDOM: ShadowDOMInfo | null;
   cssVariables?: CSSVariableInfo[];
+  renderCount?: number;
 }
 
 export interface EventLog {

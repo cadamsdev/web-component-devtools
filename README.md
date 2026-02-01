@@ -18,6 +18,7 @@ This is a monorepo containing:
 - Real-time updates when DOM changes
 - Configurable button position
 - Only active in development mode by default
+- **Render count tracking** - Track how many times each component re-renders (toggle on/off)
 
 ## Quick Start
 
@@ -82,6 +83,30 @@ Once installed and configured, the plugin will:
    - Number of instances for each component
    - Attributes used by each component
 4. Automatically updates when the DOM changes
+
+### Render Count Tracking
+
+The dev tools include a powerful render tracking feature that helps you monitor component performance:
+
+1. **Enable tracking**: Click the **#** button (render tracking toggle) in the toolbar to start tracking re-renders
+2. **View counts in panel**: When enabled, each component displays a badge showing how many times it has re-rendered
+3. **View counts on page**: Click the **📍** button (overlay toggle) to show render count badges directly on the components in your page
+4. **Performance insights**: High render counts may indicate performance issues or unnecessary re-renders
+5. **Toggle anytime**: Turn tracking and overlays on/off without losing your current inspection state
+
+The render tracker monitors:
+- Attribute changes
+- Property changes  
+- Child list modifications
+- Content updates
+
+**Visual Features**:
+- **Panel badges**: Pink/purple gradient badges in the component list
+- **On-page overlays**: Floating badges positioned at the top-right of each component
+- **Flash animation**: Badges pulse and flash when a new render is detected
+- **Real-time updates**: Overlays update automatically as components re-render
+
+**Note**: Render tracking has minimal performance impact but should be toggled off when not needed.
 
 ## Options
 

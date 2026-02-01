@@ -15,6 +15,8 @@ import { scanWebComponents } from './scanner';
 import { EventMonitor } from './event-monitor';
 import { UndoManager } from './undo-manager';
 import { PropertyEditor } from './property-editor';
+import { RenderTracker } from './render-tracker';
+import { RenderOverlay } from './render-overlay';
 
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
@@ -34,6 +36,15 @@ const undoManager = new UndoManager();
 // Property editor instance
 const propertyEditor = new PropertyEditor(undoManager);
 
+// Render tracker instance
+const renderTracker = new RenderTracker();
+
+// Render overlay instance
+const renderOverlay = new RenderOverlay();
+
+// Connect render tracker to overlay
+renderTracker.setOverlay(renderOverlay);
+
 export function initDevTools(config: DevToolsConfig) {
   const { position } = config;
 
@@ -46,7 +57,9 @@ export function initDevTools(config: DevToolsConfig) {
     handleToggleMonitoring,
     handleClearEvents,
     handleUndo,
-    handleRedo
+    handleRedo,
+    handleToggleRenderTracking,
+    handleToggleRenderOverlay
   );
 
   document.body.appendChild(button);
@@ -109,6 +122,49 @@ function handleUndo(): void {
 function handleRedo(): void {
   if (undoManager.redo()) {
     updateComponentList();
+  }
+}
+
+function handleToggleRenderTracking(): void {
+  renderTracker.toggle();
+  
+  const toggleBtn = document.getElementById('wc-render-tracking-toggle');
+  if (!toggleBtn) return;
+
+  if (renderTracker.isEnabled()) {
+    toggleBtn.classList.add('active');
+    toggleBtn.title = 'Disable render count tracking';
+  } else {
+    toggleBtn.classList.remove('active');
+    toggleBtn.title = 'Enable render count tracking';
+  }
+  
+  updateComponentList();
+}
+
+function handleToggleRenderOverlay(): void {
+  renderOverlay.toggle();
+  
+  const toggleBtn = document.getElementById('wc-render-overlay-toggle');
+  if (!toggleBtn) return;
+
+  if (renderOverlay.isEnabled()) {
+    toggleBtn.classList.add('active');
+    toggleBtn.title = 'Hide render counts on page';
+    
+    // Update all overlays with current render counts if tracking is enabled
+    if (renderTracker.isEnabled()) {
+      const instances = scanWebComponents(renderTracker);
+      instances.forEach(instance => {
+        if (instance.renderCount && instance.renderCount > 0) {
+          renderOverlay.updateOverlay(instance.element, instance.renderCount);
+        }
+      });
+    }
+  } else {
+    toggleBtn.classList.remove('active');
+    toggleBtn.title = 'Show render counts on page';
+    renderOverlay.clearAll();
   }
 }
 
@@ -390,7 +446,7 @@ function updateComponentList(): void {
 
   isUpdating = true;
 
-  const instances = scanWebComponents();
+  const instances = scanWebComponents(renderTracker);
 
   // Apply search filter
   const filteredInstances = searchFilter
