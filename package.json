@@ -25,11 +25,15 @@
     "build:react-lit-components": "bun run --filter '@web-component-dev-tools/react-lit-components' build",
     "changeset": "changeset",
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint --type-aware --type-check",
+    "lint:fix": "oxlint --fix"
   },
   "devDependencies": {
     "@lazy-release/changesets": "^0.5.1",
-    "oxfmt": "^0.27.0"
+    "oxfmt": "^0.27.0",
+    "oxlint": "^1.42.0",
+    "oxlint-tsgolint": "^0.11.4"
   },
   "engines": {
     "bun": ">=1.0.0",
