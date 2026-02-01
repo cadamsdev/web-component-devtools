@@ -88,7 +88,8 @@ export function formatPropertyValue(value: unknown): string {
       return '[Object]';
     }
   }
-  return String(value);
+  // For any other primitive types (symbol, bigint)
+  return typeof value === 'symbol' || typeof value === 'bigint' ? value.toString() : '[Unknown]';
 }
 
 export function getValueType(value: unknown): string {
@@ -123,7 +124,11 @@ export function formatEventDetail(detail: unknown): string {
   try {
     return JSON.stringify(detail, null, 2);
   } catch {
-    return String(detail);
+    // If JSON.stringify fails, try to convert to string safely
+    if (typeof detail === 'object' && detail !== null) {
+      return '[Object]';
+    }
+    return typeof detail === 'symbol' || typeof detail === 'bigint' ? detail.toString() : '[Unknown]';
   }
 }
 
@@ -150,13 +155,14 @@ export function createJSONTreeElement(data: unknown, depth: number = 0): HTMLEle
   const dataType = typeof data;
 
   if (dataType === 'string') {
-    container.textContent = `"${data}"`;
+    container.textContent = `"${data as string}"`;
     container.className += ' wc-json-string';
     return container;
   }
 
   if (dataType === 'number' || dataType === 'boolean') {
-    container.textContent = String(data);
+    // TypeScript knows data is number or boolean here, so String() is safe
+    container.textContent = (data as number | boolean).toString();
     container.className += ` wc-json-${dataType}`;
     return container;
   }
@@ -255,6 +261,18 @@ export function createJSONTreeElement(data: unknown, depth: number = 0): HTMLEle
     return container;
   }
 
-  container.textContent = String(data);
+  // For any other types (objects, functions, etc.)
+  if (typeof data === 'object' && data !== null) {
+    try {
+      container.textContent = JSON.stringify(data);
+    } catch {
+      container.textContent = '[Object]';
+    }
+  } else if (typeof data === 'symbol' || typeof data === 'bigint') {
+    container.textContent = data.toString();
+  } else {
+    // For any other unexpected types
+    container.textContent = '[Unknown]';
+  }
   return container;
 }

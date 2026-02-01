@@ -76,7 +76,7 @@ export class AccessibilityOverlay {
    * Clear all overlays
    */
   clearAll(): void {
-    this.overlays.forEach((overlay, element) => {
+    this.overlays.forEach((overlay) => {
       if ((overlay as any)._cleanup) {
         (overlay as any)._cleanup();
       }

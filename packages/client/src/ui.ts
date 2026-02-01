@@ -514,7 +514,7 @@ export function createInstanceElement(
     const slotsDiv = document.createElement('div');
     slotsDiv.className = 'wc-shadow-slots';
 
-    instance.shadowDOM.slotAssignments.forEach((assignment, slotName) => {
+    instance.shadowDOM.slotAssignments.forEach((assignment) => {
       const slotDiv = createSlotAssignmentElement(assignment);
       slotsDiv.appendChild(slotDiv);
     });
@@ -1674,15 +1674,18 @@ function formatPropertyValueForEdit(value: unknown): string {
     try {
       return JSON.stringify(value);
     } catch {
-      return String(value);
+      return '[Object]';
     }
   }
-  return String(value);
+  // For symbols, bigints, and other primitives
+  return typeof value === 'symbol' || typeof value === 'bigint' ? value.toString() : '[Unknown]';
 }
 
 /**
  * Create a Shadow DOM section showing the shadow root tree
+ * @deprecated Currently unused but kept for future use
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createShadowDOMSection(shadowInfo: ShadowDOMInfo): HTMLDivElement {
   const section = document.createElement('div');
   section.className = 'wc-section';
@@ -1720,7 +1723,7 @@ function createShadowDOMSection(shadowInfo: ShadowDOMInfo): HTMLDivElement {
     slotsTitle.textContent = 'Slot Assignments';
     slotsDiv.appendChild(slotsTitle);
 
-    shadowInfo.slotAssignments.forEach((assignment, slotName) => {
+    shadowInfo.slotAssignments.forEach((assignment) => {
       const slotDiv = createSlotAssignmentElement(assignment);
       slotsDiv.appendChild(slotDiv);
     });

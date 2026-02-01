@@ -183,7 +183,7 @@ export class MyUserProfile extends LitElement {
   @property({ type: String })
   website = '';
 
-  private _handleFollow() {
+  private _handleFollow = () => {
     this.dispatchEvent(
       new CustomEvent('follow', {
         detail: { userName: this.userName },
@@ -191,9 +191,9 @@ export class MyUserProfile extends LitElement {
         composed: true,
       }),
     );
-  }
+  };
 
-  private _handleMessage() {
+  private _handleMessage = () => {
     this.dispatchEvent(
       new CustomEvent('message', {
         detail: { userName: this.userName },
@@ -201,7 +201,7 @@ export class MyUserProfile extends LitElement {
         composed: true,
       }),
     );
-  }
+  };
 
   render() {
     return html`

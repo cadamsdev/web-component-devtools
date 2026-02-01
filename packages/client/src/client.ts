@@ -244,7 +244,7 @@ function handleA11yBadgeClick(element: Element): void {
 
 function handleComponentOverlayClick(element: Element): void {
   // Open the panel if it's not visible
-  const panel = document.getElementById('wc-devtools-panel');
+  const panel = document.getElementById('wc-devtools-panel') as HTMLDivElement;
   const button = document.getElementById('wc-devtools-btn') as HTMLButtonElement;
 
   if (!panel || !button) return;
@@ -867,7 +867,7 @@ function watchForChanges(panel: HTMLDivElement): void {
 
       // Check added nodes
       if (mutation.addedNodes.length > 0) {
-        for (const node of mutation.addedNodes) {
+        for (const node of Array.from(mutation.addedNodes)) {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
             // Check if it's a custom element or contains custom elements
@@ -880,7 +880,7 @@ function watchForChanges(panel: HTMLDivElement): void {
 
       // Check removed nodes
       if (mutation.removedNodes.length > 0) {
-        for (const node of mutation.removedNodes) {
+        for (const node of Array.from(mutation.removedNodes)) {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as Element;
             if (element.nodeName.includes('-')) {

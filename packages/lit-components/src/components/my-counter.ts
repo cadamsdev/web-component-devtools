@@ -72,19 +72,19 @@ export class MyCounter extends LitElement {
     this._count = this.value;
   }
 
-  private _increment() {
+  private _increment = () => {
     if (this._count < this.max) {
       this._count++;
       this._dispatchChange();
     }
-  }
+  };
 
-  private _decrement() {
+  private _decrement = () => {
     if (this._count > this.min) {
       this._count--;
       this._dispatchChange();
     }
-  }
+  };
 
   private _dispatchChange() {
     this.dispatchEvent(

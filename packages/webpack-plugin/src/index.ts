@@ -27,7 +27,12 @@ export interface WebComponentDevToolsOptions {
 }
 
 export class WebpackWebComponentDevTools {
-  private options: Required<WebComponentDevToolsOptions>;
+  private options: {
+    enabled: boolean;
+    position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+    queryParam?: string;
+    includeInProduction: boolean;
+  };
   private clientScript: string | null = null;
 
   constructor(options: WebComponentDevToolsOptions = {}) {
@@ -95,10 +100,15 @@ export class WebpackWebComponentDevTools {
 
               html = html.replace('</body>', `${script}</body>`);
 
-              // Update the asset
+              // Update the asset with proper Source interface
+              const newSource = Buffer.from(html, 'utf-8');
               compilation.assets[filename] = {
                 source: () => html,
                 size: () => html.length,
+                buffer: () => newSource,
+                map: () => null,
+                sourceAndMap: () => ({ source: html, map: null }),
+                updateHash: (hash: any) => hash.update(html),
               };
             }
           }

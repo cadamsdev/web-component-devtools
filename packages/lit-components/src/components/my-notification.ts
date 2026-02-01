@@ -300,9 +300,9 @@ export class MyNotification extends LitElement {
     }
   }
 
-  private _handleClose() {
+  private _handleClose = () => {
     this.dismiss();
-  }
+  };
 
   private _handleAction(action: { label: string; handler: () => void }) {
     action.handler();

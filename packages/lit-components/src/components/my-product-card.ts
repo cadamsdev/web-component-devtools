@@ -162,7 +162,7 @@ export class MyProductCard extends LitElement {
   @property({ type: Number })
   maxQuantity = 10;
 
-  private _handleAddToCart() {
+  private _handleAddToCart = () => {
     const counter = this.shadowRoot?.querySelector('my-counter');
     const quantity = counter
       ? (counter as any)._count || this.initialQuantity
@@ -180,9 +180,9 @@ export class MyProductCard extends LitElement {
         composed: true,
       }),
     );
-  }
+  };
 
-  private _handleBuyNow() {
+  private _handleBuyNow = () => {
     const counter = this.shadowRoot?.querySelector('my-counter');
     const quantity = counter
       ? (counter as any)._count || this.initialQuantity
@@ -200,7 +200,7 @@ export class MyProductCard extends LitElement {
         composed: true,
       }),
     );
-  }
+  };
 
   private _renderStars(rating: number) {
     const fullStars = Math.floor(rating);

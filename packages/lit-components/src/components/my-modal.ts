@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import './my-button.js';
 
 /**
@@ -146,17 +146,17 @@ export class MyModal extends LitElement {
   @property({ type: Boolean })
   showCloseButton = true;
 
-  private _handleOverlayClick(e: MouseEvent) {
+  private _handleOverlayClick = (e: MouseEvent) => {
     if (this.closeOnOverlayClick && e.target === e.currentTarget) {
       this.close();
     }
-  }
+  };
 
-  private _handleClose() {
+  private _handleClose = () => {
     this.close();
-  }
+  };
 
-  private _handleCancel() {
+  private _handleCancel = () => {
     this.dispatchEvent(
       new CustomEvent('modal-cancel', {
         bubbles: true,
@@ -164,16 +164,16 @@ export class MyModal extends LitElement {
       }),
     );
     this.close();
-  }
+  };
 
-  private _handleConfirm() {
+  private _handleConfirm = () => {
     this.dispatchEvent(
       new CustomEvent('modal-confirm', {
         bubbles: true,
         composed: true,
       }),
     );
-  }
+  };
 
   public close() {
     this.open = false;
@@ -197,8 +197,7 @@ export class MyModal extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    // Add escape key listener
-    this._handleKeyDown = this._handleKeyDown.bind(this);
+    // Add escape key listener - already an arrow function
     document.addEventListener('keydown', this._handleKeyDown);
   }
 
@@ -207,11 +206,11 @@ export class MyModal extends LitElement {
     document.removeEventListener('keydown', this._handleKeyDown);
   }
 
-  private _handleKeyDown(e: KeyboardEvent) {
+  private _handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && this.open) {
       this.close();
     }
-  }
+  };
 
   render() {
     if (!this.open) {

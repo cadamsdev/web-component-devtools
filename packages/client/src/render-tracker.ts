@@ -319,7 +319,7 @@ export class RenderTracker {
           try {
             const value = elementAsAny[propName];
             properties.set(propName, value);
-          } catch (e) {
+          } catch {
             // Skip properties that throw errors
           }
         }
@@ -372,7 +372,7 @@ export class RenderTracker {
                 this.captureSnapshot(element);
                 return; // Only count once per check cycle
               }
-            } catch (e) {
+            } catch {
               // Skip properties that throw errors
             }
           }

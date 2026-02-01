@@ -65,14 +65,13 @@ export class AccessibilityChecker {
   /**
    * Check ARIA attributes for validity and completeness
    */
-  private checkAriaAttributes(element: Element, instance: InstanceInfo): A11yIssue[] {
+  private checkAriaAttributes(element: Element, _instance: InstanceInfo): A11yIssue[] {
     const issues: A11yIssue[] = [];
 
     // Check for missing ARIA labels on interactive elements
     const role = element.getAttribute('role');
     const ariaLabel = element.getAttribute('aria-label');
     const ariaLabelledBy = element.getAttribute('aria-labelledby');
-    const ariaDescribedBy = element.getAttribute('aria-describedby');
 
     // Interactive roles that need labels
     const interactiveRoles = [
@@ -305,7 +304,7 @@ export class AccessibilityChecker {
           wcagLevel: 'AA',
         });
       }
-    } catch (error) {
+    } catch {
       // Silently fail if we can't calculate contrast
     }
 

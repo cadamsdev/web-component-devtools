@@ -67,7 +67,7 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
           try {
             const value = elementAsAny[propName];
             instanceInfo.properties.set(propName, value);
-          } catch (e) {
+          } catch {
             // Skip properties that throw errors
           }
         }
@@ -126,7 +126,7 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
     try {
       const cssVarInfo = getCSSVariables(element);
       instanceInfo.cssVariables = cssVarInfo.variables;
-    } catch (e) {
+    } catch {
       // Handle errors gracefully
       instanceInfo.cssVariables = [];
     }
@@ -212,7 +212,7 @@ function scanNestedWebComponents(
           try {
             const value = elementAsAny[propName];
             instanceInfo.properties.set(propName, value);
-          } catch (e) {
+          } catch {
             // Skip properties that throw errors
           }
         }
@@ -271,7 +271,7 @@ function scanNestedWebComponents(
     try {
       const cssVarInfo = getCSSVariables(element);
       instanceInfo.cssVariables = cssVarInfo.variables;
-    } catch (e) {
+    } catch {
       // Handle errors gracefully
       instanceInfo.cssVariables = [];
     }
@@ -317,11 +317,11 @@ function scanShadowDOM(shadowRoot: ShadowRoot): ShadowDOMInfo {
             }
           }
         });
-      } catch (e) {
+      } catch {
         // Cross-origin or other security errors
       }
     });
-  } catch (e) {
+  } catch {
     // Handle errors gracefully
   }
 
@@ -344,7 +344,7 @@ function scanShadowDOM(shadowRoot: ShadowRoot): ShadowDOMInfo {
           }
         });
       }
-    } catch (e) {
+    } catch {
       // Handle errors gracefully
     }
   });

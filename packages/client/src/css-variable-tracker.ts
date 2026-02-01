@@ -122,11 +122,11 @@ function extractCSSVariablesFromShadowRoot(
             }
           }
         });
-      } catch (e) {
+      } catch {
         // Cross-origin or security errors
       }
     });
-  } catch (e) {
+  } catch {
     // Handle errors gracefully
   }
 
@@ -159,7 +159,7 @@ function extractCSSVariablesFromShadowRoot(
           }
         });
       }
-    } catch (e) {
+    } catch {
       // Handle errors gracefully
     }
   });
@@ -206,11 +206,11 @@ function extractCSSVariablesFromElement(
             }
           }
         });
-      } catch (e) {
+      } catch {
         // Cross-origin or security errors
       }
     });
-  } catch (e) {
+  } catch {
     // Handle errors gracefully
   }
 
@@ -293,11 +293,11 @@ function extractRootVariables(
             }
           }
         });
-      } catch (e) {
+      } catch {
         // Cross-origin or security errors
       }
     });
-  } catch (e) {
+  } catch {
     // Handle errors gracefully
   }
 

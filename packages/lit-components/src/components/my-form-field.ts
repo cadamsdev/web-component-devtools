@@ -177,7 +177,7 @@ export class MyFormField extends LitElement {
     this._value = this.value;
   }
 
-  private _handleInput(e: Event) {
+  private _handleInput = (e: Event) => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement;
     this._value = target.value;
 
@@ -196,12 +196,12 @@ export class MyFormField extends LitElement {
         composed: true,
       }),
     );
-  }
+  };
 
-  private _handleBlur() {
+  private _handleBlur = () => {
     this._touched = true;
     this._validate();
-  }
+  };
 
   private _validate() {
     this._error = '';

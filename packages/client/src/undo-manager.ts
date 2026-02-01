@@ -122,8 +122,20 @@ export class UndoManager {
     if (type === 'attribute') {
       if (value === null || value === undefined) {
         element.removeAttribute(name);
-      } else {
+      } else if (typeof value === 'object') {
+        // For objects, try to stringify them
+        try {
+          element.setAttribute(name, JSON.stringify(value));
+        } catch {
+          element.setAttribute(name, '[Object]');
+        }
+      } else if (typeof value === 'symbol' || typeof value === 'bigint') {
+        element.setAttribute(name, value.toString());
+      } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
         element.setAttribute(name, String(value));
+      } else {
+        // For any other unexpected types
+        element.setAttribute(name, '[Unknown]');
       }
     } else {
       // Property

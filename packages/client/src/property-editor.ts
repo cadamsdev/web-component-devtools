@@ -174,7 +174,7 @@ export class PropertyEditor {
         return { valid: false, error: 'Expected an array (e.g., [1, 2, 3])' };
       }
       return { valid: true, value: parsed };
-    } catch (error) {
+    } catch {
       return { valid: false, error: 'Invalid JSON array format' };
     }
   }
@@ -189,7 +189,7 @@ export class PropertyEditor {
         return { valid: false, error: 'Expected an object (e.g., {"key": "value"})' };
       }
       return { valid: true, value: parsed };
-    } catch (error) {
+    } catch {
       return { valid: false, error: 'Invalid JSON object format' };
     }
   }

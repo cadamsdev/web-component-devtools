@@ -57,7 +57,7 @@ export class MyButton extends LitElement {
   @property({ type: String })
   variant = 'primary';
 
-  private _handleClick() {
+  private _handleClick = () => {
     this.dispatchEvent(
       new CustomEvent('button-click', {
         detail: { label: this.label },
@@ -65,7 +65,7 @@ export class MyButton extends LitElement {
         composed: true,
       }),
     );
-  }
+  };
 
   render() {
     return html`
