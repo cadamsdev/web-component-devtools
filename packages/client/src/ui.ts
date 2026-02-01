@@ -68,6 +68,10 @@ export function createPanel(
   searchSection.className = 'wc-devtools-search';
   searchSection.dataset.tabContent = 'components';
 
+  // Create a wrapper for the search input and clear button
+  const searchInputWrapper = document.createElement('div');
+  searchInputWrapper.className = 'wc-search-input-wrapper';
+
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.placeholder = 'Filter by tag name...';
@@ -75,9 +79,26 @@ export function createPanel(
   searchInput.addEventListener('input', (e) => {
     const value = (e.target as HTMLInputElement).value.toLowerCase().trim();
     onSearch(value);
+    // Show/hide clear button based on input value
+    clearButton.style.display = value ? 'flex' : 'none';
   });
 
-  searchSection.appendChild(searchInput);
+  // Create clear button
+  const clearButton = document.createElement('button');
+  clearButton.className = 'wc-search-clear-btn';
+  clearButton.innerHTML = '×';
+  clearButton.title = 'Clear search';
+  clearButton.style.display = 'none'; // Hidden by default
+  clearButton.addEventListener('click', () => {
+    searchInput.value = '';
+    onSearch('');
+    clearButton.style.display = 'none';
+    searchInput.focus();
+  });
+
+  searchInputWrapper.appendChild(searchInput);
+  searchInputWrapper.appendChild(clearButton);
+  searchSection.appendChild(searchInputWrapper);
 
   // Undo/Redo controls (only for components tab)
   const undoRedoControls = document.createElement('div');
