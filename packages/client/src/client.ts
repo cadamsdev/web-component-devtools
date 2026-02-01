@@ -585,7 +585,8 @@ function updateComponentList(): void {
       index + 1, 
       expandedStates,
       propertyEditor,
-      updateComponentList
+      updateComponentList,
+      a11yChecker
     );
     content.appendChild(instanceEl);
     
