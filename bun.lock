@@ -12,7 +12,7 @@
       "name": "vite-example",
       "version": "0.0.0",
       "dependencies": {
-        "@cadamsdev/web-component-dev-tools-vite-plugin": "workspace:*",
+        "@cadamsdev/vite-plugin-wc-devtools": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-lit-components": "workspace:*",
@@ -88,7 +88,7 @@
       },
     },
     "packages/vite-plugin": {
-      "name": "@cadamsdev/web-component-dev-tools-vite-plugin",
+      "name": "@cadamsdev/vite-plugin-wc-devtools",
       "version": "0.0.0",
       "dependencies": {
         "@cadamsdev/web-component-dev-tools-client": "workspace:*",
@@ -321,9 +321,9 @@
 
     "@babel/types": ["@babel/types@7.28.6", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.28.5" } }, "sha512-0ZrskXVEHSWIqZM/sQZ4EV3jZJXRkio/WCxaqKZP1g//CEWEPSfeZFcms4XeKBCHU0ZKnIkdJeU/kF+eRp5lBg=="],
 
-    "@cadamsdev/web-component-dev-tools-client": ["@cadamsdev/web-component-dev-tools-client@workspace:packages/client"],
+    "@cadamsdev/vite-plugin-wc-devtools": ["@cadamsdev/vite-plugin-wc-devtools@workspace:packages/vite-plugin"],
 
-    "@cadamsdev/web-component-dev-tools-vite-plugin": ["@cadamsdev/web-component-dev-tools-vite-plugin@workspace:packages/vite-plugin"],
+    "@cadamsdev/web-component-dev-tools-client": ["@cadamsdev/web-component-dev-tools-client@workspace:packages/client"],
 
     "@cadamsdev/web-component-dev-tools-webpack-plugin": ["@cadamsdev/web-component-dev-tools-webpack-plugin@workspace:packages/webpack-plugin"],
 

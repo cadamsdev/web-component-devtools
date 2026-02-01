@@ -1,5 +1,5 @@
 {
-  "name": "@cadamsdev/web-component-dev-tools-vite-plugin",
+  "name": "@cadamsdev/vite-plugin-wc-devtools",
   "version": "0.0.0",
   "description": "A Vite plugin that provides developer tools for inspecting web components",
   "type": "module",
