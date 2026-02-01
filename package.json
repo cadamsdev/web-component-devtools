@@ -16,7 +16,9 @@
     "build:client": "bun run --filter client build",
     "build:lit-components": "bun run --filter '@web-component-dev-tools/lit-components' build",
     "build:react-lit-components": "bun run --filter '@web-component-dev-tools/react-lit-components' build",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
   },
   "keywords": [
     "vite",
@@ -30,6 +32,7 @@
     "bun": ">=1.0.0"
   },
   "devDependencies": {
-    "@lazy-release/changesets": "^0.5.1"
+    "@lazy-release/changesets": "^0.5.1",
+    "oxfmt": "^0.27.0"
   }
 }
