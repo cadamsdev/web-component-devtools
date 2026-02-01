@@ -7,7 +7,8 @@ import {
   formatPropertyValue, 
   getValueType,
   formatTimestamp,
-  formatEventDetail 
+  formatEventDetail,
+  createJSONTreeElement
 } from './utils';
 import type { EventLog } from './types';
 import { PropertyEditor } from './property-editor';
@@ -206,6 +207,13 @@ export function createPanel(
   clearBtn.textContent = 'Clear';
   clearBtn.addEventListener('click', onClearEvents);
   eventsControls.appendChild(clearBtn);
+  
+  // Event filters section - will be populated dynamically
+  const eventsFilters = document.createElement('div');
+  eventsFilters.className = 'wc-events-filters';
+  eventsFilters.dataset.tabContent = 'events';
+  eventsFilters.style.display = 'none';
+  eventsFilters.id = 'wc-events-filters';
 
   // Components content
   const componentsContent = document.createElement('div');
@@ -225,6 +233,7 @@ export function createPanel(
   panel.appendChild(tabsSection);
   panel.appendChild(searchSection);
   panel.appendChild(eventsControls);
+  panel.appendChild(eventsFilters);
   panel.appendChild(componentsContent);
   panel.appendChild(eventsContent);
 
@@ -600,35 +609,227 @@ export function createInstanceElement(
   return instanceDiv;
 }
 
-export function createEventLogElement(log: EventLog): HTMLDivElement {
+export function createEventLogElement(log: EventLog, onReplay?: (timestamp: number) => void): HTMLDivElement {
   const logDiv = document.createElement('div');
   logDiv.className = 'wc-event-log';
+  
+  // Add badges for special states
+  if (log.defaultPrevented) {
+    logDiv.classList.add('prevented-default');
+  }
+  if (log.propagationStopped) {
+    logDiv.classList.add('stopped-propagation');
+  }
   
   const header = document.createElement('div');
   header.className = 'wc-event-header';
   
+  const leftSide = document.createElement('div');
+  leftSide.className = 'wc-event-header-left';
+  
   const eventType = document.createElement('span');
   eventType.className = 'wc-event-type';
   eventType.textContent = log.eventType;
-  header.appendChild(eventType);
+  leftSide.appendChild(eventType);
+  
+  // Add badges for event properties
+  const badges = document.createElement('span');
+  badges.className = 'wc-event-badges';
+  
+  if (!log.isTrusted) {
+    const badge = document.createElement('span');
+    badge.className = 'wc-event-badge synthetic';
+    badge.textContent = 'synthetic';
+    badge.title = 'This event was created programmatically';
+    badges.appendChild(badge);
+  }
+  
+  if (log.defaultPrevented) {
+    const badge = document.createElement('span');
+    badge.className = 'wc-event-badge prevented';
+    badge.textContent = 'prevented';
+    badge.title = 'preventDefault() was called';
+    badges.appendChild(badge);
+  }
+  
+  if (log.immediatePropagationStopped) {
+    const badge = document.createElement('span');
+    badge.className = 'wc-event-badge stopped-immediate';
+    badge.textContent = 'stopped immediately';
+    badge.title = 'stopImmediatePropagation() was called';
+    badges.appendChild(badge);
+  } else if (log.propagationStopped) {
+    const badge = document.createElement('span');
+    badge.className = 'wc-event-badge stopped';
+    badge.textContent = 'stopped';
+    badge.title = 'stopPropagation() was called';
+    badges.appendChild(badge);
+  }
+  
+  leftSide.appendChild(badges);
+  header.appendChild(leftSide);
+  
+  const rightSide = document.createElement('div');
+  rightSide.className = 'wc-event-header-right';
   
   const timestamp = document.createElement('span');
   timestamp.className = 'wc-event-timestamp';
   timestamp.textContent = formatTimestamp(log.timestamp);
-  header.appendChild(timestamp);
+  rightSide.appendChild(timestamp);
   
+  // Add replay button
+  if (onReplay) {
+    const replayBtn = document.createElement('button');
+    replayBtn.className = 'wc-event-replay-btn';
+    replayBtn.innerHTML = '↻';
+    replayBtn.title = 'Replay this event';
+    replayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onReplay(log.timestamp);
+    });
+    rightSide.appendChild(replayBtn);
+  }
+  
+  header.appendChild(rightSide);
   logDiv.appendChild(header);
   
   const source = document.createElement('div');
   source.className = 'wc-event-source';
   source.textContent = `<${log.tagName}>`;
+  
+  // Add event properties
+  const propsDiv = document.createElement('span');
+  propsDiv.className = 'wc-event-props';
+  
+  const props: string[] = [];
+  if (log.bubbles) props.push('bubbles');
+  if (log.cancelable) props.push('cancelable');
+  if (log.composed) props.push('composed');
+  
+  if (props.length > 0) {
+    propsDiv.textContent = ` • ${props.join(', ')}`;
+    source.appendChild(propsDiv);
+  }
+  
   logDiv.appendChild(source);
   
+  // Event propagation path
+  if (log.propagationPath && log.propagationPath.length > 0) {
+    const pathSection = document.createElement('div');
+    pathSection.className = 'wc-event-propagation-section';
+    
+    const pathHeader = document.createElement('div');
+    pathHeader.className = 'wc-event-propagation-header';
+    
+    const pathToggle = document.createElement('span');
+    pathToggle.className = 'wc-event-propagation-toggle';
+    pathToggle.textContent = '▶';
+    pathHeader.appendChild(pathToggle);
+    
+    const pathTitle = document.createElement('span');
+    pathTitle.textContent = `Propagation Path (${log.propagationPath.length} elements)`;
+    pathHeader.appendChild(pathTitle);
+    
+    const pathContent = document.createElement('div');
+    pathContent.className = 'wc-event-propagation-path';
+    pathContent.style.display = 'none';
+    
+    // Group by phase
+    const capturingPhase = log.propagationPath.filter(p => p.phase === 'capturing');
+    const targetPhase = log.propagationPath.filter(p => p.phase === 'target');
+    const bubblingPhase = log.propagationPath.filter(p => p.phase === 'bubbling');
+    
+    if (capturingPhase.length > 0) {
+      const phaseTitle = document.createElement('div');
+      phaseTitle.className = 'wc-event-phase-title capturing';
+      phaseTitle.textContent = '↓ Capturing Phase';
+      pathContent.appendChild(phaseTitle);
+      
+      capturingPhase.forEach((pathItem) => {
+        const pathEl = createPropagationPathElement(pathItem);
+        pathContent.appendChild(pathEl);
+      });
+    }
+    
+    if (targetPhase.length > 0) {
+      const phaseTitle = document.createElement('div');
+      phaseTitle.className = 'wc-event-phase-title target';
+      phaseTitle.textContent = '◉ Target Phase';
+      pathContent.appendChild(phaseTitle);
+      
+      targetPhase.forEach((pathItem) => {
+        const pathEl = createPropagationPathElement(pathItem);
+        pathContent.appendChild(pathEl);
+      });
+    }
+    
+    if (bubblingPhase.length > 0) {
+      const phaseTitle = document.createElement('div');
+      phaseTitle.className = 'wc-event-phase-title bubbling';
+      phaseTitle.textContent = '↑ Bubbling Phase';
+      pathContent.appendChild(phaseTitle);
+      
+      bubblingPhase.forEach((pathItem) => {
+        const pathEl = createPropagationPathElement(pathItem);
+        pathContent.appendChild(pathEl);
+      });
+    }
+    
+    pathHeader.style.cursor = 'pointer';
+    pathHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isExpanded = pathContent.style.display === 'block';
+      pathContent.style.display = isExpanded ? 'none' : 'block';
+      pathToggle.textContent = isExpanded ? '▶' : '▼';
+      pathSection.classList.toggle('expanded');
+    });
+    
+    pathSection.appendChild(pathHeader);
+    pathSection.appendChild(pathContent);
+    logDiv.appendChild(pathSection);
+  }
+  
+  // Event detail
   if (log.detail !== undefined && log.detail !== null) {
-    const detail = document.createElement('div');
-    detail.className = 'wc-event-detail';
-    detail.textContent = formatEventDetail(log.detail);
-    logDiv.appendChild(detail);
+    const detailSection = document.createElement('div');
+    detailSection.className = 'wc-event-detail-section';
+    
+    const detailHeader = document.createElement('div');
+    detailHeader.className = 'wc-event-detail-header';
+    
+    const detailToggle = document.createElement('span');
+    detailToggle.className = 'wc-event-detail-toggle';
+    detailToggle.textContent = '▶';
+    detailHeader.appendChild(detailToggle);
+    
+    const detailTitle = document.createElement('span');
+    detailTitle.textContent = 'Event Detail';
+    detailHeader.appendChild(detailTitle);
+    
+    const detailContent = document.createElement('div');
+    detailContent.className = 'wc-event-detail-content';
+    detailContent.style.display = 'none';
+    
+    // Use JSON tree viewer for complex objects
+    if (typeof log.detail === 'object' && log.detail !== null) {
+      const jsonTree = createJSONTreeElement(log.detail);
+      detailContent.appendChild(jsonTree);
+    } else {
+      detailContent.textContent = formatEventDetail(log.detail);
+    }
+    
+    detailHeader.style.cursor = 'pointer';
+    detailHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isExpanded = detailContent.style.display === 'block';
+      detailContent.style.display = isExpanded ? 'none' : 'block';
+      detailToggle.textContent = isExpanded ? '▶' : '▼';
+      detailSection.classList.toggle('expanded');
+    });
+    
+    detailSection.appendChild(detailHeader);
+    detailSection.appendChild(detailContent);
+    logDiv.appendChild(detailSection);
   }
   
   // Add hover effect to highlight element
@@ -644,8 +845,13 @@ export function createEventLogElement(log: EventLog): HTMLDivElement {
     }
   });
   
-  // Click to scroll to element
-  logDiv.addEventListener('click', () => {
+  // Click to scroll to element (but not when clicking buttons or expandable sections)
+  logDiv.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('.wc-event-propagation-header') || target.closest('.wc-event-detail-header')) {
+      return;
+    }
+    
     if (document.body.contains(log.element)) {
       log.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       highlightElement(log.element);
@@ -658,6 +864,202 @@ export function createEventLogElement(log: EventLog): HTMLDivElement {
   logDiv.style.cursor = 'pointer';
   
   return logDiv;
+}
+
+/**
+ * Create a propagation path element
+ */
+function createPropagationPathElement(pathItem: import('./types').EventPropagationPath): HTMLDivElement {
+  const pathEl = document.createElement('div');
+  pathEl.className = `wc-event-path-item ${pathItem.phase}`;
+  pathEl.textContent = `<${pathItem.tagName}>`;
+  
+  // Add hover effect
+  pathEl.addEventListener('mouseenter', () => {
+    if (document.body.contains(pathItem.element)) {
+      highlightElement(pathItem.element);
+    }
+  });
+  
+  pathEl.addEventListener('mouseleave', () => {
+    if (document.body.contains(pathItem.element)) {
+      unhighlightElement(pathItem.element);
+    }
+  });
+  
+  // Click to scroll to element
+  pathEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (document.body.contains(pathItem.element)) {
+      pathItem.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      highlightElement(pathItem.element);
+      setTimeout(() => {
+        unhighlightElement(pathItem.element);
+      }, 3000);
+    }
+  });
+  
+  pathEl.style.cursor = 'pointer';
+  
+  return pathEl;
+}
+
+/**
+ * Create or update event filter controls
+ */
+export function updateEventFiltersUI(
+  eventTypes: string[],
+  components: string[],
+  currentFilter: import('./types').EventFilter,
+  onFilterChange: (filter: Partial<import('./types').EventFilter>) => void
+): void {
+  const filtersContainer = document.getElementById('wc-events-filters');
+  if (!filtersContainer) return;
+  
+  filtersContainer.innerHTML = '';
+  
+  // Filter by event type
+  if (eventTypes.length > 0) {
+    const typeFilter = document.createElement('div');
+    typeFilter.className = 'wc-event-filter-group';
+    
+    const typeLabel = document.createElement('label');
+    typeLabel.textContent = 'Event Type:';
+    typeFilter.appendChild(typeLabel);
+    
+    const typeSelect = document.createElement('select');
+    typeSelect.className = 'wc-event-filter-select';
+    typeSelect.multiple = true;
+    typeSelect.size = Math.min(5, eventTypes.length + 1);
+    
+    const allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.textContent = '(All Events)';
+    allOption.selected = currentFilter.eventTypes.length === 0;
+    typeSelect.appendChild(allOption);
+    
+    eventTypes.forEach(type => {
+      const option = document.createElement('option');
+      option.value = type;
+      option.textContent = type;
+      option.selected = currentFilter.eventTypes.includes(type);
+      typeSelect.appendChild(option);
+    });
+    
+    typeSelect.addEventListener('change', () => {
+      const selected = Array.from(typeSelect.selectedOptions)
+        .map(opt => opt.value)
+        .filter(v => v !== '');
+      onFilterChange({ eventTypes: selected });
+    });
+    
+    typeFilter.appendChild(typeSelect);
+    filtersContainer.appendChild(typeFilter);
+  }
+  
+  // Filter by component
+  if (components.length > 0) {
+    const componentFilter = document.createElement('div');
+    componentFilter.className = 'wc-event-filter-group';
+    
+    const componentLabel = document.createElement('label');
+    componentLabel.textContent = 'Component:';
+    componentFilter.appendChild(componentLabel);
+    
+    const componentSelect = document.createElement('select');
+    componentSelect.className = 'wc-event-filter-select';
+    componentSelect.multiple = true;
+    componentSelect.size = Math.min(5, components.length + 1);
+    
+    const allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.textContent = '(All Components)';
+    allOption.selected = currentFilter.components.length === 0;
+    componentSelect.appendChild(allOption);
+    
+    components.forEach(comp => {
+      const option = document.createElement('option');
+      option.value = comp;
+      option.textContent = `<${comp}>`;
+      option.selected = currentFilter.components.includes(comp);
+      componentSelect.appendChild(option);
+    });
+    
+    componentSelect.addEventListener('change', () => {
+      const selected = Array.from(componentSelect.selectedOptions)
+        .map(opt => opt.value)
+        .filter(v => v !== '');
+      onFilterChange({ components: selected });
+    });
+    
+    componentFilter.appendChild(componentSelect);
+    filtersContainer.appendChild(componentFilter);
+  }
+  
+  // Special filters
+  const specialFilters = document.createElement('div');
+  specialFilters.className = 'wc-event-filter-group special-filters';
+  
+  const preventedCheckbox = document.createElement('label');
+  preventedCheckbox.className = 'wc-event-filter-checkbox';
+  const preventedInput = document.createElement('input');
+  preventedInput.type = 'checkbox';
+  preventedInput.checked = currentFilter.onlyPreventedDefaults;
+  preventedInput.addEventListener('change', () => {
+    onFilterChange({ onlyPreventedDefaults: preventedInput.checked });
+  });
+  preventedCheckbox.appendChild(preventedInput);
+  preventedCheckbox.appendChild(document.createTextNode(' Only Prevented Defaults'));
+  specialFilters.appendChild(preventedCheckbox);
+  
+  const stoppedCheckbox = document.createElement('label');
+  stoppedCheckbox.className = 'wc-event-filter-checkbox';
+  const stoppedInput = document.createElement('input');
+  stoppedInput.type = 'checkbox';
+  stoppedInput.checked = currentFilter.onlyStoppedPropagation;
+  stoppedInput.addEventListener('change', () => {
+    onFilterChange({ onlyStoppedPropagation: stoppedInput.checked });
+  });
+  stoppedCheckbox.appendChild(stoppedInput);
+  stoppedCheckbox.appendChild(document.createTextNode(' Only Stopped Propagation'));
+  specialFilters.appendChild(stoppedCheckbox);
+  
+  filtersContainer.appendChild(specialFilters);
+  
+  // Search filter
+  const searchFilter = document.createElement('div');
+  searchFilter.className = 'wc-event-filter-group';
+  
+  const searchLabel = document.createElement('label');
+  searchLabel.textContent = 'Search:';
+  searchFilter.appendChild(searchLabel);
+  
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.className = 'wc-event-filter-search';
+  searchInput.placeholder = 'Filter events...';
+  searchInput.value = currentFilter.searchText;
+  searchInput.addEventListener('input', () => {
+    onFilterChange({ searchText: searchInput.value });
+  });
+  searchFilter.appendChild(searchInput);
+  
+  filtersContainer.appendChild(searchFilter);
+  
+  // Reset filters button
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'wc-event-filter-reset';
+  resetBtn.textContent = 'Reset Filters';
+  resetBtn.addEventListener('click', () => {
+    onFilterChange({
+      eventTypes: [],
+      components: [],
+      onlyPreventedDefaults: false,
+      onlyStoppedPropagation: false,
+      searchText: ''
+    });
+  });
+  filtersContainer.appendChild(resetBtn);
 }
 
 /**

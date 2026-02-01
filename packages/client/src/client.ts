@@ -9,7 +9,8 @@ import {
   createStatsElement, 
   createInstanceElement,
   createEventLogElement,
-  updateUndoRedoButtons
+  updateUndoRedoButtons,
+  updateEventFiltersUI
 } from './ui';
 import { scanWebComponents } from './scanner';
 import { EventMonitor } from './event-monitor';
@@ -441,6 +442,7 @@ function switchTab(tabName: string): void {
   // Refresh content when switching to events tab
   if (tabName === 'events') {
     updateEventsList();
+    updateEventFilters();
   }
 }
 
@@ -450,21 +452,73 @@ function updateEventsList(): void {
   
   eventsContent.innerHTML = '';
   
-  const eventLogs = eventMonitor.getEventLogs();
+  const eventLogs = eventMonitor.getFilteredEventLogs();
   
   if (eventLogs.length === 0) {
     const noEvents = document.createElement('div');
     noEvents.className = 'wc-no-events';
-    noEvents.textContent = eventMonitor.isEnabled() 
-      ? 'No events captured yet' 
-      : 'Start monitoring to see events';
+    
+    // Check if monitoring is enabled
+    if (!eventMonitor.isEnabled()) {
+      noEvents.textContent = 'Start monitoring to see events';
+    } else {
+      // Check if there are unfiltered events
+      const allEvents = eventMonitor.getEventLogs();
+      if (allEvents.length === 0) {
+        noEvents.textContent = 'No events captured yet';
+      } else {
+        noEvents.textContent = 'No events match the current filters';
+      }
+    }
+    
     eventsContent.appendChild(noEvents);
     return;
   }
   
   eventLogs.forEach(log => {
-    const logElement = createEventLogElement(log);
+    const logElement = createEventLogElement(log, (timestamp) => {
+      // Replay event callback
+      const success = eventMonitor.replayEvent(timestamp);
+      if (success) {
+        // Show a brief notification
+        const notification = document.createElement('div');
+        notification.textContent = '✓ Event replayed';
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #48bb78;
+          color: white;
+          padding: 12px 16px;
+          border-radius: 6px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          z-index: 1000000;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+          font-size: 14px;
+          font-weight: 500;
+          animation: wc-slide-in 0.3s ease;
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          notification.style.animation = 'wc-slide-out 0.3s ease';
+          setTimeout(() => notification.remove(), 300);
+        }, 2000);
+      }
+    });
     eventsContent.appendChild(logElement);
+  });
+}
+
+/**
+ * Update the event filters UI
+ */
+function updateEventFilters(): void {
+  const eventTypes = eventMonitor.getUniqueEventTypes();
+  const components = eventMonitor.getUniqueComponents();
+  const currentFilter = eventMonitor.getFilter();
+  
+  updateEventFiltersUI(eventTypes, components, currentFilter, (filterUpdate) => {
+    eventMonitor.setFilter(filterUpdate);
   });
 }
 

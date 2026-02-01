@@ -51,12 +51,42 @@ export interface InstanceInfo {
   renderCount?: number;
 }
 
+export interface EventPropagationPath {
+  element: Element;
+  tagName: string;
+  phase: 'capturing' | 'target' | 'bubbling';
+}
+
 export interface EventLog {
   timestamp: number;
   eventType: string;
   tagName: string;
   element: Element;
   detail: unknown;
+  // Enhanced event monitoring features
+  propagationPath?: EventPropagationPath[];
+  defaultPrevented: boolean;
+  propagationStopped: boolean;
+  immediatePropagationStopped: boolean;
+  bubbles: boolean;
+  cancelable: boolean;
+  composed: boolean;
+  isTrusted: boolean;
+  currentTarget?: Element | null;
+}
+
+export interface EventFilter {
+  eventTypes: string[];
+  components: string[];
+  onlyPreventedDefaults: boolean;
+  onlyStoppedPropagation: boolean;
+  searchText: string;
+}
+
+export interface EventBreakpoint {
+  eventType: string;
+  componentTagName?: string;
+  enabled: boolean;
 }
 
 export interface DevToolsConfig {
