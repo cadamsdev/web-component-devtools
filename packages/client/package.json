@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Client-side script for web component developer tools",
   "type": "module",
   "main": "./dist/client.js",
