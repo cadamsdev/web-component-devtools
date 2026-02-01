@@ -21,6 +21,9 @@ import { RenderOverlay } from './render-overlay';
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
 
+// Map from element to its UI component div
+const elementToUIMap = new WeakMap<Element, HTMLDivElement>();
+
 // Track if we're currently updating to avoid recursive updates
 let isUpdating = false;
 
@@ -74,6 +77,11 @@ export function initDevTools(config: DevToolsConfig) {
   // Set up undo manager callback
   undoManager.setOnChangeCallback(() => {
     updateUndoRedoButtons(undoManager.canUndo(), undoManager.canRedo());
+  });
+  
+  // Set up render tracker callback to update UI when render count changes
+  renderTracker.setOnRenderCallback((element, count) => {
+    updateRenderCountBadge(element, count);
   });
   
   // Initialize undo/redo button states
@@ -488,9 +496,51 @@ function updateComponentList(): void {
       updateComponentList
     );
     content.appendChild(instanceEl);
+    
+    // Store mapping from element to UI component
+    elementToUIMap.set(instance.element, instanceEl);
   });
 
   isUpdating = false;
+}
+
+/**
+ * Update the render count badge for a specific element in the UI
+ */
+function updateRenderCountBadge(element: Element, count: number): void {
+  // Don't update if the panel is not visible
+  const panel = document.getElementById('wc-devtools-panel');
+  if (!panel || !panel.classList.contains('visible')) {
+    return;
+  }
+  
+  // Get the UI component div for this element
+  const instanceDiv = elementToUIMap.get(element);
+  if (!instanceDiv) return;
+  
+  // Find the component name element
+  const nameElement = instanceDiv.querySelector('.wc-component-name');
+  if (!nameElement) return;
+  
+  // Find or create the render count badge
+  let badge = nameElement.querySelector('.wc-render-count-badge') as HTMLSpanElement;
+  
+  if (!badge) {
+    // Create new badge if it doesn't exist
+    badge = document.createElement('span');
+    badge.className = 'wc-render-count-badge';
+    nameElement.appendChild(badge);
+  }
+  
+  // Update the badge text and title
+  badge.textContent = `${count} render${count !== 1 ? 's' : ''}`;
+  badge.title = `This component has re-rendered ${count} time${count !== 1 ? 's' : ''}`;
+  
+  // Add a flash animation to indicate update
+  badge.classList.add('wc-render-count-flash');
+  setTimeout(() => {
+    badge?.classList.remove('wc-render-count-flash');
+  }, 500);
 }
 
 function watchForChanges(panel: HTMLDivElement): void {

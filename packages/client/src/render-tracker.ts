@@ -17,12 +17,20 @@ export class RenderTracker {
   private overlay: RenderOverlay | null = null;
   private lastIncrementTime: WeakMap<Element, number> = new WeakMap();
   private hasLitLifecycle: WeakMap<Element, boolean> = new WeakMap();
+  private onRenderCallback: ((element: Element, count: number) => void) | null = null;
 
   /**
    * Set the render overlay instance
    */
   setOverlay(overlay: RenderOverlay): void {
     this.overlay = overlay;
+  }
+
+  /**
+   * Set a callback to be called when a render count is incremented
+   */
+  setOnRenderCallback(callback: (element: Element, count: number) => void): void {
+    this.onRenderCallback = callback;
   }
 
   /**
@@ -395,6 +403,11 @@ export class RenderTracker {
     // Update overlay if available
     if (this.overlay && this.overlay.isEnabled()) {
       this.overlay.updateOverlay(element, newCount);
+    }
+    
+    // Call the render callback if set
+    if (this.onRenderCallback) {
+      this.onRenderCallback(element, newCount);
     }
   }
 
