@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "bun run --filter '*' build",
-    "dev": "bun run --filter react-lit-example dev",
+    "dev": "bun run --filter vite-example dev",
     "dev:webpack": "bun run --filter webpack-lit-example dev",
     "build:plugin": "bun run --filter vite-plugin build",
     "build:webpack-plugin": "bun run --filter webpack-plugin build",

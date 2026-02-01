@@ -7,7 +7,7 @@ A Vite plugin that provides developer tools for inspecting web components on you
 This is a monorepo containing:
 
 - `packages/vite-web-component-dev-tools` - The Vite plugin
-- `apps/react-lit-example` - Example React app using Lit web components
+- `apps/vite-example` - Example React app using Lit web components
 
 ## Features
 
@@ -155,7 +155,7 @@ vite-web-component-dev-tools/
 │       ├── package.json
 │       └── tsconfig.json
 ├── apps/
-│   └── react-lit-example/             # Example React + Lit app
+│   └── vite-example/             # Example React + Lit app
 │       ├── src/
 │       │   ├── components/            # Lit web components
 │       │   ├── App.tsx

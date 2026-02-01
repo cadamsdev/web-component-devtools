@@ -9,7 +9,7 @@ This is a **monorepo** for developer tools that help inspect web components. It 
 **Structure:**
 - `packages/client/` - The client-side script (build-tool agnostic)
 - `packages/vite-plugin/` - The Vite plugin package
-- `apps/react-lit-example/` - Example React + Lit application
+- `apps/vite-example/` - Example React + Lit application
 
 **Architecture:**
 The project is split into two packages:
@@ -43,7 +43,7 @@ cd packages/vite-plugin && bun run dev
 bun run dev
 
 # Preview production build
-cd apps/react-lit-example && bun run preview
+cd apps/vite-example && bun run preview
 ```
 
 ### Linting and Formatting

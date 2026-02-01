@@ -224,7 +224,7 @@ See [LIT_REACT_INTEGRATION.md](../../LIT_REACT_INTEGRATION.md) for details.
 
 ## 🤝 Related Examples
 
-- [react-lit-example](../react-lit-example): React + Vite + Lit example
+- [vite-example](../vite-example): React + Vite + Lit example
 
 Both examples use the same React components and Lit web components, but with different build tools (Webpack vs Vite).
 

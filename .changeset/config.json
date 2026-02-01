@@ -3,7 +3,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "react-lit-example",
+    "vite-example",
     "webpack-lit-example",
     "web-component-dev-tools-monorepo",
     "@web-component-dev-tools/react-lit-components",
