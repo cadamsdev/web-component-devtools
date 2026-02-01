@@ -21,7 +21,7 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>⚡ Webpack + React + Lit Demo</h1>
+        <h1>Webpack + React + Lit Demo</h1>
         <p className="subtitle">
           Example application showcasing Lit web components in a React + Webpack app
         </p>
@@ -35,12 +35,11 @@ function App() {
 
       <main className="main">
         <section className="section">
-          <h2>📦 Card Components</h2>
+          <h2>Card Components</h2>
           <div className="grid">
             <MyCard
               title="Button Component"
               description="Interactive buttons with various states and styles"
-              icon="🔘"
             >
               <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <MyButton label="Click Me" onButtonClick={handleButtonClick} />
@@ -55,7 +54,6 @@ function App() {
             <MyCard
               title="Counter Component"
               description="Stateful counter with min/max constraints"
-              icon="🔢"
             >
               <div style={{ marginTop: '16px' }}>
                 <MyCounter
@@ -74,7 +72,6 @@ function App() {
             <MyCard
               title="Badge Component"
               description="Small labels for status and categories"
-              icon="🏷️"
             >
               <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <MyBadge label="New" variant="primary" />
@@ -90,11 +87,10 @@ function App() {
         </section>
 
         <section className="section">
-          <h2>🎯 Try the Dev Tools</h2>
+          <h2>Try the Dev Tools</h2>
           <MyCard
             title="Web Component Inspector"
-            description="Click the purple lightning button (⚡) in the bottom-right corner to inspect all web components on this page!"
-            icon="🔍"
+            description="Click the purple lightning button in the bottom-right corner to inspect all web components on this page!"
             elevated
           >
             <div style={{ marginTop: '16px' }}>
@@ -115,23 +111,23 @@ function App() {
         </section>
 
         <section className="section">
-          <h2>🧪 More Examples</h2>
+          <h2>More Examples</h2>
           <div className="grid">
-            <MyCard title="Example 1" icon="⭐">
+            <MyCard title="Example 1">
               <MyCounter value={0} min={0} max={100} label="Stars" />
               <span slot="footer">
                 <MyButton label="Star" variant="primary" />
               </span>
             </MyCard>
 
-            <MyCard title="Example 2" icon="❤️">
+            <MyCard title="Example 2">
               <MyCounter value={10} min={0} max={50} label="Likes" />
               <span slot="footer">
                 <MyButton label="Like" />
               </span>
             </MyCard>
 
-            <MyCard title="Example 3" icon="🚀">
+            <MyCard title="Example 3">
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                 <MyBadge label="Fast" variant="success" />
                 <MyBadge label="Modern" variant="primary" />

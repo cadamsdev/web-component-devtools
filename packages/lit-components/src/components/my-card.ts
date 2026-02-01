@@ -66,7 +66,7 @@ export class MyCard extends LitElement {
   description = '';
 
   @property({ type: String })
-  icon = '📦';
+  icon = '';
 
   @property({ type: Boolean })
   elevated = false;
