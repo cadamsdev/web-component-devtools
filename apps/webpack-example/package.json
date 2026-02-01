@@ -12,7 +12,7 @@
     "react-lit-components": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@cadamsdev/web-component-dev-tools-webpack-plugin": "workspace:*"
+    "@cadamsdev/webpack-plugin-wc-devtools": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",

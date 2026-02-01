@@ -29,7 +29,7 @@
       "name": "webpack-example",
       "version": "0.0.0",
       "dependencies": {
-        "@cadamsdev/web-component-dev-tools-webpack-plugin": "workspace:*",
+        "@cadamsdev/webpack-plugin-wc-devtools": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-lit-components": "workspace:*",
@@ -104,7 +104,7 @@
       },
     },
     "packages/webpack-plugin": {
-      "name": "@cadamsdev/web-component-dev-tools-webpack-plugin",
+      "name": "@cadamsdev/webpack-plugin-wc-devtools",
       "version": "0.0.0",
       "dependencies": {
         "@cadamsdev/web-component-dev-tools-client": "workspace:*",
@@ -325,7 +325,7 @@
 
     "@cadamsdev/web-component-dev-tools-client": ["@cadamsdev/web-component-dev-tools-client@workspace:packages/client"],
 
-    "@cadamsdev/web-component-dev-tools-webpack-plugin": ["@cadamsdev/web-component-dev-tools-webpack-plugin@workspace:packages/webpack-plugin"],
+    "@cadamsdev/webpack-plugin-wc-devtools": ["@cadamsdev/webpack-plugin-wc-devtools@workspace:packages/webpack-plugin"],
 
     "@clack/core": ["@clack/core@0.4.2", "", { "dependencies": { "picocolors": "^1.0.0", "sisteransi": "^1.0.5" } }, "sha512-NYQfcEy8MWIxrT5Fj8nIVchfRFA26yYKJcvBS7WlUIlw2OmQOY9DhGGXMovyI5J5PpxrCPGkgUi207EBrjpBvg=="],
 
