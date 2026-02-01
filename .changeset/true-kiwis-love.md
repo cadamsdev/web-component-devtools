@@ -2,4 +2,4 @@
 "@cadamsdev/vite-plugin-wc-devtools": fix
 ---
 
-Use vite v7
+Fix vite version
