@@ -12,9 +12,9 @@
       "name": "vite-example",
       "version": "0.0.0",
       "dependencies": {
-        "@web-component-dev-tools/react-lit-components": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "react-lit-components": "workspace:*",
         "vite-plugin": "workspace:*",
       },
       "devDependencies": {
@@ -29,9 +29,9 @@
       "name": "webpack-example",
       "version": "0.0.0",
       "dependencies": {
-        "@web-component-dev-tools/react-lit-components": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "react-lit-components": "workspace:*",
         "webpack-plugin": "workspace:*",
       },
       "devDependencies": {
@@ -61,7 +61,7 @@
       },
     },
     "packages/lit-components": {
-      "name": "@web-component-dev-tools/lit-components",
+      "name": "lit-components",
       "version": "0.1.0",
       "dependencies": {
         "lit": "^3.1.0",
@@ -71,10 +71,10 @@
       },
     },
     "packages/react-lit-components": {
-      "name": "@web-component-dev-tools/react-lit-components",
+      "name": "react-lit-components",
       "version": "0.1.0",
       "dependencies": {
-        "@web-component-dev-tools/lit-components": "workspace:*",
+        "lit-components": "workspace:*",
       },
       "devDependencies": {
         "@lit/react": "^1.0.0",
@@ -555,10 +555,6 @@
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@4.7.0", "", { "dependencies": { "@babel/core": "^7.28.0", "@babel/plugin-transform-react-jsx-self": "^7.27.1", "@babel/plugin-transform-react-jsx-source": "^7.27.1", "@rolldown/pluginutils": "1.0.0-beta.27", "@types/babel__core": "^7.20.5", "react-refresh": "^0.17.0" }, "peerDependencies": { "vite": "^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA=="],
 
-    "@web-component-dev-tools/lit-components": ["@web-component-dev-tools/lit-components@workspace:packages/lit-components"],
-
-    "@web-component-dev-tools/react-lit-components": ["@web-component-dev-tools/react-lit-components@workspace:packages/react-lit-components"],
-
     "@webassemblyjs/ast": ["@webassemblyjs/ast@1.14.1", "", { "dependencies": { "@webassemblyjs/helper-numbers": "1.13.2", "@webassemblyjs/helper-wasm-bytecode": "1.13.2" } }, "sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ=="],
 
     "@webassemblyjs/floating-point-hex-parser": ["@webassemblyjs/floating-point-hex-parser@1.13.2", "", {}, "sha512-6oXyTOzbKxGH4steLbLNOu71Oj+C8Lg34n6CqRvqfS2O71BxY6ByfMDRhBytzknj9yGUPVJ1qIKhRlAwO1AovA=="],
@@ -955,6 +951,8 @@
 
     "lit": ["lit@3.3.2", "", { "dependencies": { "@lit/reactive-element": "^2.1.0", "lit-element": "^4.2.0", "lit-html": "^3.3.0" } }, "sha512-NF9zbsP79l4ao2SNrH3NkfmFgN/hBYSQo90saIVI1o5GpjAdCPVstVzO1MrLOakHoEhYkrtRjPK6Ob521aoYWQ=="],
 
+    "lit-components": ["lit-components@workspace:packages/lit-components"],
+
     "lit-element": ["lit-element@4.2.2", "", { "dependencies": { "@lit-labs/ssr-dom-shim": "^1.5.0", "@lit/reactive-element": "^2.1.0", "lit-html": "^3.3.0" } }, "sha512-aFKhNToWxoyhkNDmWZwEva2SlQia+jfG0fjIWV//YeTaWrVnOxD89dPKfigCUspXFmjzOEUQpOkejH5Ly6sG0w=="],
 
     "lit-html": ["lit-html@3.3.2", "", { "dependencies": { "@types/trusted-types": "^2.0.2" } }, "sha512-Qy9hU88zcmaxBXcc10ZpdK7cOLXvXpRoBxERdtqV9QOrfpMZZ6pSYP91LhpPtap3sFMUiL7Tw2RImbe0Al2/kw=="],
@@ -1104,6 +1102,8 @@
     "react": ["react@18.3.1", "", { "dependencies": { "loose-envify": "^1.1.0" } }, "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ=="],
 
     "react-dom": ["react-dom@18.3.1", "", { "dependencies": { "loose-envify": "^1.1.0", "scheduler": "^0.23.2" }, "peerDependencies": { "react": "^18.3.1" } }, "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw=="],
+
+    "react-lit-components": ["react-lit-components@workspace:packages/react-lit-components"],
 
     "react-refresh": ["react-refresh@0.17.0", "", {}, "sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ=="],
 

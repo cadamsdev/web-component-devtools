@@ -9,7 +9,7 @@
     "preview": "npx serve dist"
   },
   "dependencies": {
-    "@web-component-dev-tools/react-lit-components": "workspace:*",
+    "react-lit-components": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "webpack-plugin": "workspace:*"

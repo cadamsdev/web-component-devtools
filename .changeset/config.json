@@ -6,7 +6,7 @@
     "vite-example",
     "webpack-example",
     "web-component-dev-tools-monorepo",
-    "@web-component-dev-tools/react-lit-components",
-    "@web-component-dev-tools/lit-components"
+    "react-lit-components",
+    "lit-components"
   ]
 }

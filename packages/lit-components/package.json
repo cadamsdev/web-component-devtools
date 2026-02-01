@@ -1,5 +1,5 @@
 {
-  "name": "@web-component-dev-tools/lit-components",
+  "name": "lit-components",
   "version": "0.1.0",
   "description": "Reusable Lit UI component library",
   "type": "module",

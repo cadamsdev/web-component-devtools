@@ -1,7 +1,7 @@
 {
-  "name": "@web-component-dev-tools/react-lit-components",
+  "name": "react-lit-components",
   "version": "0.1.0",
-  "description": "React wrapper components for @web-component-dev-tools/lit-components",
+  "description": "React wrapper components for lit-components",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -28,7 +28,7 @@
     "custom-elements"
   ],
   "dependencies": {
-    "@web-component-dev-tools/lit-components": "workspace:*"
+    "lit-components": "workspace:*"
   },
   "peerDependencies": {
     "@lit/react": "^1.0.0",
