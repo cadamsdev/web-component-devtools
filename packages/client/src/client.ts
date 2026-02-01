@@ -36,6 +36,9 @@ let isUpdating = false;
 // Track the current search filter
 let searchFilter = '';
 
+// Track the initial panel position
+let initialPanelPosition = 'bottom-right';
+
 // Event monitor instance
 const eventMonitor = new EventMonitor();
 
@@ -54,6 +57,9 @@ const renderOverlay = new RenderOverlay();
 // Component overlay instance
 const componentOverlay = new ComponentOverlay();
 
+// Set up component overlay click callback
+componentOverlay.setOnClickCallback(handleComponentOverlayClick);
+
 // Accessibility checker instance
 const a11yChecker = new AccessibilityChecker();
 
@@ -71,6 +77,9 @@ renderTracker.setOverlay(renderOverlay);
 
 export function initDevTools(config: DevToolsConfig) {
   const { position } = config;
+  
+  // Store the initial position globally
+  initialPanelPosition = position;
 
   injectStyles(position);
 
@@ -222,6 +231,52 @@ function handleA11yBadgeClick(element: Element): void {
   
   // Update the accessibility view with the selected component
   updateAccessibilityView();
+}
+
+function handleComponentOverlayClick(element: Element): void {
+  // Open the panel if it's not visible
+  const panel = document.getElementById('wc-devtools-panel');
+  const button = document.getElementById('wc-devtools-btn') as HTMLButtonElement;
+  
+  if (!panel || !button) return;
+  
+  // Make panel visible if it's not
+  if (!panel.classList.contains('visible')) {
+    panel.classList.add('visible');
+    updatePanelPosition(button, panel, false, initialPanelPosition);
+    updateComponentList();
+  }
+  
+  // Switch to components tab
+  switchTab('components');
+  
+  // Wait for the component list to update, then scroll to the component
+  requestAnimationFrame(() => {
+    scrollToComponent(element);
+  });
+}
+
+/**
+ * Scroll to and highlight a component in the dev tools panel
+ */
+function scrollToComponent(element: Element): void {
+  // Get the UI component div for this element
+  const instanceDiv = elementToUIMap.get(element);
+  if (!instanceDiv) return;
+  
+  // Scroll to the component
+  instanceDiv.scrollIntoView({ 
+    behavior: 'smooth', 
+    block: 'center' 
+  });
+  
+  // Add highlight class
+  instanceDiv.classList.add('highlighted');
+  
+  // Remove highlight after animation completes
+  setTimeout(() => {
+    instanceDiv.classList.remove('highlighted');
+  }, 1000);
 }
 
 function setupKeyboardShortcuts(): void {

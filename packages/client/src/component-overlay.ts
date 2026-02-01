@@ -5,6 +5,14 @@ export class ComponentOverlay {
   private enabled: boolean = false;
   private container: HTMLDivElement | null = null;
   private updateScheduled: boolean = false;
+  private onOverlayClick?: (element: Element) => void;
+
+  /**
+   * Set callback for when an overlay is clicked
+   */
+  setOnClickCallback(callback: (element: Element) => void): void {
+    this.onOverlayClick = callback;
+  }
 
   /**
    * Enable overlays - show tag names on components
@@ -222,6 +230,28 @@ export class ComponentOverlay {
     const tagName = element.tagName.toLowerCase();
     overlay.setAttribute('data-element-tag', tagName);
     overlay.textContent = `<${tagName}>`;
+    
+    // Make overlay clickable
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.cursor = 'pointer';
+    
+    // Add click handler
+    overlay.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (this.onOverlayClick) {
+        this.onOverlayClick(element);
+      }
+    });
+    
+    // Add hover effect
+    overlay.addEventListener('mouseenter', () => {
+      overlay.style.transform = 'scale(1.05)';
+    });
+    
+    overlay.addEventListener('mouseleave', () => {
+      overlay.style.transform = 'scale(1)';
+    });
     
     if (this.container) {
       this.container.appendChild(overlay);
