@@ -23,11 +23,10 @@ export class MyProductCard extends LitElement {
       border-radius: var(--product-card-border-radius);
       box-shadow: var(--product-card-shadow);
       overflow: hidden;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease;
     }
     
     .product-card:hover {
-      transform: translateY(-4px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     }
     

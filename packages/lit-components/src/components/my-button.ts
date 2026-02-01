@@ -12,7 +12,6 @@ export class MyButton extends LitElement {
       --button-gradient-start: #667eea;
       --button-gradient-end: #764ba2;
       --button-text-color: white;
-      --button-hover-lift: -2px;
       --button-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
       --button-disabled-bg: #e2e8f0;
       --button-disabled-color: #a0aec0;

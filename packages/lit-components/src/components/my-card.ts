@@ -11,7 +11,6 @@ export class MyCard extends LitElement {
       --card-padding: 24px;
       --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
-      --card-hover-lift: -4px;
       --card-title-color: #2d3748;
       --card-text-color: #4a5568;
       --card-border-color: #e2e8f0;
