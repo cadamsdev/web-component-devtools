@@ -25,8 +25,8 @@ export class MyButton extends LitElement {
       border: none;
       border-radius: var(--button-border-radius);
       cursor: pointer;
-      transition: all 0.3s ease;
       font-family: inherit;
+      transition: opacity 0.2s ease;
     }
     
     button:not(:disabled) {
@@ -39,18 +39,13 @@ export class MyButton extends LitElement {
     }
     
     button:not(:disabled):hover {
-      transform: translateY(var(--button-hover-lift));
-      box-shadow: var(--button-shadow);
+      opacity: 0.9;
     }
     
     button:disabled {
       background: var(--button-disabled-bg);
       color: var(--button-disabled-color);
       cursor: not-allowed;
-    }
-    
-    button:active:not(:disabled) {
-      transform: translateY(0);
     }
   `;
 

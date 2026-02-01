@@ -35,19 +35,14 @@ export class MyCounter extends LitElement {
       color: white;
       font-size: 20px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: opacity 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
     button:hover {
-      background: #764ba2;
-      transform: scale(1.1);
-    }
-    
-    button:active {
-      transform: scale(0.95);
+      opacity: 0.9;
     }
     
     .label {

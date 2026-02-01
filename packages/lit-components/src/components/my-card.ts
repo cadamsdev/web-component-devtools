@@ -22,12 +22,6 @@ export class MyCard extends LitElement {
       border-radius: var(--card-border-radius);
       padding: var(--card-padding);
       box-shadow: var(--card-shadow);
-      transition: all 0.3s ease;
-    }
-    
-    .card:hover {
-      box-shadow: var(--card-shadow-hover);
-      transform: translateY(var(--card-hover-lift));
     }
     
     .card-header {
