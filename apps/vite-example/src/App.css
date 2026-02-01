@@ -1,11 +1,12 @@
 :root {
   /* Global CSS Variables for components */
-  --primary-gradient-start: #667eea;
-  --primary-gradient-end: #764ba2;
+  --primary-color: #2d3748;
   --card-bg: white;
-  --card-border-radius: 12px;
+  --card-border-radius: 8px;
   --text-color-dark: #2d3748;
   --text-color-light: #4a5568;
+  --border-color: #e2e8f0;
+  --bg-color: #fafaf9;
 }
 
 body {
@@ -16,11 +17,7 @@ body {
     'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(
-    135deg,
-    var(--primary-gradient-start) 0%,
-    var(--primary-gradient-end) 100%
-  );
+  background: var(--bg-color);
   min-height: 100vh;
 }
 
@@ -35,20 +32,20 @@ body {
 
 .header {
   text-align: center;
-  color: white;
+  color: var(--text-color-dark);
   margin-bottom: 48px;
 }
 
 .header h1 {
   font-size: 48px;
   margin: 0 0 16px 0;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .subtitle {
   font-size: 18px;
   margin: 0 0 24px 0;
-  opacity: 0.9;
+  color: var(--text-color-light);
 }
 
 .badges {
@@ -68,10 +65,10 @@ body {
 }
 
 .section h2 {
-  color: white;
-  font-size: 32px;
+  color: var(--text-color-dark);
+  font-size: 28px;
   margin: 0 0 24px 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .grid {
@@ -83,14 +80,15 @@ body {
 
 .footer {
   text-align: center;
-  color: white;
+  color: var(--text-color-light);
   padding: 40px 20px;
   margin-top: 48px;
+  border-top: 1px solid var(--border-color);
 }
 
 .footer p {
   margin: 8px 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {
