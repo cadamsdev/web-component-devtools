@@ -107,7 +107,7 @@ bun run preview
 ## 📁 Project Structure
 
 ```
-webpack-lit-example/
+webpack-example/
 ├── src/
 │   ├── components/
 │   │   ├── index.ts           # Component exports
