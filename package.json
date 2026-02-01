@@ -2,7 +2,7 @@
   "name": "web-component-dev-tools-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "Monorepo for Vite Web Component Dev Tools plugin and examples",
+  "description": "Monorepo for the Web Component Dev Tools scripts, plugins and examples",
   "workspaces": [
     "packages/*",
     "apps/*"
