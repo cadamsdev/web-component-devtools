@@ -1,64 +1,31 @@
-import { useRef, useEffect } from 'react';
 import './components';
+import { MyButton, MyCard, MyCounter, MyBadge } from './components/react-wrappers';
 import './App.css';
 
-// TypeScript declarations for web components in JSX
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'my-button': any;
-      'my-card': any;
-      'my-counter': any;
-      'my-badge': any;
-    }
-  }
-}
-
 function App() {
-  const buttonRef = useRef<any>(null);
-  const counterRef = useRef<any>(null);
+  const handleButtonClick = (e: Event) => {
+    const customEvent = e as CustomEvent;
+    console.log('Button clicked:', customEvent.detail);
+    alert(`Button clicked: ${customEvent.detail.label}`);
+  };
 
-  useEffect(() => {
-    // Add event listeners for web component events
-    const handleButtonClick = (e: CustomEvent) => {
-      console.log('Button clicked:', e.detail);
-      alert(`Button clicked: ${e.detail.label}`);
-    };
-
-    const handleCounterChange = (e: CustomEvent) => {
-      console.log('Counter changed:', e.detail);
-    };
-
-    if (buttonRef.current) {
-      buttonRef.current.addEventListener('button-click', handleButtonClick);
-    }
-
-    if (counterRef.current) {
-      counterRef.current.addEventListener('counter-change', handleCounterChange);
-    }
-
-    return () => {
-      if (buttonRef.current) {
-        buttonRef.current.removeEventListener('button-click', handleButtonClick);
-      }
-      if (counterRef.current) {
-        counterRef.current.removeEventListener('counter-change', handleCounterChange);
-      }
-    };
-  }, []);
+  const handleCounterChange = (e: Event) => {
+    const customEvent = e as CustomEvent;
+    console.log('Counter changed:', customEvent.detail);
+  };
 
   return (
     <div className="app">
       <header className="header">
-        <h1>⚡ Webpack + React + Lit Web Components Demo</h1>
+        <h1>⚡ Webpack + React + Lit Demo</h1>
         <p className="subtitle">
           Example application showcasing Lit web components in a React + Webpack app
         </p>
         <div className="badges">
-          <my-badge label="Webpack" variant="primary"></my-badge>
-          <my-badge label="React" variant="success"></my-badge>
-          <my-badge label="Lit" variant="info"></my-badge>
-          <my-badge label="TypeScript" variant="warning"></my-badge>
+          <MyBadge label="Webpack" variant="primary" />
+          <MyBadge label="React" variant="success" />
+          <MyBadge label="Lit" variant="info" />
+          <MyBadge label="TypeScript" variant="warning" />
         </div>
       </header>
 
@@ -66,61 +33,61 @@ function App() {
         <section className="section">
           <h2>📦 Card Components</h2>
           <div className="grid">
-            <my-card
+            <MyCard
               title="Button Component"
               description="Interactive buttons with various states and styles"
               icon="🔘"
             >
               <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <my-button ref={buttonRef} label="Click Me"></my-button>
-                <my-button label="Disabled" disabled></my-button>
-                <my-button label="Primary" variant="primary"></my-button>
+                <MyButton label="Click Me" onButtonClick={handleButtonClick} />
+                <MyButton label="Disabled" disabled />
+                <MyButton label="Primary" variant="primary" />
               </div>
               <span slot="footer">
-                <my-badge label="Interactive" variant="success"></my-badge>
+                <MyBadge label="Interactive" variant="success" />
               </span>
-            </my-card>
+            </MyCard>
 
-            <my-card
+            <MyCard
               title="Counter Component"
               description="Stateful counter with min/max constraints"
               icon="🔢"
             >
               <div style={{ marginTop: '16px' }}>
-                <my-counter
-                  ref={counterRef}
+                <MyCounter
                   value={5}
                   min={0}
                   max={10}
                   label="Items"
-                ></my-counter>
+                  onCounterChange={handleCounterChange}
+                />
               </div>
               <span slot="footer">
-                <my-badge label="Stateful" variant="info"></my-badge>
+                <MyBadge label="Stateful" variant="info" />
               </span>
-            </my-card>
+            </MyCard>
 
-            <my-card
+            <MyCard
               title="Badge Component"
               description="Small labels for status and categories"
               icon="🏷️"
             >
               <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <my-badge label="New" variant="primary"></my-badge>
-                <my-badge label="Active" variant="success"></my-badge>
-                <my-badge label="Pending" variant="warning"></my-badge>
-                <my-badge label="Error" variant="danger"></my-badge>
+                <MyBadge label="New" variant="primary" />
+                <MyBadge label="Active" variant="success" />
+                <MyBadge label="Pending" variant="warning" />
+                <MyBadge label="Error" variant="danger" />
               </div>
               <span slot="footer">
-                <my-badge label="Visual" variant="primary"></my-badge>
+                <MyBadge label="Visual" variant="primary" />
               </span>
-            </my-card>
+            </MyCard>
           </div>
         </section>
 
         <section className="section">
           <h2>🎯 Try the Dev Tools</h2>
-          <my-card
+          <MyCard
             title="Web Component Inspector"
             description="Click the purple lightning button (⚡) in the bottom-right corner to inspect all web components on this page!"
             icon="🔍"
@@ -138,37 +105,37 @@ function App() {
               </ul>
             </div>
             <span slot="footer">
-              <my-badge label="Dev Tools" variant="info"></my-badge>
+              <MyBadge label="Dev Tools" variant="info" />
             </span>
-          </my-card>
+          </MyCard>
         </section>
 
         <section className="section">
           <h2>🧪 More Examples</h2>
           <div className="grid">
-            <my-card title="Example 1" icon="⭐">
-              <my-counter value={0} min={0} max={100} label="Stars"></my-counter>
+            <MyCard title="Example 1" icon="⭐">
+              <MyCounter value={0} min={0} max={100} label="Stars" />
               <span slot="footer">
-                <my-button label="Star" variant="primary"></my-button>
+                <MyButton label="Star" variant="primary" />
               </span>
-            </my-card>
+            </MyCard>
 
-            <my-card title="Example 2" icon="❤️">
-              <my-counter value={10} min={0} max={50} label="Likes"></my-counter>
+            <MyCard title="Example 2" icon="❤️">
+              <MyCounter value={10} min={0} max={50} label="Likes" />
               <span slot="footer">
-                <my-button label="Like"></my-button>
+                <MyButton label="Like" />
               </span>
-            </my-card>
+            </MyCard>
 
-            <my-card title="Example 3" icon="🚀">
+            <MyCard title="Example 3" icon="🚀">
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                <my-badge label="Fast" variant="success"></my-badge>
-                <my-badge label="Modern" variant="primary"></my-badge>
+                <MyBadge label="Fast" variant="success" />
+                <MyBadge label="Modern" variant="primary" />
               </div>
               <span slot="footer">
-                <my-button label="Launch"></my-button>
+                <MyButton label="Launch" />
               </span>
-            </my-card>
+            </MyCard>
           </div>
         </section>
       </main>

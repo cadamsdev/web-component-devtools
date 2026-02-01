@@ -6,8 +6,38 @@ This is an example application demonstrating how to use Lit web components in a 
 
 - React 18 with TypeScript
 - Lit web components
+- @lit/react for React wrappers
 - Vite for fast development
 - Web Component Dev Tools plugin integration
+
+## React Integration with @lit/react
+
+This example uses `@lit/react` to create proper React wrappers for Lit web components:
+
+```tsx
+import { createComponent } from '@lit/react';
+import { MyButton as MyButtonWC } from './my-button';
+
+export const MyButton = createComponent({
+  tagName: 'my-button',
+  elementClass: MyButtonWC,
+  react: React,
+  events: {
+    onButtonClick: 'button-click',
+  },
+});
+
+// Use in React components
+<MyButton label="Click Me" onButtonClick={handleClick} />
+```
+
+**Benefits:**
+- ✅ Proper TypeScript support  
+- ✅ React event naming conventions
+- ✅ No manual event listeners
+- ✅ Better developer experience
+
+See [LIT_REACT_INTEGRATION.md](../../LIT_REACT_INTEGRATION.md) for complete documentation.
 
 ## Web Components
 

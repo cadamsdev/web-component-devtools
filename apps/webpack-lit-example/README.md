@@ -7,6 +7,7 @@ This example application demonstrates how to use the `webpack-plugin` package to
 - **Webpack 5**: Modern build tool configuration
 - **React 18**: Component-based UI framework
 - **Lit Web Components**: Four custom elements (button, card, counter, badge)
+- **@lit/react**: Official React wrappers for Lit components
 - **TypeScript**: Full type safety
 - **Dev Tools Integration**: Webpack plugin for inspecting web components
 - **Hot Module Replacement**: Fast development experience
@@ -167,36 +168,40 @@ You can override these in your own styles to customize the appearance.
 
 ## ⚛️ React Integration
 
-This example shows how to use Lit web components within React:
+This example uses `@lit/react` to create proper React wrappers for Lit web components:
 
 ```tsx
-import { useRef, useEffect } from 'react';
-import './components'; // Import web components
+// Create React wrappers
+import { createComponent } from '@lit/react';
+import { MyButton as MyButtonWC } from './my-button';
 
+export const MyButton = createComponent({
+  tagName: 'my-button',
+  elementClass: MyButtonWC,
+  react: React,
+  events: {
+    onButtonClick: 'button-click',
+  },
+});
+
+// Use in React
 function App() {
-  const buttonRef = useRef<any>(null);
+  const handleClick = (e: Event) => {
+    const customEvent = e as CustomEvent;
+    console.log(customEvent.detail);
+  };
 
-  useEffect(() => {
-    const handleClick = (e: CustomEvent) => {
-      console.log('Clicked:', e.detail);
-    };
-
-    buttonRef.current?.addEventListener('button-click', handleClick);
-    return () => {
-      buttonRef.current?.removeEventListener('button-click', handleClick);
-    };
-  }, []);
-
-  return <my-button ref={buttonRef} label="Click Me" />;
+  return <MyButton label="Click Me" onButtonClick={handleClick} />;
 }
 ```
 
-**Key Points:**
-- Import components to register them
-- Use refs to access web component instances
-- Add event listeners in `useEffect`
-- Clean up event listeners on unmount
-- TypeScript declarations for JSX support
+**Benefits:**
+- ✅ Proper TypeScript support
+- ✅ React event naming conventions
+- ✅ No manual event listeners needed
+- ✅ Better developer experience
+
+See [LIT_REACT_INTEGRATION.md](../../LIT_REACT_INTEGRATION.md) for details.
 
 ## 📊 Build Statistics
 
