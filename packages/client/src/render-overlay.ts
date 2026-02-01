@@ -4,6 +4,7 @@ export class RenderOverlay {
   private overlays: WeakMap<Element, HTMLDivElement> = new WeakMap();
   private enabled: boolean = false;
   private container: HTMLDivElement | null = null;
+  private updateScheduled: boolean = false;
 
   /**
    * Enable overlays - show render counts on components
@@ -135,7 +136,7 @@ export class RenderOverlay {
     this.container = document.createElement('div');
     this.container.id = 'wc-render-overlay-container';
     this.container.style.cssText = `
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
@@ -186,13 +187,8 @@ export class RenderOverlay {
   private positionOverlay(element: Element, overlay: HTMLDivElement): void {
     const rect = element.getBoundingClientRect();
     
-    // Check if element is visible in viewport
-    const isVisible = rect.width > 0 && 
-                     rect.height > 0 && 
-                     rect.top < window.innerHeight && 
-                     rect.bottom > 0 &&
-                     rect.left < window.innerWidth &&
-                     rect.right > 0;
+    // Check if element is visible
+    const isVisible = rect.width > 0 && rect.height > 0;
 
     if (!isVisible) {
       overlay.style.display = 'none';
@@ -201,25 +197,38 @@ export class RenderOverlay {
 
     overlay.style.display = 'flex';
     
-    // Position at top-right corner of the element
-    const left = rect.right - 32; // Badge width is ~28px + padding
-    const top = rect.top + 4; // Small offset from top
+    // Position at top-right corner of the element using absolute positioning
+    // Add scroll offsets to convert viewport coordinates to document coordinates
+    const left = rect.right + window.pageXOffset - 32; // Badge width is ~28px + padding
+    const top = rect.top + window.pageYOffset + 4; // Small offset from top
 
     overlay.style.left = `${left}px`;
     overlay.style.top = `${top}px`;
   }
 
   /**
-   * Handle scroll events
+   * Handle scroll events with requestAnimationFrame for smooth updates
    */
   private handleScroll = (): void => {
-    this.updateAllPositions();
+    if (this.updateScheduled) return;
+    
+    this.updateScheduled = true;
+    requestAnimationFrame(() => {
+      this.updateAllPositions();
+      this.updateScheduled = false;
+    });
   };
 
   /**
    * Handle resize events
    */
   private handleResize = (): void => {
-    this.updateAllPositions();
+    if (this.updateScheduled) return;
+    
+    this.updateScheduled = true;
+    requestAnimationFrame(() => {
+      this.updateAllPositions();
+      this.updateScheduled = false;
+    });
   };
 }
