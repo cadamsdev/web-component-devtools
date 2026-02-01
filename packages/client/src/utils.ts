@@ -1,19 +1,22 @@
 // Utility functions for Web Component Dev Tools
 
 // Store original styles for elements being highlighted
-const originalStyles = new WeakMap<Element, {
-  outline: string;
-  outlineOffset: string;
-  boxShadow: string;
-  position: string;
-  zIndex: string;
-  background: string;
-  animation: string;
-}>();
+const originalStyles = new WeakMap<
+  Element,
+  {
+    outline: string;
+    outlineOffset: string;
+    boxShadow: string;
+    position: string;
+    zIndex: string;
+    background: string;
+    animation: string;
+  }
+>();
 
 export function highlightElement(element: Element): void {
   const htmlElement = element as HTMLElement;
-  
+
   // Store original styles if not already stored
   if (!originalStyles.has(element)) {
     originalStyles.set(element, {
@@ -26,27 +29,31 @@ export function highlightElement(element: Element): void {
       animation: htmlElement.style.animation,
     });
   }
-  
+
   // Apply highlight styles inline (works even in shadow DOM)
   htmlElement.style.setProperty('outline', '3px solid #667eea', 'important');
   htmlElement.style.setProperty('outline-offset', '4px', 'important');
-  htmlElement.style.setProperty('box-shadow', '0 0 0 4px rgba(102, 126, 234, 0.3), 0 0 20px rgba(102, 126, 234, 0.4)', 'important');
+  htmlElement.style.setProperty(
+    'box-shadow',
+    '0 0 0 4px rgba(102, 126, 234, 0.3), 0 0 20px rgba(102, 126, 234, 0.4)',
+    'important',
+  );
   htmlElement.style.setProperty('z-index', '999997', 'important');
-  
+
   // Add a semi-transparent background overlay if the element doesn't have a solid background
   const computedStyle = window.getComputedStyle(htmlElement);
   const currentBg = computedStyle.backgroundColor;
   if (currentBg === 'rgba(0, 0, 0, 0)' || currentBg === 'transparent') {
     htmlElement.style.setProperty('background', 'rgba(102, 126, 234, 0.1)', 'important');
   }
-  
+
   // Also add the class for any light DOM styles
   element.classList.add('wc-element-highlight');
 }
 
 export function unhighlightElement(element: Element): void {
   const htmlElement = element as HTMLElement;
-  
+
   // Restore original styles if they were stored
   const original = originalStyles.get(element);
   if (original) {
@@ -57,11 +64,11 @@ export function unhighlightElement(element: Element): void {
     htmlElement.style.zIndex = original.zIndex;
     htmlElement.style.background = original.background;
     htmlElement.style.animation = original.animation;
-    
+
     // Clean up stored styles
     originalStyles.delete(element);
   }
-  
+
   // Remove the class
   element.classList.remove('wc-element-highlight');
 }

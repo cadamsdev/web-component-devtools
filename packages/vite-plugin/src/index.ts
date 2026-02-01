@@ -27,7 +27,12 @@ export interface WebComponentDevToolsOptions {
 }
 
 export function webComponentDevTools(options: WebComponentDevToolsOptions = {}): Plugin {
-  const { enabled = true, position = 'bottom-right', queryParam, includeInProduction = false } = options;
+  const {
+    enabled = true,
+    position = 'bottom-right',
+    queryParam,
+    includeInProduction = false,
+  } = options;
 
   let isDev = false;
   let clientScript: string | null = null;

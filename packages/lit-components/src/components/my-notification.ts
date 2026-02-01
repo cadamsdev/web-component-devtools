@@ -16,33 +16,33 @@ export class MyNotification extends LitElement {
       z-index: 10000;
     }
     
-    :host([position="top-right"]) {
+    :host([position='top-right']) {
       top: 20px;
       right: 20px;
     }
     
-    :host([position="top-left"]) {
+    :host([position='top-left']) {
       top: 20px;
       left: 20px;
     }
     
-    :host([position="bottom-right"]) {
+    :host([position='bottom-right']) {
       bottom: 20px;
       right: 20px;
     }
     
-    :host([position="bottom-left"]) {
+    :host([position='bottom-left']) {
       bottom: 20px;
       left: 20px;
     }
     
-    :host([position="top-center"]) {
+    :host([position='top-center']) {
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
     }
     
-    :host([position="bottom-center"]) {
+    :host([position='bottom-center']) {
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
@@ -220,7 +220,13 @@ export class MyNotification extends LitElement {
   variant: 'success' | 'error' | 'warning' | 'info' = 'info';
 
   @property({ type: String, reflect: true })
-  position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center' = 'top-right';
+  position:
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center'
+    | 'bottom-center' = 'top-right';
 
   @property({ type: Number })
   duration = 5000; // 0 = no auto-dismiss
@@ -269,7 +275,7 @@ export class MyNotification extends LitElement {
 
   private _startAutoDismiss() {
     const progressStep = 100 / (this.duration / 100);
-    
+
     this._progressInterval = window.setInterval(() => {
       this._progress -= progressStep;
       if (this._progress <= 0) {
@@ -312,7 +318,7 @@ export class MyNotification extends LitElement {
   public dismiss() {
     this._dismissing = true;
     this._clearTimers();
-    
+
     setTimeout(() => {
       this._visible = false;
       this.dispatchEvent(
@@ -338,7 +344,9 @@ export class MyNotification extends LitElement {
 
   render() {
     if (!this._visible) {
-      return html``;
+      return html`
+        
+      `;
     }
 
     return html`
@@ -348,18 +356,20 @@ export class MyNotification extends LitElement {
           <div class="content">
             <div class="title-row">
               <h4 class="title">${this.title}</h4>
-              ${this.showClose
-                ? html`
+              ${
+                this.showClose
+                  ? html`
                   <button class="close-button" @click="${this._handleClose}">
                     ×
                   </button>
                 `
-                : ''
+                  : ''
               }
             </div>
             ${this.message ? html`<p class="message">${this.message}</p>` : ''}
-            ${this.badges.length > 0
-              ? html`
+            ${
+              this.badges.length > 0
+                ? html`
                 <div class="badges">
                   ${this.badges.map(
                     (badge) => html`
@@ -367,17 +377,18 @@ export class MyNotification extends LitElement {
                         label="${badge.label}"
                         variant="${badge.variant}"
                       ></my-badge>
-                    `
+                    `,
                   )}
                 </div>
               `
-              : ''
+                : ''
             }
           </div>
         </div>
         
-        ${this.actions.length > 0
-          ? html`
+        ${
+          this.actions.length > 0
+            ? html`
             <div class="actions">
               ${this.actions.map(
                 (action) => html`
@@ -385,20 +396,21 @@ export class MyNotification extends LitElement {
                     label="${action.label}"
                     @button-click="${() => this._handleAction(action)}"
                   ></my-button>
-                `
+                `,
               )}
             </div>
           `
-          : ''
+            : ''
         }
         
-        ${this.showProgress && this.duration > 0
-          ? html`
+        ${
+          this.showProgress && this.duration > 0
+            ? html`
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${this._progress}%"></div>
             </div>
           `
-          : ''
+            : ''
         }
       </div>
     `;

@@ -29,19 +29,31 @@ function App() {
   const handleAddToCart = (e: Event) => {
     const customEvent = e as CustomEvent;
     console.log('Add to cart:', customEvent.detail);
-    showNotification('success', 'Added to Cart', `Added ${customEvent.detail.quantity}x ${customEvent.detail.product} to cart`);
+    showNotification(
+      'success',
+      'Added to Cart',
+      `Added ${customEvent.detail.quantity}x ${customEvent.detail.product} to cart`,
+    );
   };
 
   const handleBuyNow = (e: Event) => {
     const customEvent = e as CustomEvent;
     console.log('Buy now:', customEvent.detail);
-    showNotification('info', 'Processing...', `Processing purchase of ${customEvent.detail.product}`);
+    showNotification(
+      'info',
+      'Processing...',
+      `Processing purchase of ${customEvent.detail.product}`,
+    );
   };
 
   const handleFollow = (e: Event) => {
     const customEvent = e as CustomEvent;
     console.log('Follow:', customEvent.detail);
-    showNotification('success', 'Following!', `You are now following ${customEvent.detail.userName}`);
+    showNotification(
+      'success',
+      'Following!',
+      `You are now following ${customEvent.detail.userName}`,
+    );
   };
 
   const handleMessage = (e: Event) => {
@@ -83,9 +95,10 @@ function App() {
         <section className="section">
           <h2>🎨 Complex Components (Using Nested Web Components)</h2>
           <p style={{ color: '#718096', marginBottom: '20px' }}>
-            These components use other web components inside them, demonstrating composition patterns.
+            These components use other web components inside them, demonstrating composition
+            patterns.
           </p>
-          
+
           <div style={{ marginBottom: '32px' }}>
             <h3>Product Card (uses Badge, Button, Counter)</h3>
             <div className="grid">
@@ -104,7 +117,7 @@ function App() {
                 onAddToCart={handleAddToCart}
                 onBuyNow={handleBuyNow}
               />
-              
+
               <MyProductCard
                 productName="Smart Watch"
                 description="Track your fitness with advanced health monitoring features"
@@ -119,7 +132,7 @@ function App() {
                 onAddToCart={handleAddToCart}
                 onBuyNow={handleBuyNow}
               />
-              
+
               <MyProductCard
                 productName="Laptop Stand"
                 description="Ergonomic aluminum stand for your laptop"
@@ -155,7 +168,7 @@ function App() {
                 onFollow={handleFollow}
                 onMessage={handleMessage}
               />
-              
+
               <MyUserProfile
                 userName="Alex Chen"
                 userTitle="UX Designer"
@@ -183,13 +196,20 @@ function App() {
                 { id: 'messages', label: 'Messages', icon: '💬', count: 5 },
                 { id: 'notifications', label: 'Notifications', icon: '🔔', count: 12 },
                 { id: 'settings', label: 'Settings', icon: '⚙️' },
-                { id: 'premium', label: 'Premium', icon: '⭐', badge: { label: 'New', variant: 'warning' } },
+                {
+                  id: 'premium',
+                  label: 'Premium',
+                  icon: '⭐',
+                  badge: { label: 'New', variant: 'warning' },
+                },
               ]}
               activeTab="overview"
             >
               <div slot="overview">
                 <h4>Overview</h4>
-                <p>Welcome to your dashboard! Here you can see a summary of your account activity.</p>
+                <p>
+                  Welcome to your dashboard! Here you can see a summary of your account activity.
+                </p>
                 <MyCard title="Statistics">
                   <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
                     <MyBadge label="42 Projects" variant="primary" />
@@ -229,7 +249,7 @@ function App() {
                 showValidation={true}
                 helperText="We'll never share your email with anyone else."
               />
-              
+
               <MyFormField
                 label="Username"
                 name="username"
@@ -241,7 +261,7 @@ function App() {
                 pattern="^[a-zA-Z0-9_]+$"
                 errorMessage="Username can only contain letters, numbers, and underscores"
               />
-              
+
               <MyFormField
                 label="Bio"
                 name="bio"
@@ -280,21 +300,25 @@ function App() {
           <div style={{ marginBottom: '32px' }}>
             <h3>Notifications (uses Button, Badge)</h3>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <MyButton 
-                label="Success Toast" 
-                onButtonClick={() => showNotification('success', 'Success!', 'Operation completed successfully')} 
+              <MyButton
+                label="Success Toast"
+                onButtonClick={() =>
+                  showNotification('success', 'Success!', 'Operation completed successfully')
+                }
               />
-              <MyButton 
-                label="Error Toast" 
-                onButtonClick={() => showNotification('error', 'Error!', 'Something went wrong')} 
+              <MyButton
+                label="Error Toast"
+                onButtonClick={() => showNotification('error', 'Error!', 'Something went wrong')}
               />
-              <MyButton 
-                label="Warning Toast" 
-                onButtonClick={() => showNotification('warning', 'Warning!', 'Please review your input')} 
+              <MyButton
+                label="Warning Toast"
+                onButtonClick={() =>
+                  showNotification('warning', 'Warning!', 'Please review your input')
+                }
               />
-              <MyButton 
-                label="Info Toast" 
-                onButtonClick={() => showNotification('info', 'Info', 'Here is some information')} 
+              <MyButton
+                label="Info Toast"
+                onButtonClick={() => showNotification('info', 'Info', 'Here is some information')}
               />
             </div>
           </div>
@@ -336,10 +360,7 @@ function App() {
               </span>
             </MyCard>
 
-            <MyCard
-              title="Badge Component"
-              description="Small labels for status and categories"
-            >
+            <MyCard title="Badge Component" description="Small labels for status and categories">
               <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <MyBadge label="New" variant="primary" />
                 <MyBadge label="Active" variant="success" />

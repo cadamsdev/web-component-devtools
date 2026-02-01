@@ -209,9 +209,12 @@ export class MyUserProfile extends LitElement {
         <div class="profile-header">
           <div class="avatar-container">
             <div class="avatar">
-              ${this.avatarUrl
-                ? html`<img src="${this.avatarUrl}" alt="${this.userName}" />`
-                : html`👤`
+              ${
+                this.avatarUrl
+                  ? html`<img src="${this.avatarUrl}" alt="${this.userName}" />`
+                  : html`
+                      👤
+                    `
               }
             </div>
           </div>
@@ -225,17 +228,23 @@ export class MyUserProfile extends LitElement {
           <p class="title">${this.userTitle}</p>
           
           <div class="badges">
-            ${this.online
-              ? html`<my-badge label="Online" variant="success"></my-badge>`
-              : ''
+            ${
+              this.online
+                ? html`
+                    <my-badge label="Online" variant="success"></my-badge>
+                  `
+                : ''
             }
-            ${this.verified
-              ? html`<my-badge label="Verified" variant="info"></my-badge>`
-              : ''
+            ${
+              this.verified
+                ? html`
+                    <my-badge label="Verified" variant="info"></my-badge>
+                  `
+                : ''
             }
-            ${this.skills.slice(0, 3).map(
-              (skill) => html`<my-badge label="${skill}" variant="primary"></my-badge>`
-            )}
+            ${this.skills
+              .slice(0, 3)
+              .map((skill) => html`<my-badge label="${skill}" variant="primary"></my-badge>`)}
           </div>
           
           ${this.bio ? html`<p class="bio">${this.bio}</p>` : ''}
@@ -255,39 +264,43 @@ export class MyUserProfile extends LitElement {
             </div>
           </div>
           
-          ${this.email || this.location || this.website
-            ? html`
+          ${
+            this.email || this.location || this.website
+              ? html`
               <div class="contact-info">
-                ${this.email
-                  ? html`
+                ${
+                  this.email
+                    ? html`
                     <div class="contact-item">
                       <span class="contact-icon">📧</span>
                       <span>${this.email}</span>
                     </div>
                   `
-                  : ''
+                    : ''
                 }
-                ${this.location
-                  ? html`
+                ${
+                  this.location
+                    ? html`
                     <div class="contact-item">
                       <span class="contact-icon">📍</span>
                       <span>${this.location}</span>
                     </div>
                   `
-                  : ''
+                    : ''
                 }
-                ${this.website
-                  ? html`
+                ${
+                  this.website
+                    ? html`
                     <div class="contact-item">
                       <span class="contact-icon">🌐</span>
                       <span>${this.website}</span>
                     </div>
                   `
-                  : ''
+                    : ''
                 }
               </div>
             `
-            : ''
+              : ''
           }
           
           <div class="actions">

@@ -164,8 +164,10 @@ export class MyProductCard extends LitElement {
 
   private _handleAddToCart() {
     const counter = this.shadowRoot?.querySelector('my-counter');
-    const quantity = counter ? (counter as any)._count || this.initialQuantity : this.initialQuantity;
-    
+    const quantity = counter
+      ? (counter as any)._count || this.initialQuantity
+      : this.initialQuantity;
+
     this.dispatchEvent(
       new CustomEvent('add-to-cart', {
         detail: {
@@ -182,8 +184,10 @@ export class MyProductCard extends LitElement {
 
   private _handleBuyNow() {
     const counter = this.shadowRoot?.querySelector('my-counter');
-    const quantity = counter ? (counter as any)._count || this.initialQuantity : this.initialQuantity;
-    
+    const quantity = counter
+      ? (counter as any)._count || this.initialQuantity
+      : this.initialQuantity;
+
     this.dispatchEvent(
       new CustomEvent('buy-now', {
         detail: {
@@ -202,7 +206,7 @@ export class MyProductCard extends LitElement {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     return html`
       ${'★'.repeat(fullStars)}${hasHalfStar ? '⯨' : ''}${'☆'.repeat(emptyStars)}
     `;
@@ -212,14 +216,40 @@ export class MyProductCard extends LitElement {
     return html`
       <div class="product-card">
         <div class="image-container">
-          ${this.imageUrl
-            ? html`<img class="product-image" src="${this.imageUrl}" alt="${this.productName}" />`
-            : html`<div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 48px;">📦</div>`
+          ${
+            this.imageUrl
+              ? html`<img class="product-image" src="${this.imageUrl}" alt="${this.productName}" />`
+              : html`
+                  <div
+                    class="product-image"
+                    style="display: flex; align-items: center; justify-content: center; font-size: 48px"
+                  >
+                    📦
+                  </div>
+                `
           }
           <div class="badge-container">
-            ${this.newArrival ? html`<my-badge label="New" variant="info"></my-badge>` : ''}
-            ${this.onSale ? html`<my-badge label="Sale" variant="danger"></my-badge>` : ''}
-            ${!this.inStock ? html`<my-badge label="Out of Stock" variant="warning"></my-badge>` : ''}
+            ${
+              this.newArrival
+                ? html`
+                    <my-badge label="New" variant="info"></my-badge>
+                  `
+                : ''
+            }
+            ${
+              this.onSale
+                ? html`
+                    <my-badge label="Sale" variant="danger"></my-badge>
+                  `
+                : ''
+            }
+            ${
+              !this.inStock
+                ? html`
+                    <my-badge label="Out of Stock" variant="warning"></my-badge>
+                  `
+                : ''
+            }
           </div>
         </div>
         
@@ -227,14 +257,15 @@ export class MyProductCard extends LitElement {
           <div class="header">
             <div>
               <h3 class="title">${this.productName}</h3>
-              ${this.rating > 0
-                ? html`
+              ${
+                this.rating > 0
+                  ? html`
                   <div class="rating">
                     <span class="stars">${this._renderStars(this.rating)}</span>
                     <span class="rating-text">${this.rating} (${this.reviewCount} reviews)</span>
                   </div>
                 `
-                : ''
+                  : ''
               }
             </div>
             <p class="price">${this.currency}${this.price.toFixed(2)}</p>
@@ -242,8 +273,9 @@ export class MyProductCard extends LitElement {
           
           <p class="description">${this.description}</p>
           
-          ${this.inStock
-            ? html`
+          ${
+            this.inStock
+              ? html`
               <div class="quantity-section">
                 <div class="quantity-label">Quantity</div>
                 <my-counter
@@ -264,9 +296,9 @@ export class MyProductCard extends LitElement {
                 ></my-button>
               </div>
             `
-            : html`
-              <my-button label="Out of Stock" disabled></my-button>
-            `
+              : html`
+                  <my-button label="Out of Stock" disabled></my-button>
+                `
           }
         </div>
       </div>

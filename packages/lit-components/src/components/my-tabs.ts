@@ -156,18 +156,22 @@ export class MyTabs extends LitElement {
                 ${tab.icon ? html`<span class="tab-icon">${tab.icon}</span>` : ''}
                 <span class="tab-label">
                   ${tab.label}
-                  ${tab.count !== undefined
-                    ? html`<my-badge label="${tab.count}" variant="primary"></my-badge>`
-                    : ''}
-                  ${tab.badge
-                    ? html`<my-badge
+                  ${
+                    tab.count !== undefined
+                      ? html`<my-badge label="${tab.count}" variant="primary"></my-badge>`
+                      : ''
+                  }
+                  ${
+                    tab.badge
+                      ? html`<my-badge
                         label="${tab.badge.label}"
                         variant="${tab.badge.variant}"
                       ></my-badge>`
-                    : ''}
+                      : ''
+                  }
                 </span>
               </button>
-            `
+            `,
           )}
         </div>
         
@@ -177,7 +181,7 @@ export class MyTabs extends LitElement {
               <div class="tab-panel ${this._currentTab === tab.id ? 'active' : ''}">
                 <slot name="${tab.id}"></slot>
               </div>
-            `
+            `,
           )}
         </div>
       </div>

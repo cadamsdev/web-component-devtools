@@ -215,7 +215,9 @@ export class MyModal extends LitElement {
 
   render() {
     if (!this.open) {
-      return html``;
+      return html`
+        
+      `;
     }
 
     return html`
@@ -223,13 +225,14 @@ export class MyModal extends LitElement {
         <div class="modal ${this.size}">
           <div class="modal-header">
             <h2 class="modal-title">${this.title}</h2>
-            ${this.showCloseButton
-              ? html`
+            ${
+              this.showCloseButton
+                ? html`
                 <button class="close-button" @click="${this._handleClose}">
                   ×
                 </button>
               `
-              : ''
+                : ''
             }
           </div>
           
@@ -237,8 +240,9 @@ export class MyModal extends LitElement {
             <slot></slot>
           </div>
           
-          ${this.showFooter
-            ? html`
+          ${
+            this.showFooter
+              ? html`
               <div class="modal-footer">
                 <my-button
                   label="${this.cancelLabel}"
@@ -250,7 +254,7 @@ export class MyModal extends LitElement {
                 ></my-button>
               </div>
             `
-            : ''
+              : ''
           }
         </div>
       </div>

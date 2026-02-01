@@ -69,10 +69,7 @@ function App() {
               </span>
             </MyCard>
 
-            <MyCard
-              title="Badge Component"
-              description="Small labels for status and categories"
-            >
+            <MyCard title="Badge Component" description="Small labels for status and categories">
               <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <MyBadge label="New" variant="primary" />
                 <MyBadge label="Active" variant="success" />

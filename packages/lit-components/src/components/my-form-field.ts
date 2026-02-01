@@ -180,7 +180,7 @@ export class MyFormField extends LitElement {
   private _handleInput(e: Event) {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement;
     this._value = target.value;
-    
+
     if (this._touched) {
       this._validate();
     }
@@ -276,25 +276,36 @@ export class MyFormField extends LitElement {
         <div class="label-row">
           <label class="label">
             ${this.label}
-            ${this.required ? html`<span class="required">*</span>` : ''}
-            ${showSuccess
-              ? html`<my-badge label="Valid" variant="success"></my-badge>`
-              : ''
+            ${
+              this.required
+                ? html`
+                    <span class="required">*</span>
+                  `
+                : ''
+            }
+            ${
+              showSuccess
+                ? html`
+                    <my-badge label="Valid" variant="success"></my-badge>
+                  `
+                : ''
             }
           </label>
-          ${this.maxLength
-            ? html`
+          ${
+            this.maxLength
+              ? html`
               <div class="character-count ${this._getCharacterCountClass()}">
                 ${this._value.length}/${this.maxLength}
               </div>
             `
-            : ''
+              : ''
           }
         </div>
         
         <div class="input-wrapper">
-          ${this.type === 'textarea'
-            ? html`
+          ${
+            this.type === 'textarea'
+              ? html`
               <textarea
                 class="${this._getInputClass()}"
                 .value="${this._value}"
@@ -306,7 +317,7 @@ export class MyFormField extends LitElement {
                 @blur="${this._handleBlur}"
               ></textarea>
             `
-            : html`
+              : html`
               <input
                 class="${this._getInputClass()}"
                 type="${this.type}"
@@ -321,20 +332,33 @@ export class MyFormField extends LitElement {
               />
             `
           }
-          ${showSuccess ? html`<span class="input-icon">✓</span>` : ''}
-          ${showError ? html`<span class="input-icon">⚠</span>` : ''}
+          ${
+            showSuccess
+              ? html`
+                  <span class="input-icon">✓</span>
+                `
+              : ''
+          }
+          ${
+            showError
+              ? html`
+                  <span class="input-icon">⚠</span>
+                `
+              : ''
+          }
         </div>
         
-        ${showError
-          ? html`
+        ${
+          showError
+            ? html`
             <p class="error-text">
               <my-badge label="Error" variant="danger"></my-badge>
               ${this._error}
             </p>
           `
-          : this.helperText
-            ? html`<p class="helper-text">${this.helperText}</p>`
-            : ''
+            : this.helperText
+              ? html`<p class="helper-text">${this.helperText}</p>`
+              : ''
         }
       </div>
     `;

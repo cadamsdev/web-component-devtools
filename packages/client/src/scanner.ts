@@ -92,7 +92,7 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
             'requestUpdate',
             'getUpdateComplete',
           ];
-          
+
           // Only include public methods (exclude private methods starting with _ and lifecycle methods)
           if (!propName.startsWith('_') && !litLifecycleMethods.includes(propName)) {
             instanceInfo.methods.push(propName);
@@ -115,7 +115,11 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
       instanceInfo.shadowDOM = scanShadowDOM(element.shadowRoot);
 
       // Scan for nested web components inside the shadow DOM
-      instanceInfo.nestedComponents = scanNestedWebComponents(element.shadowRoot, element, renderTracker);
+      instanceInfo.nestedComponents = scanNestedWebComponents(
+        element.shadowRoot,
+        element,
+        renderTracker,
+      );
     }
 
     // Collect CSS variables affecting this component
@@ -233,7 +237,7 @@ function scanNestedWebComponents(
             'requestUpdate',
             'getUpdateComplete',
           ];
-          
+
           // Only include public methods (exclude private methods starting with _ and lifecycle methods)
           if (!propName.startsWith('_') && !litLifecycleMethods.includes(propName)) {
             instanceInfo.methods.push(propName);
@@ -256,7 +260,11 @@ function scanNestedWebComponents(
       instanceInfo.shadowDOM = scanShadowDOM(element.shadowRoot);
 
       // Recursively scan for nested components
-      instanceInfo.nestedComponents = scanNestedWebComponents(element.shadowRoot, element, renderTracker);
+      instanceInfo.nestedComponents = scanNestedWebComponents(
+        element.shadowRoot,
+        element,
+        renderTracker,
+      );
     }
 
     // Collect CSS variables affecting this component
