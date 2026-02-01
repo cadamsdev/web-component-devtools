@@ -91,6 +91,7 @@ export interface EventBreakpoint {
 
 export interface DevToolsConfig {
   position: string;
+  queryParam?: string;
 }
 
 export interface DevToolsState {

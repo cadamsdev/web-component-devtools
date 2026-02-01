@@ -13,10 +13,16 @@ export interface WebComponentDevToolsOptions {
    * Position of the dev tools button (default: 'bottom-right')
    */
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /**
+   * Query parameter name to check for enabling dev tools
+   * If specified, the dev tools button will only show when this query param is present
+   * Example: queryParam: 'debug' will show dev tools when ?debug is in the URL
+   */
+  queryParam?: string;
 }
 
 export function webComponentDevTools(options: WebComponentDevToolsOptions = {}): Plugin {
-  const { enabled = true, position = 'bottom-right' } = options;
+  const { enabled = true, position = 'bottom-right', queryParam } = options;
 
   let isDev = false;
   let clientScript: string | null = null;
@@ -47,7 +53,7 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
 
       // Inject the dev tools script with configuration
       const script = `
-        window.__WC_DEVTOOLS_CONFIG__ = ${JSON.stringify({ position })};
+        window.__WC_DEVTOOLS_CONFIG__ = ${JSON.stringify({ position, queryParam })};
         ${clientScript}
       `;
 

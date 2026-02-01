@@ -13,6 +13,12 @@ export interface WebComponentDevToolsOptions {
    * Position of the dev tools button (default: 'bottom-right')
    */
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /**
+   * Query parameter name to check for enabling dev tools
+   * If specified, the dev tools button will only show when this query param is present
+   * Example: queryParam: 'debug' will show dev tools when ?debug is in the URL
+   */
+  queryParam?: string;
 }
 
 export class WebpackWebComponentDevTools {
@@ -23,6 +29,7 @@ export class WebpackWebComponentDevTools {
     this.options = {
       enabled: options.enabled ?? true,
       position: options.position ?? 'bottom-right',
+      queryParam: options.queryParam,
     };
   }
 
@@ -74,7 +81,7 @@ export class WebpackWebComponentDevTools {
               // Inject the dev tools script before closing body tag
               const script = `
     <script type="module">
-      window.__WC_DEVTOOLS_CONFIG__ = ${JSON.stringify({ position: this.options.position })};
+      window.__WC_DEVTOOLS_CONFIG__ = ${JSON.stringify({ position: this.options.position, queryParam: this.options.queryParam })};
       ${this.clientScript}
     </script>
   `;

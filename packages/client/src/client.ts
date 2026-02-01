@@ -76,7 +76,16 @@ const a11yAuditCache = new WeakMap<Element, import('./accessibility-checker').A1
 renderTracker.setOverlay(renderOverlay);
 
 export function initDevTools(config: DevToolsConfig) {
-  const { position } = config;
+  const { position, queryParam } = config;
+
+  // If a query parameter is specified, check if it's present in the URL
+  if (queryParam) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has(queryParam)) {
+      // Query param not present, don't show dev tools
+      return;
+    }
+  }
 
   // Store the initial position globally
   initialPanelPosition = position;
