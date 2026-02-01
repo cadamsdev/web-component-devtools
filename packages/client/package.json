@@ -2,32 +2,32 @@
   "name": "@cadamsdev/wc-devtools-client",
   "version": "0.0.0",
   "description": "Client-side script for web component developer tools",
+  "keywords": [
+    "custom-elements",
+    "debugging",
+    "dev-tools",
+    "web-components"
+  ],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/client.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.mts"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./client": {
       "import": "./dist/client.js",
       "default": "./dist/client.js"
     }
   },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch"
   },
-  "keywords": [
-    "web-components",
-    "dev-tools",
-    "custom-elements",
-    "debugging"
-  ],
   "devDependencies": {
     "tsdown": "^0.20.1",
     "typescript": "^5.3.3"

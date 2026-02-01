@@ -2,6 +2,16 @@
   "name": "lit-components",
   "version": "0.1.0",
   "description": "Reusable Lit UI component library",
+  "keywords": [
+    "custom-elements",
+    "lit",
+    "ui-components",
+    "web-components"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,21 +21,11 @@
       "import": "./dist/index.js"
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
-  "keywords": [
-    "web-components",
-    "lit",
-    "ui-components",
-    "custom-elements"
-  ],
   "dependencies": {
     "lit": "^3.1.0"
   },

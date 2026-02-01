@@ -1,14 +1,20 @@
 // UI components for Web Component Dev Tools
 
-import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment, CSSVariableInfo } from './types';
-import { 
-  highlightElement, 
-  unhighlightElement, 
-  formatPropertyValue, 
+import type {
+  InstanceInfo,
+  ShadowDOMInfo,
+  ShadowDOMNode,
+  SlotAssignment,
+  CSSVariableInfo,
+} from './types';
+import {
+  highlightElement,
+  unhighlightElement,
+  formatPropertyValue,
   getValueType,
   formatTimestamp,
   formatEventDetail,
-  createJSONTreeElement
+  createJSONTreeElement,
 } from './utils';
 import type { EventLog } from './types';
 import { PropertyEditor } from './property-editor';
@@ -33,7 +39,7 @@ export function createPanel(
   onRedo?: () => void,
   onToggleRenderTracking?: () => void,
   onToggleRenderOverlay?: () => void,
-  onToggleComponentOverlay?: () => void
+  onToggleComponentOverlay?: () => void,
 ): HTMLDivElement {
   const panel = document.createElement('div');
   panel.id = 'wc-devtools-panel';
@@ -215,7 +221,7 @@ export function createPanel(
   clearBtn.textContent = 'Clear';
   clearBtn.addEventListener('click', onClearEvents);
   eventsControls.appendChild(clearBtn);
-  
+
   // Event filters section - will be populated dynamically
   const eventsFilters = document.createElement('div');
   eventsFilters.className = 'wc-events-filters';
@@ -242,7 +248,8 @@ export function createPanel(
   a11yContent.className = 'wc-devtools-content wc-devtools-tab-content';
   a11yContent.id = 'wc-devtools-accessibility';
   a11yContent.dataset.tab = 'accessibility';
-  a11yContent.innerHTML = '<div class="wc-no-components">Select a component to view accessibility information</div>';
+  a11yContent.innerHTML =
+    '<div class="wc-no-components">Select a component to view accessibility information</div>';
 
   panel.appendChild(header);
   panel.appendChild(tabsSection);
@@ -288,14 +295,14 @@ export function createStatsElement(uniqueCount: number, totalCount: number): HTM
 }
 
 export function createInstanceElement(
-  instance: InstanceInfo, 
-  index: number, 
+  instance: InstanceInfo,
+  index: number,
   expandedStates: Map<Element, boolean>,
   propertyEditor?: PropertyEditor,
   onUpdate?: () => void,
   a11yChecker?: import('./accessibility-checker').AccessibilityChecker,
   onA11yBadgeClick?: (element: Element) => void,
-  a11yAuditCache?: WeakMap<Element, import('./accessibility-checker').A11yAuditResult>
+  a11yAuditCache?: WeakMap<Element, import('./accessibility-checker').A11yAuditResult>,
 ): HTMLDivElement {
   const instanceDiv = document.createElement('div');
   const isExpanded = expandedStates.get(instance.element) || false;
@@ -307,31 +314,31 @@ export function createInstanceElement(
 
   const nameAndIndex = document.createElement('div');
   nameAndIndex.className = 'wc-component-name';
-  
+
   const indexBadge = document.createElement('span');
   indexBadge.className = 'wc-instance-badge';
   indexBadge.textContent = `#${index}`;
   nameAndIndex.appendChild(indexBadge);
-  
+
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
-  
+
   // Add accessibility indicator badge
   if (a11yChecker && a11yAuditCache) {
     // Use cached audit result for consistency
     const a11yAudit = a11yAuditCache.get(instance.element);
-    
+
     if (a11yAudit) {
       const a11yBadge = document.createElement('span');
       a11yBadge.className = 'wc-a11y-badge';
-      
+
       // Determine badge status based on score and issues
       let status: 'good' | 'warning' | 'error';
       let icon: string;
       let text: string;
-      
-      const errorCount = a11yAudit.issues.filter(i => i.type === 'error').length;
-      const warningCount = a11yAudit.issues.filter(i => i.type === 'warning').length;
-      
+
+      const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
+      const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
+
       if (errorCount > 0) {
         status = 'error';
         icon = '⚠';
@@ -345,11 +352,11 @@ export function createInstanceElement(
         icon = '✓';
         text = 'accessible';
       }
-      
+
       a11yBadge.classList.add(`wc-a11y-badge-${status}`);
       a11yBadge.innerHTML = `${icon} ${text}`;
       a11yBadge.title = `Accessibility Score: ${a11yAudit.score}/100\n${a11yAudit.issues.length} total issue${a11yAudit.issues.length !== 1 ? 's' : ''} found\nClick to view details`;
-      
+
       // Make badge clickable
       a11yBadge.style.cursor = 'pointer';
       a11yBadge.addEventListener('click', (e) => {
@@ -359,11 +366,11 @@ export function createInstanceElement(
           onA11yBadgeClick(instance.element);
         }
       });
-      
+
       nameAndIndex.appendChild(a11yBadge);
     }
   }
-  
+
   // Add render count badge if available
   if (instance.renderCount !== undefined && instance.renderCount > 0) {
     const renderBadge = document.createElement('span');
@@ -372,7 +379,7 @@ export function createInstanceElement(
     renderBadge.title = `This component has re-rendered ${instance.renderCount} time${instance.renderCount !== 1 ? 's' : ''}`;
     nameAndIndex.appendChild(renderBadge);
   }
-  
+
   header.appendChild(nameAndIndex);
 
   // Add locate button
@@ -460,7 +467,7 @@ export function createInstanceElement(
         attrName,
         value,
         propertyEditor,
-        onUpdate
+        onUpdate,
       );
       attributesDiv.appendChild(attrRow);
     });
@@ -485,7 +492,7 @@ export function createInstanceElement(
         propName,
         value,
         propertyEditor,
-        onUpdate
+        onUpdate,
       );
       propertiesSection.appendChild(propRow);
     });
@@ -522,7 +529,10 @@ export function createInstanceElement(
   }
 
   // Slots Section - Enhanced with slot assignments
-  if (instance.slots.size > 0 || (instance.shadowDOM && instance.shadowDOM.slotAssignments.size > 0)) {
+  if (
+    instance.slots.size > 0 ||
+    (instance.shadowDOM && instance.shadowDOM.slotAssignments.size > 0)
+  ) {
     const slotsSection = document.createElement('div');
     slotsSection.className = 'wc-section';
 
@@ -538,24 +548,24 @@ export function createInstanceElement(
       instance.shadowDOM.slotAssignments.forEach((assignment, slotName) => {
         const slotContainer = document.createElement('div');
         slotContainer.className = 'wc-slot-detail';
-        
+
         const slotHeader = document.createElement('div');
         slotHeader.className = assignment.hasContent ? 'wc-slot has-content' : 'wc-slot';
-        
+
         const slotNameSpan = document.createElement('span');
         slotNameSpan.className = 'wc-slot-name';
         slotNameSpan.textContent = slotName === 'default' ? '<slot>' : `<slot name="${slotName}">`;
         slotHeader.appendChild(slotNameSpan);
-        
+
         slotHeader.appendChild(document.createTextNode(' '));
-        
+
         const slotStatusSpan = document.createElement('span');
         slotStatusSpan.className = 'wc-slot-status';
-        slotStatusSpan.textContent = assignment.hasContent 
+        slotStatusSpan.textContent = assignment.hasContent
           ? `(${assignment.assignedElements.length} element${assignment.assignedElements.length !== 1 ? 's' : ''})`
           : '(empty)';
         slotHeader.appendChild(slotStatusSpan);
-        
+
         // Add hover effect to highlight the slot element
         slotHeader.style.cursor = assignment.hasContent ? 'pointer' : 'default';
         if (assignment.hasContent) {
@@ -564,39 +574,39 @@ export function createInstanceElement(
               highlightElement(assignment.slotElement);
             }
           });
-          
+
           slotHeader.addEventListener('mouseleave', () => {
             if (document.body.contains(assignment.slotElement)) {
               unhighlightElement(assignment.slotElement);
             }
           });
         }
-        
+
         slotContainer.appendChild(slotHeader);
-        
+
         // Show assigned elements
         if (assignment.assignedElements.length > 0) {
           const assignedDiv = document.createElement('div');
           assignedDiv.className = 'wc-slot-assigned-inline';
-          
+
           assignment.assignedElements.forEach((el, idx) => {
             if (idx > 0) {
               assignedDiv.appendChild(document.createTextNode(', '));
             }
-            
+
             const elSpan = document.createElement('span');
             elSpan.className = 'wc-slot-assigned-tag';
-            
+
             let text = `<${el.nodeName.toLowerCase()}`;
             const id = el.getAttribute('id');
             const className = el.getAttribute('class');
-            
+
             if (id) text += `#${id}`;
             else if (className) text += `.${className.split(' ')[0]}`;
-            
+
             text += '>';
             elSpan.textContent = text;
-            
+
             // Add hover effect
             elSpan.style.cursor = 'pointer';
             elSpan.addEventListener('mouseenter', () => {
@@ -604,13 +614,13 @@ export function createInstanceElement(
                 highlightElement(el);
               }
             });
-            
+
             elSpan.addEventListener('mouseleave', () => {
               if (document.body.contains(el)) {
                 unhighlightElement(el);
               }
             });
-            
+
             // Click to scroll to element
             elSpan.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -622,13 +632,13 @@ export function createInstanceElement(
                 }, 3000);
               }
             });
-            
+
             assignedDiv.appendChild(elSpan);
           });
-          
+
           slotContainer.appendChild(assignedDiv);
         }
-        
+
         slotsDiv.appendChild(slotContainer);
       });
     } else {
@@ -668,7 +678,7 @@ export function createInstanceElement(
     const cssVarsSection = createCSSVariablesSection(
       instance.cssVariables,
       instance.element,
-      onUpdate
+      onUpdate,
     );
     detailsContainer.appendChild(cssVarsSection);
   }
@@ -678,10 +688,13 @@ export function createInstanceElement(
   return instanceDiv;
 }
 
-export function createEventLogElement(log: EventLog, onReplay?: (timestamp: number) => void): HTMLDivElement {
+export function createEventLogElement(
+  log: EventLog,
+  onReplay?: (timestamp: number) => void,
+): HTMLDivElement {
   const logDiv = document.createElement('div');
   logDiv.className = 'wc-event-log';
-  
+
   // Add badges for special states
   if (log.defaultPrevented) {
     logDiv.classList.add('prevented-default');
@@ -689,22 +702,22 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
   if (log.propagationStopped) {
     logDiv.classList.add('stopped-propagation');
   }
-  
+
   const header = document.createElement('div');
   header.className = 'wc-event-header';
-  
+
   const leftSide = document.createElement('div');
   leftSide.className = 'wc-event-header-left';
-  
+
   const eventType = document.createElement('span');
   eventType.className = 'wc-event-type';
   eventType.textContent = log.eventType;
   leftSide.appendChild(eventType);
-  
+
   // Add badges for event properties
   const badges = document.createElement('span');
   badges.className = 'wc-event-badges';
-  
+
   if (!log.isTrusted) {
     const badge = document.createElement('span');
     badge.className = 'wc-event-badge synthetic';
@@ -712,7 +725,7 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
     badge.title = 'This event was created programmatically';
     badges.appendChild(badge);
   }
-  
+
   if (log.defaultPrevented) {
     const badge = document.createElement('span');
     badge.className = 'wc-event-badge prevented';
@@ -720,7 +733,7 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
     badge.title = 'preventDefault() was called';
     badges.appendChild(badge);
   }
-  
+
   if (log.immediatePropagationStopped) {
     const badge = document.createElement('span');
     badge.className = 'wc-event-badge stopped-immediate';
@@ -734,18 +747,18 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
     badge.title = 'stopPropagation() was called';
     badges.appendChild(badge);
   }
-  
+
   leftSide.appendChild(badges);
   header.appendChild(leftSide);
-  
+
   const rightSide = document.createElement('div');
   rightSide.className = 'wc-event-header-right';
-  
+
   const timestamp = document.createElement('span');
   timestamp.className = 'wc-event-timestamp';
   timestamp.textContent = formatTimestamp(log.timestamp);
   rightSide.appendChild(timestamp);
-  
+
   // Add replay button
   if (onReplay) {
     const replayBtn = document.createElement('button');
@@ -758,92 +771,92 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
     });
     rightSide.appendChild(replayBtn);
   }
-  
+
   header.appendChild(rightSide);
   logDiv.appendChild(header);
-  
+
   const source = document.createElement('div');
   source.className = 'wc-event-source';
   source.textContent = `<${log.tagName}>`;
-  
+
   // Add event properties
   const propsDiv = document.createElement('span');
   propsDiv.className = 'wc-event-props';
-  
+
   const props: string[] = [];
   if (log.bubbles) props.push('bubbles');
   if (log.cancelable) props.push('cancelable');
   if (log.composed) props.push('composed');
-  
+
   if (props.length > 0) {
     propsDiv.textContent = ` • ${props.join(', ')}`;
     source.appendChild(propsDiv);
   }
-  
+
   logDiv.appendChild(source);
-  
+
   // Event propagation path
   if (log.propagationPath && log.propagationPath.length > 0) {
     const pathSection = document.createElement('div');
     pathSection.className = 'wc-event-propagation-section';
-    
+
     const pathHeader = document.createElement('div');
     pathHeader.className = 'wc-event-propagation-header';
-    
+
     const pathToggle = document.createElement('span');
     pathToggle.className = 'wc-event-propagation-toggle';
     pathToggle.textContent = '▶';
     pathHeader.appendChild(pathToggle);
-    
+
     const pathTitle = document.createElement('span');
     pathTitle.textContent = `Propagation Path (${log.propagationPath.length} elements)`;
     pathHeader.appendChild(pathTitle);
-    
+
     const pathContent = document.createElement('div');
     pathContent.className = 'wc-event-propagation-path';
     pathContent.style.display = 'none';
-    
+
     // Group by phase
-    const capturingPhase = log.propagationPath.filter(p => p.phase === 'capturing');
-    const targetPhase = log.propagationPath.filter(p => p.phase === 'target');
-    const bubblingPhase = log.propagationPath.filter(p => p.phase === 'bubbling');
-    
+    const capturingPhase = log.propagationPath.filter((p) => p.phase === 'capturing');
+    const targetPhase = log.propagationPath.filter((p) => p.phase === 'target');
+    const bubblingPhase = log.propagationPath.filter((p) => p.phase === 'bubbling');
+
     if (capturingPhase.length > 0) {
       const phaseTitle = document.createElement('div');
       phaseTitle.className = 'wc-event-phase-title capturing';
       phaseTitle.textContent = '↓ Capturing Phase';
       pathContent.appendChild(phaseTitle);
-      
+
       capturingPhase.forEach((pathItem) => {
         const pathEl = createPropagationPathElement(pathItem);
         pathContent.appendChild(pathEl);
       });
     }
-    
+
     if (targetPhase.length > 0) {
       const phaseTitle = document.createElement('div');
       phaseTitle.className = 'wc-event-phase-title target';
       phaseTitle.textContent = '◉ Target Phase';
       pathContent.appendChild(phaseTitle);
-      
+
       targetPhase.forEach((pathItem) => {
         const pathEl = createPropagationPathElement(pathItem);
         pathContent.appendChild(pathEl);
       });
     }
-    
+
     if (bubblingPhase.length > 0) {
       const phaseTitle = document.createElement('div');
       phaseTitle.className = 'wc-event-phase-title bubbling';
       phaseTitle.textContent = '↑ Bubbling Phase';
       pathContent.appendChild(phaseTitle);
-      
+
       bubblingPhase.forEach((pathItem) => {
         const pathEl = createPropagationPathElement(pathItem);
         pathContent.appendChild(pathEl);
       });
     }
-    
+
     pathHeader.style.cursor = 'pointer';
     pathHeader.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -852,33 +865,33 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
       pathToggle.textContent = isExpanded ? '▶' : '▼';
       pathSection.classList.toggle('expanded');
     });
-    
+
     pathSection.appendChild(pathHeader);
     pathSection.appendChild(pathContent);
     logDiv.appendChild(pathSection);
   }
-  
+
   // Event detail
   if (log.detail !== undefined && log.detail !== null) {
     const detailSection = document.createElement('div');
     detailSection.className = 'wc-event-detail-section';
-    
+
     const detailHeader = document.createElement('div');
     detailHeader.className = 'wc-event-detail-header';
-    
+
     const detailToggle = document.createElement('span');
     detailToggle.className = 'wc-event-detail-toggle';
     detailToggle.textContent = '▶';
     detailHeader.appendChild(detailToggle);
-    
+
     const detailTitle = document.createElement('span');
     detailTitle.textContent = 'Event Detail';
     detailHeader.appendChild(detailTitle);
-    
+
     const detailContent = document.createElement('div');
     detailContent.className = 'wc-event-detail-content';
     detailContent.style.display = 'none';
-    
+
     // Use JSON tree viewer for complex objects
     if (typeof log.detail === 'object' && log.detail !== null) {
       const jsonTree = createJSONTreeElement(log.detail);
@@ -886,7 +899,7 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
     } else {
       detailContent.textContent = formatEventDetail(log.detail);
     }
-    
+
     detailHeader.style.cursor = 'pointer';
     detailHeader.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -895,32 +908,36 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
       detailToggle.textContent = isExpanded ? '▶' : '▼';
       detailSection.classList.toggle('expanded');
     });
-    
+
     detailSection.appendChild(detailHeader);
     detailSection.appendChild(detailContent);
     logDiv.appendChild(detailSection);
   }
-  
+
   // Add hover effect to highlight element
   logDiv.addEventListener('mouseenter', () => {
     if (document.body.contains(log.element)) {
       highlightElement(log.element);
     }
   });
-  
+
   logDiv.addEventListener('mouseleave', () => {
     if (document.body.contains(log.element)) {
       unhighlightElement(log.element);
     }
   });
-  
+
   // Click to scroll to element (but not when clicking buttons or expandable sections)
   logDiv.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('.wc-event-propagation-header') || target.closest('.wc-event-detail-header')) {
+    if (
+      target.closest('button') ||
+      target.closest('.wc-event-propagation-header') ||
+      target.closest('.wc-event-detail-header')
+    ) {
       return;
     }
-    
+
     if (document.body.contains(log.element)) {
       log.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       highlightElement(log.element);
@@ -929,33 +946,35 @@ export function createEventLogElement(log: EventLog, onReplay?: (timestamp: numb
       }, 3000);
     }
   });
-  
+
   logDiv.style.cursor = 'pointer';
-  
+
   return logDiv;
 }
 
 /**
  * Create a propagation path element
  */
-function createPropagationPathElement(pathItem: import('./types').EventPropagationPath): HTMLDivElement {
+function createPropagationPathElement(
+  pathItem: import('./types').EventPropagationPath,
+): HTMLDivElement {
   const pathEl = document.createElement('div');
   pathEl.className = `wc-event-path-item ${pathItem.phase}`;
   pathEl.textContent = `<${pathItem.tagName}>`;
-  
+
   // Add hover effect
   pathEl.addEventListener('mouseenter', () => {
     if (document.body.contains(pathItem.element)) {
       highlightElement(pathItem.element);
     }
   });
-  
+
   pathEl.addEventListener('mouseleave', () => {
     if (document.body.contains(pathItem.element)) {
       unhighlightElement(pathItem.element);
     }
   });
-  
+
   // Click to scroll to element
   pathEl.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -967,9 +986,9 @@ function createPropagationPathElement(pathItem: import('./types').EventPropagati
       }, 3000);
     }
   });
-  
+
   pathEl.style.cursor = 'pointer';
-  
+
   return pathEl;
 }
 
@@ -980,95 +999,95 @@ export function updateEventFiltersUI(
   eventTypes: string[],
   components: string[],
   currentFilter: import('./types').EventFilter,
-  onFilterChange: (filter: Partial<import('./types').EventFilter>) => void
+  onFilterChange: (filter: Partial<import('./types').EventFilter>) => void,
 ): void {
   const filtersContainer = document.getElementById('wc-events-filters');
   if (!filtersContainer) return;
-  
+
   filtersContainer.innerHTML = '';
-  
+
   // Filter by event type
   if (eventTypes.length > 0) {
     const typeFilter = document.createElement('div');
     typeFilter.className = 'wc-event-filter-group';
-    
+
     const typeLabel = document.createElement('label');
     typeLabel.textContent = 'Event Type:';
     typeFilter.appendChild(typeLabel);
-    
+
     const typeSelect = document.createElement('select');
     typeSelect.className = 'wc-event-filter-select';
     typeSelect.multiple = true;
     typeSelect.size = Math.min(5, eventTypes.length + 1);
-    
+
     const allOption = document.createElement('option');
     allOption.value = '';
     allOption.textContent = '(All Events)';
     allOption.selected = currentFilter.eventTypes.length === 0;
     typeSelect.appendChild(allOption);
-    
-    eventTypes.forEach(type => {
+
+    eventTypes.forEach((type) => {
       const option = document.createElement('option');
       option.value = type;
       option.textContent = type;
       option.selected = currentFilter.eventTypes.includes(type);
       typeSelect.appendChild(option);
     });
-    
+
     typeSelect.addEventListener('change', () => {
       const selected = Array.from(typeSelect.selectedOptions)
-        .map(opt => opt.value)
-        .filter(v => v !== '');
+        .map((opt) => opt.value)
+        .filter((v) => v !== '');
       onFilterChange({ eventTypes: selected });
     });
-    
+
     typeFilter.appendChild(typeSelect);
     filtersContainer.appendChild(typeFilter);
   }
-  
+
   // Filter by component
   if (components.length > 0) {
     const componentFilter = document.createElement('div');
     componentFilter.className = 'wc-event-filter-group';
-    
+
     const componentLabel = document.createElement('label');
     componentLabel.textContent = 'Component:';
     componentFilter.appendChild(componentLabel);
-    
+
     const componentSelect = document.createElement('select');
     componentSelect.className = 'wc-event-filter-select';
     componentSelect.multiple = true;
     componentSelect.size = Math.min(5, components.length + 1);
-    
+
     const allOption = document.createElement('option');
     allOption.value = '';
     allOption.textContent = '(All Components)';
     allOption.selected = currentFilter.components.length === 0;
     componentSelect.appendChild(allOption);
-    
-    components.forEach(comp => {
+
+    components.forEach((comp) => {
       const option = document.createElement('option');
       option.value = comp;
       option.textContent = `<${comp}>`;
       option.selected = currentFilter.components.includes(comp);
       componentSelect.appendChild(option);
     });
-    
+
     componentSelect.addEventListener('change', () => {
       const selected = Array.from(componentSelect.selectedOptions)
-        .map(opt => opt.value)
-        .filter(v => v !== '');
+        .map((opt) => opt.value)
+        .filter((v) => v !== '');
       onFilterChange({ components: selected });
     });
-    
+
     componentFilter.appendChild(componentSelect);
     filtersContainer.appendChild(componentFilter);
   }
-  
+
   // Special filters
   const specialFilters = document.createElement('div');
   specialFilters.className = 'wc-event-filter-group special-filters';
-  
+
   const preventedCheckbox = document.createElement('label');
   preventedCheckbox.className = 'wc-event-filter-checkbox';
   const preventedInput = document.createElement('input');
@@ -1080,7 +1099,7 @@ export function updateEventFiltersUI(
   preventedCheckbox.appendChild(preventedInput);
   preventedCheckbox.appendChild(document.createTextNode(' Only Prevented Defaults'));
   specialFilters.appendChild(preventedCheckbox);
-  
+
   const stoppedCheckbox = document.createElement('label');
   stoppedCheckbox.className = 'wc-event-filter-checkbox';
   const stoppedInput = document.createElement('input');
@@ -1092,17 +1111,17 @@ export function updateEventFiltersUI(
   stoppedCheckbox.appendChild(stoppedInput);
   stoppedCheckbox.appendChild(document.createTextNode(' Only Stopped Propagation'));
   specialFilters.appendChild(stoppedCheckbox);
-  
+
   filtersContainer.appendChild(specialFilters);
-  
+
   // Search filter
   const searchFilter = document.createElement('div');
   searchFilter.className = 'wc-event-filter-group';
-  
+
   const searchLabel = document.createElement('label');
   searchLabel.textContent = 'Search:';
   searchFilter.appendChild(searchLabel);
-  
+
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.className = 'wc-event-filter-search';
@@ -1112,9 +1131,9 @@ export function updateEventFiltersUI(
     onFilterChange({ searchText: searchInput.value });
   });
   searchFilter.appendChild(searchInput);
-  
+
   filtersContainer.appendChild(searchFilter);
-  
+
   // Reset filters button
   const resetBtn = document.createElement('button');
   resetBtn.className = 'wc-event-filter-reset';
@@ -1125,7 +1144,7 @@ export function updateEventFiltersUI(
       components: [],
       onlyPreventedDefaults: false,
       onlyStoppedPropagation: false,
-      searchText: ''
+      searchText: '',
     });
   });
   filtersContainer.appendChild(resetBtn);
@@ -1139,7 +1158,7 @@ function createEditableAttribute(
   attrName: string,
   value: string | null,
   propertyEditor?: PropertyEditor,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): HTMLDivElement {
   const attrRow = document.createElement('div');
   attrRow.className = 'wc-editable-attr';
@@ -1180,7 +1199,7 @@ function createEditableAttribute(
         value || '',
         attrValueSpan,
         propertyEditor,
-        onUpdate
+        onUpdate,
       );
     });
   }
@@ -1196,7 +1215,7 @@ function createEditableProperty(
   propName: string,
   value: unknown,
   propertyEditor?: PropertyEditor,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): HTMLDivElement {
   const propDiv = document.createElement('div');
   propDiv.className = 'wc-property wc-editable-prop';
@@ -1244,7 +1263,7 @@ function createEditableProperty(
         valueType,
         propValueSpan,
         propertyEditor,
-        onUpdate
+        onUpdate,
       );
     });
   }
@@ -1261,7 +1280,7 @@ function makeAttributeEditable(
   currentValue: string,
   valueSpan: HTMLSpanElement,
   propertyEditor: PropertyEditor,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): void {
   const input = document.createElement('input');
   input.type = 'text';
@@ -1275,10 +1294,10 @@ function makeAttributeEditable(
 
   const save = () => {
     const newValue = input.value;
-    
+
     // Update the attribute
     propertyEditor.setAttribute(element, attrName, newValue, onUpdate);
-    
+
     // Restore display
     valueSpan.textContent = newValue;
     valueSpan.style.display = '';
@@ -1310,7 +1329,7 @@ function makeAttributeEditable(
   valueSpan.style.display = 'none';
   valueSpan.parentNode?.insertBefore(input, valueSpan);
   valueSpan.parentNode?.insertBefore(errorSpan, valueSpan);
-  
+
   input.focus();
   input.select();
 }
@@ -1325,10 +1344,10 @@ function makePropertyEditable(
   valueType: string,
   valueSpan: HTMLSpanElement,
   propertyEditor: PropertyEditor,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): void {
   const currentValueStr = formatPropertyValueForEdit(currentValue);
-  
+
   const input = document.createElement('input');
   input.type = 'text';
   input.className = 'wc-inline-editor';
@@ -1342,10 +1361,10 @@ function makePropertyEditable(
 
   const save = () => {
     const newValueStr = input.value;
-    
+
     // Validate the new value
     const validation = propertyEditor.validateValue(newValueStr, valueType);
-    
+
     if (!validation.valid) {
       // Show error
       errorSpan.textContent = validation.error || 'Invalid value';
@@ -1356,7 +1375,7 @@ function makePropertyEditable(
 
     // Update the property
     propertyEditor.setProperty(element, propName, validation.value, onUpdate);
-    
+
     // Restore display
     valueSpan.textContent = formatPropertyValue(validation.value);
     valueSpan.style.display = '';
@@ -1397,7 +1416,7 @@ function makePropertyEditable(
   valueSpan.style.display = 'none';
   valueSpan.parentNode?.insertBefore(input, valueSpan);
   valueSpan.parentNode?.insertBefore(errorSpan, valueSpan);
-  
+
   input.focus();
   input.select();
 }
@@ -1408,7 +1427,7 @@ function makePropertyEditable(
 export function updateUndoRedoButtons(canUndo: boolean, canRedo: boolean): void {
   const undoBtn = document.getElementById('wc-undo-btn') as HTMLButtonElement;
   const redoBtn = document.getElementById('wc-redo-btn') as HTMLButtonElement;
-  
+
   if (undoBtn) {
     undoBtn.disabled = !canUndo;
   }
@@ -1441,102 +1460,102 @@ function formatPropertyValueForEdit(value: unknown): string {
 function createShadowDOMSection(shadowInfo: ShadowDOMInfo): HTMLDivElement {
   const section = document.createElement('div');
   section.className = 'wc-section';
-  
+
   const title = document.createElement('div');
   title.className = 'wc-section-title';
   title.textContent = 'Shadow DOM';
   section.appendChild(title);
-  
+
   // Shadow root info
   const infoDiv = document.createElement('div');
   infoDiv.className = 'wc-shadow-info';
-  
+
   const modeSpan = document.createElement('span');
   modeSpan.className = 'wc-shadow-mode';
   modeSpan.textContent = `Mode: ${shadowInfo.mode}`;
   infoDiv.appendChild(modeSpan);
-  
+
   if (shadowInfo.adoptedStyleSheets > 0) {
     const stylesSpan = document.createElement('span');
     stylesSpan.className = 'wc-shadow-stylesheets';
     stylesSpan.textContent = ` • ${shadowInfo.adoptedStyleSheets} adopted stylesheet${shadowInfo.adoptedStyleSheets > 1 ? 's' : ''}`;
     infoDiv.appendChild(stylesSpan);
   }
-  
+
   section.appendChild(infoDiv);
-  
+
   // Custom properties
   if (shadowInfo.customProperties.size > 0) {
     const propsDiv = document.createElement('div');
     propsDiv.className = 'wc-shadow-custom-props';
-    
+
     const propsTitle = document.createElement('div');
     propsTitle.className = 'wc-shadow-subsection-title';
     propsTitle.textContent = 'CSS Custom Properties';
     propsDiv.appendChild(propsTitle);
-    
+
     shadowInfo.customProperties.forEach((value, prop) => {
       const propRow = document.createElement('div');
       propRow.className = 'wc-shadow-custom-prop';
-      
+
       const propName = document.createElement('span');
       propName.className = 'wc-shadow-prop-name';
       propName.textContent = prop;
       propRow.appendChild(propName);
-      
+
       propRow.appendChild(document.createTextNode(': '));
-      
+
       const propValue = document.createElement('span');
       propValue.className = 'wc-shadow-prop-value';
       propValue.textContent = value;
       propRow.appendChild(propValue);
-      
+
       propsDiv.appendChild(propRow);
     });
-    
+
     section.appendChild(propsDiv);
   }
-  
+
   // Slot assignments
   if (shadowInfo.slotAssignments.size > 0) {
     const slotsDiv = document.createElement('div');
     slotsDiv.className = 'wc-shadow-slots';
-    
+
     const slotsTitle = document.createElement('div');
     slotsTitle.className = 'wc-shadow-subsection-title';
     slotsTitle.textContent = 'Slot Assignments';
     slotsDiv.appendChild(slotsTitle);
-    
+
     shadowInfo.slotAssignments.forEach((assignment, slotName) => {
       const slotDiv = createSlotAssignmentElement(assignment);
       slotsDiv.appendChild(slotDiv);
     });
-    
+
     section.appendChild(slotsDiv);
   }
-  
+
   // Shadow DOM tree
   if (shadowInfo.children.length > 0) {
     const treeDiv = document.createElement('div');
     treeDiv.className = 'wc-shadow-tree';
-    
+
     const treeTitle = document.createElement('div');
     treeTitle.className = 'wc-shadow-subsection-title';
     treeTitle.textContent = 'Shadow DOM Tree';
     treeDiv.appendChild(treeTitle);
-    
+
     const treeContainer = document.createElement('div');
     treeContainer.className = 'wc-shadow-tree-container';
-    
+
     shadowInfo.children.forEach((node) => {
       const nodeEl = createShadowDOMNodeElement(node, 0);
       treeContainer.appendChild(nodeEl);
     });
-    
+
     treeDiv.appendChild(treeContainer);
     section.appendChild(treeDiv);
   }
-  
+
   return section;
 }
 
@@ -1546,59 +1565,60 @@ function createShadowDOMSection(shadowInfo: ShadowDOMInfo): HTMLDivElement {
 function createSlotAssignmentElement(assignment: SlotAssignment): HTMLDivElement {
   const div = document.createElement('div');
   div.className = assignment.hasContent ? 'wc-slot-assignment has-content' : 'wc-slot-assignment';
-  
+
   const header = document.createElement('div');
   header.className = 'wc-slot-assignment-header';
-  
+
   const slotName = document.createElement('span');
   slotName.className = 'wc-slot-assignment-name';
-  slotName.textContent = assignment.slotName === 'default' ? '<slot>' : `<slot name="${assignment.slotName}">`;
+  slotName.textContent =
+    assignment.slotName === 'default' ? '<slot>' : `<slot name="${assignment.slotName}">`;
   header.appendChild(slotName);
-  
+
   const count = document.createElement('span');
   count.className = 'wc-slot-assignment-count';
   count.textContent = ` (${assignment.assignedElements.length} element${assignment.assignedElements.length !== 1 ? 's' : ''})`;
   header.appendChild(count);
-  
+
   div.appendChild(header);
-  
+
   // Add hover effect to highlight the slot element itself
   div.addEventListener('mouseenter', () => {
     if (document.body.contains(assignment.slotElement)) {
       highlightElement(assignment.slotElement);
     }
   });
-  
+
   div.addEventListener('mouseleave', () => {
     if (document.body.contains(assignment.slotElement)) {
       unhighlightElement(assignment.slotElement);
     }
   });
-  
+
   // Show assigned elements
   if (assignment.assignedElements.length > 0) {
     const elementsDiv = document.createElement('div');
     elementsDiv.className = 'wc-slot-assigned-elements';
-    
+
     assignment.assignedElements.forEach((el) => {
       const elDiv = document.createElement('div');
       elDiv.className = 'wc-slot-assigned-element';
-      
+
       let text = `<${el.nodeName.toLowerCase()}`;
-      
+
       // Add key attributes
       const id = el.getAttribute('id');
       const className = el.getAttribute('class');
       const slot = el.getAttribute('slot');
-      
+
       if (id) text += ` id="${id}"`;
       if (className) text += ` class="${className}"`;
       if (slot) text += ` slot="${slot}"`;
-      
+
       text += '>';
-      
+
       elDiv.textContent = text;
-      
+
       // Add hover effect to highlight individual slotted elements
       elDiv.style.cursor = 'pointer';
       elDiv.addEventListener('mouseenter', () => {
@@ -1606,13 +1626,13 @@ function createSlotAssignmentElement(assignment: SlotAssignment): HTMLDivElement
           highlightElement(el);
         }
       });
-      
+
       elDiv.addEventListener('mouseleave', () => {
         if (document.body.contains(el)) {
           unhighlightElement(el);
         }
       });
-      
+
       // Click to scroll to element
       elDiv.addEventListener('click', () => {
         if (document.body.contains(el)) {
@@ -1623,13 +1643,13 @@ function createSlotAssignmentElement(assignment: SlotAssignment): HTMLDivElement
           }, 3000);
         }
       });
-      
+
       elementsDiv.appendChild(elDiv);
     });
-    
+
     div.appendChild(elementsDiv);
   }
-  
+
   return div;
 }
 
@@ -1640,34 +1660,34 @@ function createShadowDOMNodeElement(node: ShadowDOMNode, depth: number): HTMLDiv
   const nodeDiv = document.createElement('div');
   nodeDiv.className = 'wc-shadow-node';
   nodeDiv.style.marginLeft = `${depth * 16}px`;
-  
+
   // Skip text nodes that are just whitespace
   if (node.nodeType === Node.TEXT_NODE) {
     const text = node.textContent?.trim();
     if (!text) return nodeDiv;
-    
+
     const textDiv = document.createElement('div');
     textDiv.className = 'wc-shadow-text-node';
     textDiv.textContent = `"${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`;
     nodeDiv.appendChild(textDiv);
     return nodeDiv;
   }
-  
+
   // Element nodes
   if (node.nodeType === Node.ELEMENT_NODE) {
     const header = document.createElement('div');
     header.className = 'wc-shadow-node-header';
-    
+
     // Expand/collapse indicator for nodes with children
     if (node.children.length > 0) {
       const expandBtn = document.createElement('span');
       expandBtn.className = 'wc-shadow-node-expand';
       expandBtn.textContent = '▶';
       header.appendChild(expandBtn);
-      
+
       // Make expandable
       nodeDiv.classList.add('wc-shadow-node-expandable');
-      
+
       expandBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         nodeDiv.classList.toggle('expanded');
@@ -1677,18 +1697,18 @@ function createShadowDOMNodeElement(node: ShadowDOMNode, depth: number): HTMLDiv
       spacer.className = 'wc-shadow-node-spacer';
       header.appendChild(spacer);
     }
-    
+
     // Tag name
     const tagName = document.createElement('span');
     tagName.className = node.isSlot ? 'wc-shadow-node-tag slot' : 'wc-shadow-node-tag';
     tagName.textContent = `<${node.nodeName.toLowerCase()}`;
     header.appendChild(tagName);
-    
+
     // Attributes
     if (node.attributes.size > 0) {
       const attrsSpan = document.createElement('span');
       attrsSpan.className = 'wc-shadow-node-attrs';
-      
+
       const attrTexts: string[] = [];
       node.attributes.forEach((value, name) => {
         if (node.isSlot && name === 'name') {
@@ -1699,29 +1719,29 @@ function createShadowDOMNodeElement(node: ShadowDOMNode, depth: number): HTMLDiv
           attrTexts.push(` ${name}`);
         }
       });
-      
+
       attrsSpan.textContent = attrTexts.join('');
       header.appendChild(attrsSpan);
     }
-    
+
     tagName.appendChild(document.createTextNode('>'));
-    
+
     nodeDiv.appendChild(header);
-    
+
     // Children
     if (node.children.length > 0) {
       const childrenDiv = document.createElement('div');
       childrenDiv.className = 'wc-shadow-node-children';
-      
+
       node.children.forEach((child) => {
         const childEl = createShadowDOMNodeElement(child, depth + 1);
         childrenDiv.appendChild(childEl);
       });
-      
+
       nodeDiv.appendChild(childrenDiv);
     }
   }
-  
+
   return nodeDiv;
 }
 
@@ -1731,16 +1751,16 @@ function createShadowDOMNodeElement(node: ShadowDOMNode, depth: number): HTMLDiv
 function createCSSVariablesSection(
   cssVariables: CSSVariableInfo[],
   element: Element,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): HTMLDivElement {
   const section = document.createElement('div');
   section.className = 'wc-section';
-  
+
   const title = document.createElement('div');
   title.className = 'wc-section-title';
   title.textContent = `CSS Variables (${cssVariables.length})`;
   section.appendChild(title);
-  
+
   if (cssVariables.length === 0) {
     const emptyDiv = document.createElement('div');
     emptyDiv.className = 'wc-css-variable-empty';
@@ -1748,17 +1768,17 @@ function createCSSVariablesSection(
     section.appendChild(emptyDiv);
     return section;
   }
-  
+
   const varsDiv = document.createElement('div');
   varsDiv.className = 'wc-css-variables';
-  
+
   cssVariables.forEach((cssVar) => {
     const varDiv = createCSSVariableElement(cssVar, element, onUpdate);
     varsDiv.appendChild(varDiv);
   });
-  
+
   section.appendChild(varsDiv);
-  
+
   return section;
 }
 
@@ -1768,39 +1788,39 @@ function createCSSVariablesSection(
 function createCSSVariableElement(
   cssVar: CSSVariableInfo,
   element: Element,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): HTMLDivElement {
   const varDiv = document.createElement('div');
   varDiv.className = 'wc-css-variable';
-  
+
   // Only make element-level variables editable
   const isEditable = cssVar.source === 'element' && !cssVar.selector;
   if (isEditable) {
     varDiv.classList.add('wc-css-variable-editable');
   }
-  
+
   const header = document.createElement('div');
   header.className = 'wc-css-variable-header';
-  
+
   const nameSpan = document.createElement('span');
   nameSpan.className = 'wc-css-variable-name';
   nameSpan.textContent = cssVar.name;
   header.appendChild(nameSpan);
-  
+
   header.appendChild(document.createTextNode(': '));
-  
+
   const valueSpan = document.createElement('span');
   valueSpan.className = 'wc-css-variable-value';
   valueSpan.textContent = cssVar.value || cssVar.computedValue;
   valueSpan.title = isEditable ? 'Click to edit' : 'Read-only';
   header.appendChild(valueSpan);
-  
+
   if (isEditable) {
     const editIcon = document.createElement('span');
     editIcon.className = 'wc-css-variable-edit-icon';
     editIcon.innerHTML = '✎';
     header.appendChild(editIcon);
-    
+
     // Make editable
     header.style.cursor = 'pointer';
     header.addEventListener('click', (e) => {
@@ -1810,13 +1830,13 @@ function createCSSVariableElement(
         cssVar.name,
         cssVar.value || cssVar.computedValue,
         valueSpan,
-        onUpdate
+        onUpdate,
       );
     });
   }
-  
+
   varDiv.appendChild(header);
-  
+
   // Show computed value if different from declared value
   if (cssVar.value && cssVar.computedValue && cssVar.value !== cssVar.computedValue) {
     const computedDiv = document.createElement('div');
@@ -1824,18 +1844,18 @@ function createCSSVariableElement(
     computedDiv.textContent = `Computed: ${cssVar.computedValue}`;
     varDiv.appendChild(computedDiv);
   }
-  
+
   // Metadata
   const metaDiv = document.createElement('div');
   metaDiv.className = 'wc-css-variable-meta';
-  
+
   // Source badge
   const sourceSpan = document.createElement('span');
   sourceSpan.className = `wc-css-variable-source ${cssVar.source}`;
   sourceSpan.textContent = cssVar.source;
   sourceSpan.title = getSourceDescription(cssVar.source);
   metaDiv.appendChild(sourceSpan);
-  
+
   // Selector if present
   if (cssVar.selector) {
     const selectorSpan = document.createElement('span');
@@ -1844,14 +1864,14 @@ function createCSSVariableElement(
     selectorSpan.title = 'CSS Selector';
     metaDiv.appendChild(selectorSpan);
   }
-  
+
   // Inherited from element
   if (cssVar.inheritedFrom) {
     const inheritedSpan = document.createElement('span');
     inheritedSpan.className = 'wc-css-variable-inherited-from';
     inheritedSpan.textContent = `↑ ${cssVar.inheritedFrom.nodeName.toLowerCase()}`;
     inheritedSpan.title = 'Inherited from parent element';
-    
+
     // Add hover effect to highlight the parent element
     inheritedSpan.style.cursor = 'pointer';
     inheritedSpan.addEventListener('mouseenter', () => {
@@ -1859,13 +1879,13 @@ function createCSSVariableElement(
         highlightElement(cssVar.inheritedFrom!);
       }
     });
-    
+
     inheritedSpan.addEventListener('mouseleave', () => {
       if (document.body.contains(cssVar.inheritedFrom!)) {
         unhighlightElement(cssVar.inheritedFrom!);
       }
     });
-    
+
     // Click to scroll to element
     inheritedSpan.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1877,12 +1897,12 @@ function createCSSVariableElement(
         }, 3000);
       }
     });
-    
+
     metaDiv.appendChild(inheritedSpan);
   }
-  
+
   varDiv.appendChild(metaDiv);
-  
+
   return varDiv;
 }
 
@@ -1894,7 +1914,7 @@ function makeCSSVariableEditable(
   variableName: string,
   currentValue: string,
   valueSpan: HTMLSpanElement,
-  onUpdate?: () => void
+  onUpdate?: () => void,
 ): void {
   const input = document.createElement('input');
   input.type = 'text';
@@ -1909,17 +1929,17 @@ function makeCSSVariableEditable(
 
   const save = () => {
     const newValue = input.value.trim();
-    
+
     // Update the CSS variable
     const success = updateCSSVariable(element, variableName, newValue);
-    
+
     if (success) {
       // Restore display
       valueSpan.textContent = newValue;
       valueSpan.style.display = '';
       input.remove();
       errorSpan.remove();
-      
+
       // Trigger update if callback provided
       if (onUpdate) {
         onUpdate();
@@ -1964,7 +1984,7 @@ function makeCSSVariableEditable(
   valueSpan.style.display = 'none';
   valueSpan.parentNode?.insertBefore(input, valueSpan);
   valueSpan.parentNode?.insertBefore(errorSpan, valueSpan);
-  
+
   input.focus();
   input.select();
 }
@@ -1977,7 +1997,7 @@ function getSourceDescription(source: string): string {
     case 'element':
       return 'Defined directly on this element';
     case 'shadow-root':
-      return 'Defined in component\'s Shadow DOM';
+      return "Defined in component's Shadow DOM";
     case 'inherited':
       return 'Inherited from a parent element';
     case 'root':
@@ -1997,54 +2017,54 @@ export function createAccessibilityAuditElement(audit: A11yAuditResult): HTMLDiv
   // Score header
   const scoreHeader = document.createElement('div');
   scoreHeader.className = 'wc-a11y-score-header';
-  
+
   const scoreCircle = document.createElement('div');
   scoreCircle.className = `wc-a11y-score-circle ${getScoreClass(audit.score)}`;
   scoreCircle.textContent = Math.round(audit.score).toString();
   scoreHeader.appendChild(scoreCircle);
-  
+
   const scoreInfo = document.createElement('div');
   scoreInfo.className = 'wc-a11y-score-info';
-  
+
   const scoreTitle = document.createElement('div');
   scoreTitle.className = 'wc-a11y-score-title';
   scoreTitle.textContent = `Accessibility Score`;
   scoreInfo.appendChild(scoreTitle);
-  
+
   const scoreDesc = document.createElement('div');
   scoreDesc.className = 'wc-a11y-score-desc';
   scoreDesc.textContent = getScoreDescription(audit.score);
   scoreInfo.appendChild(scoreDesc);
-  
+
   scoreHeader.appendChild(scoreInfo);
   auditDiv.appendChild(scoreHeader);
 
   // Quick summary
   const summary = document.createElement('div');
   summary.className = 'wc-a11y-summary';
-  
+
   const summaryItems = [
-    { 
-      icon: '⌨️', 
-      label: 'Keyboard Support', 
+    {
+      icon: '⌨️',
+      label: 'Keyboard Support',
       value: audit.hasKeyboardSupport ? 'Yes' : 'No',
-      status: audit.hasKeyboardSupport ? 'good' : 'bad'
+      status: audit.hasKeyboardSupport ? 'good' : 'bad',
     },
-    { 
-      icon: '🎯', 
-      label: 'Focus Management', 
+    {
+      icon: '🎯',
+      label: 'Focus Management',
       value: audit.hasFocusManagement ? 'Yes' : 'No',
-      status: audit.hasFocusManagement ? 'good' : 'bad'
+      status: audit.hasFocusManagement ? 'good' : 'bad',
     },
-    { 
-      icon: '🏷️', 
-      label: 'ARIA Labels', 
+    {
+      icon: '🏷️',
+      label: 'ARIA Labels',
       value: audit.hasAriaLabels ? 'Yes' : 'No',
-      status: audit.hasAriaLabels ? 'good' : 'bad'
-    }
+      status: audit.hasAriaLabels ? 'good' : 'bad',
+    },
   ];
-  
-  summaryItems.forEach(item => {
+
+  summaryItems.forEach((item) => {
     const summaryItem = document.createElement('div');
     summaryItem.className = `wc-a11y-summary-item ${item.status}`;
     summaryItem.innerHTML = `
@@ -2054,7 +2074,7 @@ export function createAccessibilityAuditElement(audit: A11yAuditResult): HTMLDiv
     `;
     summary.appendChild(summaryItem);
   });
-  
+
   auditDiv.appendChild(summary);
 
   // Issues section
@@ -2066,12 +2086,12 @@ export function createAccessibilityAuditElement(audit: A11yAuditResult): HTMLDiv
 
     const issuesList = document.createElement('div');
     issuesList.className = 'wc-a11y-issues-list';
-    
-    audit.issues.forEach(issue => {
+
+    audit.issues.forEach((issue) => {
       const issueEl = createAccessibilityIssueElement(issue);
       issuesList.appendChild(issueEl);
     });
-    
+
     auditDiv.appendChild(issuesList);
   } else {
     const noIssues = document.createElement('div');
@@ -2092,24 +2112,24 @@ function createAccessibilityIssueElement(issue: A11yIssue): HTMLDivElement {
 
   const issueHeader = document.createElement('div');
   issueHeader.className = 'wc-a11y-issue-header';
-  
+
   const typeIcon = document.createElement('span');
   typeIcon.className = `wc-a11y-issue-icon wc-a11y-issue-icon-${issue.type}`;
   typeIcon.textContent = getIssueIcon(issue.type);
   issueHeader.appendChild(typeIcon);
-  
+
   const categoryBadge = document.createElement('span');
   categoryBadge.className = 'wc-a11y-category-badge';
   categoryBadge.textContent = issue.category.toUpperCase();
   issueHeader.appendChild(categoryBadge);
-  
+
   if (issue.wcagLevel) {
     const wcagBadge = document.createElement('span');
     wcagBadge.className = 'wc-a11y-wcag-badge';
     wcagBadge.textContent = `WCAG ${issue.wcagLevel}`;
     issueHeader.appendChild(wcagBadge);
   }
-  
+
   issueDiv.appendChild(issueHeader);
 
   const issueMessage = document.createElement('div');
@@ -2153,10 +2173,10 @@ export function createAccessibilityTreeElement(tree: A11yTreeNode): HTMLDivEleme
 
   const treeContent = document.createElement('div');
   treeContent.className = 'wc-a11y-tree-content';
-  
+
   const treeNodes = createAccessibilityTreeNodes(tree, 0);
   treeContent.appendChild(treeNodes);
-  
+
   treeDiv.appendChild(treeContent);
 
   return treeDiv;
@@ -2173,17 +2193,17 @@ function createAccessibilityTreeNodes(node: A11yTreeNode, depth: number): HTMLDi
   // Node header
   const nodeHeader = document.createElement('div');
   nodeHeader.className = 'wc-a11y-tree-node-header';
-  
+
   // Expand/collapse icon if has children
   if (node.children.length > 0) {
     const expandIcon = document.createElement('span');
     expandIcon.className = 'wc-a11y-tree-expand-icon';
     expandIcon.textContent = '▼';
     nodeHeader.appendChild(expandIcon);
-    
+
     nodeHeader.style.cursor = 'pointer';
     let isExpanded = true;
-    
+
     nodeHeader.addEventListener('click', () => {
       isExpanded = !isExpanded;
       expandIcon.textContent = isExpanded ? '▼' : '▶';
@@ -2230,8 +2250,12 @@ function createAccessibilityTreeNodes(node: A11yTreeNode, depth: number): HTMLDi
   nodeDiv.appendChild(nodeHeader);
 
   // Node details (ARIA properties and states)
-  const hasDetails = node.ariaProperties.size > 0 || node.ariaStates.size > 0 || node.description || node.tabIndex !== null;
-  
+  const hasDetails =
+    node.ariaProperties.size > 0 ||
+    node.ariaStates.size > 0 ||
+    node.description ||
+    node.tabIndex !== null;
+
   if (hasDetails) {
     const detailsDiv = document.createElement('div');
     detailsDiv.className = 'wc-a11y-tree-node-details';
@@ -2277,12 +2301,12 @@ function createAccessibilityTreeNodes(node: A11yTreeNode, depth: number): HTMLDi
   // Children
   const childrenDiv = document.createElement('div');
   childrenDiv.className = 'wc-a11y-tree-children';
-  
-  node.children.forEach(child => {
+
+  node.children.forEach((child) => {
     const childNode = createAccessibilityTreeNodes(child, depth + 1);
     childrenDiv.appendChild(childNode);
   });
-  
+
   nodeDiv.appendChild(childrenDiv);
 
   return nodeDiv;
@@ -2313,9 +2337,13 @@ function getScoreDescription(score: number): string {
  */
 function getIssueIcon(type: string): string {
   switch (type) {
-    case 'error': return '❌';
-    case 'warning': return '⚠️';
-    case 'info': return 'ℹ️';
-    default: return '•';
+    case 'error':
+      return '❌';
+    case 'warning':
+      return '⚠️';
+    case 'info':
+      return 'ℹ️';
+    default:
+      return '•';
   }
 }

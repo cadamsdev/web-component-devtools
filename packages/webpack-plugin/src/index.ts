@@ -48,12 +48,12 @@ export class WebpackWebComponentDevTools {
     compiler.hooks.compilation.tap('WebpackWebComponentDevTools', (compilation) => {
       // Check if HtmlWebpackPlugin is available
       const HtmlWebpackPlugin = compiler.options.plugins?.find(
-        (plugin) => plugin?.constructor?.name === 'HtmlWebpackPlugin'
+        (plugin) => plugin?.constructor?.name === 'HtmlWebpackPlugin',
       );
 
       if (!HtmlWebpackPlugin) {
         console.warn(
-          '[webpack-plugin] HtmlWebpackPlugin not found. The dev tools will not be injected.'
+          '[webpack-plugin] HtmlWebpackPlugin not found. The dev tools will not be injected.',
         );
         return;
       }
@@ -88,7 +88,7 @@ export class WebpackWebComponentDevTools {
               };
             }
           }
-        }
+        },
       );
     });
   }

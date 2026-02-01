@@ -16,7 +16,7 @@ export class MyCard extends LitElement {
       --card-text-color: #4a5568;
       --card-border-color: #e2e8f0;
     }
-
+    
     .card {
       background: var(--card-bg);
       border-radius: var(--card-border-radius);
@@ -24,42 +24,42 @@ export class MyCard extends LitElement {
       box-shadow: var(--card-shadow);
       transition: all 0.3s ease;
     }
-
+    
     .card:hover {
       box-shadow: var(--card-shadow-hover);
       transform: translateY(var(--card-hover-lift));
     }
-
+    
     .card-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 16px;
     }
-
+    
     .card-icon {
       font-size: 32px;
     }
-
+    
     .card-title {
       font-size: 20px;
       font-weight: 700;
       color: var(--card-title-color);
       margin: 0;
     }
-
+    
     .card-description {
       color: var(--card-text-color);
       line-height: 1.6;
       margin: 0;
     }
-
+    
     .card-footer {
       margin-top: 16px;
       padding-top: 16px;
       border-top: 1px solid var(--card-border-color);
     }
-
+    
     ::slotted(*) {
       margin: 0;
     }
@@ -84,9 +84,13 @@ export class MyCard extends LitElement {
           <span class="card-icon">${this.icon}</span>
           <h3 class="card-title">${this.title}</h3>
         </div>
-        ${this.description ? html`
+        ${
+          this.description
+            ? html`
           <p class="card-description">${this.description}</p>
-        ` : ''}
+        `
+            : ''
+        }
         <slot></slot>
         <div class="card-footer">
           <slot name="footer"></slot>

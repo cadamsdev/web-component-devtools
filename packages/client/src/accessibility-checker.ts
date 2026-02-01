@@ -56,9 +56,9 @@ export class AccessibilityChecker {
       tagName: instance.tagName,
       issues,
       score,
-      hasKeyboardSupport: !keyboardIssues.some(i => i.type === 'error'),
+      hasKeyboardSupport: !keyboardIssues.some((i) => i.type === 'error'),
       hasFocusManagement: this.hasFocusManagement(element, instance.shadowDOM),
-      hasAriaLabels: this.hasAriaLabels(element)
+      hasAriaLabels: this.hasAriaLabels(element),
     };
   }
 
@@ -75,8 +75,18 @@ export class AccessibilityChecker {
     const ariaDescribedBy = element.getAttribute('aria-describedby');
 
     // Interactive roles that need labels
-    const interactiveRoles = ['button', 'link', 'checkbox', 'radio', 'tab', 'menuitem', 'option', 'slider', 'switch'];
-    
+    const interactiveRoles = [
+      'button',
+      'link',
+      'checkbox',
+      'radio',
+      'tab',
+      'menuitem',
+      'option',
+      'slider',
+      'switch',
+    ];
+
     if (role && interactiveRoles.includes(role)) {
       if (!ariaLabel && !ariaLabelledBy && !element.textContent?.trim()) {
         issues.push({
@@ -85,14 +95,15 @@ export class AccessibilityChecker {
           message: `Element with role="${role}" has no accessible label`,
           element,
           recommendation: 'Add aria-label, aria-labelledby, or text content',
-          wcagLevel: 'A'
+          wcagLevel: 'A',
         });
       }
     }
 
     // Check for invalid ARIA attributes
-    const ariaAttributes = Array.from(element.attributes)
-      .filter(attr => attr.name.startsWith('aria-'));
+    const ariaAttributes = Array.from(element.attributes).filter((attr) =>
+      attr.name.startsWith('aria-'),
+    );
 
     for (const attr of ariaAttributes) {
       // Check if it's a valid ARIA attribute
@@ -103,7 +114,7 @@ export class AccessibilityChecker {
           message: `Invalid ARIA attribute: ${attr.name}`,
           element,
           recommendation: 'Remove or use a valid ARIA attribute',
-          wcagLevel: 'A'
+          wcagLevel: 'A',
         });
       }
 
@@ -115,14 +126,16 @@ export class AccessibilityChecker {
           message: `Empty ${attr.name} attribute`,
           element,
           recommendation: 'Provide a meaningful label or remove the attribute',
-          wcagLevel: 'A'
+          wcagLevel: 'A',
         });
       }
     }
 
     // Check for ARIA hidden on interactive elements
     if (element.getAttribute('aria-hidden') === 'true') {
-      const hasInteractiveChildren = element.querySelector('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      const hasInteractiveChildren = element.querySelector(
+        'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
       if (hasInteractiveChildren) {
         issues.push({
           type: 'error',
@@ -130,7 +143,7 @@ export class AccessibilityChecker {
           message: 'aria-hidden="true" on element with focusable descendants',
           element,
           recommendation: 'Remove aria-hidden or make descendants non-focusable',
-          wcagLevel: 'A'
+          wcagLevel: 'A',
         });
       }
     }
@@ -146,15 +159,28 @@ export class AccessibilityChecker {
 
     const role = element.getAttribute('role');
     const tabIndex = element.getAttribute('tabindex');
-    
+
     // Check if interactive element is keyboard accessible
-    const interactiveRoles = ['button', 'link', 'checkbox', 'radio', 'tab', 'menuitem', 'option', 'slider', 'switch'];
-    
+    const interactiveRoles = [
+      'button',
+      'link',
+      'checkbox',
+      'radio',
+      'tab',
+      'menuitem',
+      'option',
+      'slider',
+      'switch',
+    ];
+
     if (role && interactiveRoles.includes(role)) {
       const isKeyboardAccessible = tabIndex !== null && tabIndex !== '-1';
-      const isFocusable = element.tagName === 'BUTTON' || element.tagName === 'A' || 
-                          element.tagName === 'INPUT' || element.tagName === 'SELECT' ||
-                          element.tagName === 'TEXTAREA';
+      const isFocusable =
+        element.tagName === 'BUTTON' ||
+        element.tagName === 'A' ||
+        element.tagName === 'INPUT' ||
+        element.tagName === 'SELECT' ||
+        element.tagName === 'TEXTAREA';
 
       if (!isKeyboardAccessible && !isFocusable) {
         issues.push({
@@ -163,7 +189,7 @@ export class AccessibilityChecker {
           message: `Interactive element with role="${role}" is not keyboard accessible`,
           element,
           recommendation: 'Add tabindex="0" to make element focusable',
-          wcagLevel: 'A'
+          wcagLevel: 'A',
         });
       }
     }
@@ -176,7 +202,7 @@ export class AccessibilityChecker {
         message: 'Positive tabindex creates a confusing tab order',
         element,
         recommendation: 'Use tabindex="0" or manage focus programmatically',
-        wcagLevel: 'A'
+        wcagLevel: 'A',
       });
     }
 
@@ -196,14 +222,24 @@ export class AccessibilityChecker {
 
     // Check for focusable elements in shadow DOM
     const focusableElements = shadowRoot.querySelectorAll(
-      'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
 
     if (focusableElements.length === 0) {
       // Check if the component itself should be focusable
       const role = element.getAttribute('role');
-      const interactiveRoles = ['button', 'link', 'checkbox', 'radio', 'tab', 'menuitem', 'option', 'slider', 'switch'];
-      
+      const interactiveRoles = [
+        'button',
+        'link',
+        'checkbox',
+        'radio',
+        'tab',
+        'menuitem',
+        'option',
+        'slider',
+        'switch',
+      ];
+
       if (role && interactiveRoles.includes(role)) {
         issues.push({
           type: 'warning',
@@ -211,7 +247,7 @@ export class AccessibilityChecker {
           message: 'Shadow DOM contains no focusable elements',
           element,
           recommendation: 'Ensure component handles focus appropriately',
-          wcagLevel: 'A'
+          wcagLevel: 'A',
         });
       }
     }
@@ -225,7 +261,7 @@ export class AccessibilityChecker {
         message: 'Shadow root does not delegate focus',
         element,
         recommendation: 'Consider using delegatesFocus: true in attachShadow()',
-        wcagLevel: 'AA'
+        wcagLevel: 'AA',
       });
     }
 
@@ -266,7 +302,7 @@ export class AccessibilityChecker {
           message: `Insufficient color contrast: ${contrast.toFixed(2)}:1 (minimum: ${minimumContrast}:1)`,
           element,
           recommendation: 'Increase contrast between text and background colors',
-          wcagLevel: 'AA'
+          wcagLevel: 'AA',
         });
       }
     } catch (error) {
@@ -299,7 +335,7 @@ export class AccessibilityChecker {
                 message: `Heading level skipped: ${heading.tagName} follows h${lastLevel}`,
                 element: heading,
                 recommendation: 'Use sequential heading levels for proper document structure',
-                wcagLevel: 'A'
+                wcagLevel: 'A',
               });
             }
             lastLevel = level;
@@ -316,7 +352,7 @@ export class AccessibilityChecker {
               message: 'Image missing alt attribute',
               element: img,
               recommendation: 'Add alt="" for decorative images or descriptive alt text',
-              wcagLevel: 'A'
+              wcagLevel: 'A',
             });
           }
         });
@@ -332,7 +368,7 @@ export class AccessibilityChecker {
   private calculateA11yScore(issues: A11yIssue[]): number {
     let score = 100;
 
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       if (issue.type === 'error') {
         score -= 15;
       } else if (issue.type === 'warning') {
@@ -350,12 +386,14 @@ export class AccessibilityChecker {
    */
   private hasFocusManagement(element: Element, shadowDOM: any): boolean {
     if (element.hasAttribute('tabindex')) return true;
-    
+
     if (shadowDOM?.hasShadowRoot) {
       const shadowRoot = (element as any).shadowRoot;
       if (!shadowRoot) return false;
-      
-      const focusable = shadowRoot.querySelector('button, a[href], input, select, textarea, [tabindex]');
+
+      const focusable = shadowRoot.querySelector(
+        'button, a[href], input, select, textarea, [tabindex]',
+      );
       return !!focusable;
     }
 
@@ -378,18 +416,54 @@ export class AccessibilityChecker {
    */
   private isValidAriaAttribute(name: string): boolean {
     const validAriaAttributes = [
-      'aria-activedescendant', 'aria-atomic', 'aria-autocomplete', 'aria-busy',
-      'aria-checked', 'aria-colcount', 'aria-colindex', 'aria-colspan',
-      'aria-controls', 'aria-current', 'aria-describedby', 'aria-details',
-      'aria-disabled', 'aria-dropeffect', 'aria-errormessage', 'aria-expanded',
-      'aria-flowto', 'aria-grabbed', 'aria-haspopup', 'aria-hidden',
-      'aria-invalid', 'aria-keyshortcuts', 'aria-label', 'aria-labelledby',
-      'aria-level', 'aria-live', 'aria-modal', 'aria-multiline',
-      'aria-multiselectable', 'aria-orientation', 'aria-owns', 'aria-placeholder',
-      'aria-posinset', 'aria-pressed', 'aria-readonly', 'aria-relevant',
-      'aria-required', 'aria-roledescription', 'aria-rowcount', 'aria-rowindex',
-      'aria-rowspan', 'aria-selected', 'aria-setsize', 'aria-sort',
-      'aria-valuemax', 'aria-valuemin', 'aria-valuenow', 'aria-valuetext'
+      'aria-activedescendant',
+      'aria-atomic',
+      'aria-autocomplete',
+      'aria-busy',
+      'aria-checked',
+      'aria-colcount',
+      'aria-colindex',
+      'aria-colspan',
+      'aria-controls',
+      'aria-current',
+      'aria-describedby',
+      'aria-details',
+      'aria-disabled',
+      'aria-dropeffect',
+      'aria-errormessage',
+      'aria-expanded',
+      'aria-flowto',
+      'aria-grabbed',
+      'aria-haspopup',
+      'aria-hidden',
+      'aria-invalid',
+      'aria-keyshortcuts',
+      'aria-label',
+      'aria-labelledby',
+      'aria-level',
+      'aria-live',
+      'aria-modal',
+      'aria-multiline',
+      'aria-multiselectable',
+      'aria-orientation',
+      'aria-owns',
+      'aria-placeholder',
+      'aria-posinset',
+      'aria-pressed',
+      'aria-readonly',
+      'aria-relevant',
+      'aria-required',
+      'aria-roledescription',
+      'aria-rowcount',
+      'aria-rowindex',
+      'aria-rowspan',
+      'aria-selected',
+      'aria-setsize',
+      'aria-sort',
+      'aria-valuemax',
+      'aria-valuemin',
+      'aria-valuenow',
+      'aria-valuetext',
     ];
 
     return validAriaAttributes.includes(name);
@@ -406,7 +480,7 @@ export class AccessibilityChecker {
         r: parseInt(rgbMatch[1]),
         g: parseInt(rgbMatch[2]),
         b: parseInt(rgbMatch[3]),
-        a: rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1
+        a: rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1,
       };
     }
 
@@ -431,7 +505,10 @@ export class AccessibilityChecker {
   /**
    * Calculate contrast ratio between two colors
    */
-  private calculateContrastRatio(color1: { r: number; g: number; b: number }, color2: { r: number; g: number; b: number }): number {
+  private calculateContrastRatio(
+    color1: { r: number; g: number; b: number },
+    color2: { r: number; g: number; b: number },
+  ): number {
     const l1 = this.getRelativeLuminance(color1);
     const l2 = this.getRelativeLuminance(color2);
 

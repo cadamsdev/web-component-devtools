@@ -82,15 +82,16 @@ export class RenderTracker {
    */
   getAllTrackedElements(): Array<{ element: Element; count: number }> {
     const tracked: Array<{ element: Element; count: number }> = [];
-    
+
     // We need to iterate through all tracked observers to get elements
     this.observers.forEach((observer, element) => {
-      if (element !== document.body) { // Skip the global observer
+      if (element !== document.body) {
+        // Skip the global observer
         const count = this.getRenderCount(element);
         tracked.push({ element, count });
       }
     });
-    
+
     return tracked;
   }
 
@@ -99,7 +100,7 @@ export class RenderTracker {
    */
   resetCounts(): void {
     this.renderCounts = new WeakMap();
-    
+
     // Clear overlays if they exist
     if (this.overlay) {
       this.overlay.clearAll();
@@ -111,17 +112,13 @@ export class RenderTracker {
    */
   private startTracking(): void {
     // Find all existing web components and start tracking them
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          return (node as Element).nodeName.includes('-')
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP;
-        },
-      }
-    );
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) => {
+        return (node as Element).nodeName.includes('-')
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
+      },
+    });
 
     let node: Node | null;
     while ((node = walker.nextNode())) {
@@ -137,8 +134,8 @@ export class RenderTracker {
    * Stop tracking and clean up all observers
    */
   private stopTracking(): void {
-    this.observers.forEach(observerList => {
-      observerList.forEach(observer => observer.disconnect());
+    this.observers.forEach((observerList) => {
+      observerList.forEach((observer) => observer.disconnect());
     });
     this.observers.clear();
   }
@@ -159,7 +156,7 @@ export class RenderTracker {
         count: 1,
         lastRenderTime: Date.now(),
       });
-      
+
       // Update overlay immediately if it's enabled
       if (this.overlay && this.overlay.isEnabled()) {
         this.overlay.updateOverlay(element, 1);
@@ -224,18 +221,18 @@ export class RenderTracker {
   private hookLitLifecycle(element: Element): void {
     // Check if this is a Lit component (has updated method)
     const elementAsAny = element as any;
-    
+
     if (typeof elementAsAny.updated === 'function') {
       // Mark as Lit component so we can optimize detection
       this.hasLitLifecycle.set(element, true);
-      
+
       const originalUpdated = elementAsAny.updated.bind(element);
-      
+
       // Override the updated method to track re-renders
       elementAsAny.updated = (changedProperties: Map<string, any>) => {
         // Call original method first
         originalUpdated(changedProperties);
-        
+
         // Only increment if tracking is enabled and properties actually changed
         if (this.enabled && changedProperties && changedProperties.size > 0) {
           this.incrementRenderCount(element);
@@ -253,18 +250,20 @@ export class RenderTracker {
     if (this.hasLitLifecycle.get(element)) {
       return null;
     }
-    
+
     const shadowRoot = (element as any).shadowRoot;
     if (!shadowRoot) return null;
 
     // Create a separate observer for shadow DOM changes
     const shadowObserver = new MutationObserver((mutations) => {
       // Filter out our own devtools changes
-      const hasRelevantChange = mutations.some(mutation => {
+      const hasRelevantChange = mutations.some((mutation) => {
         const target = mutation.target as Element;
         // Ignore our overlay elements
-        if (target.id === 'wc-render-overlay-container' || 
-            target.closest?.('#wc-render-overlay-container')) {
+        if (
+          target.id === 'wc-render-overlay-container' ||
+          target.closest?.('#wc-render-overlay-container')
+        ) {
           return false;
         }
         return true;
@@ -301,16 +300,18 @@ export class RenderTracker {
     const properties = new Map<string, unknown>();
     const elementAsAny = element as any;
     const proto = Object.getPrototypeOf(element);
-    
+
     if (proto && proto !== HTMLElement.prototype) {
       const descriptors = Object.getOwnPropertyDescriptors(proto);
-      
+
       for (const propName in descriptors) {
         const descriptor = descriptors[propName];
-        
-        if (propName.startsWith('_') || 
-            propName === 'constructor' ||
-            propName in HTMLElement.prototype) {
+
+        if (
+          propName.startsWith('_') ||
+          propName === 'constructor' ||
+          propName in HTMLElement.prototype
+        ) {
           continue;
         }
 
@@ -324,7 +325,7 @@ export class RenderTracker {
         }
       }
     }
-    
+
     this.propertySnapshots.set(element, properties);
   }
 
@@ -346,16 +347,18 @@ export class RenderTracker {
 
       const elementAsAny = element as any;
       const proto = Object.getPrototypeOf(element);
-      
+
       if (proto && proto !== HTMLElement.prototype) {
         const descriptors = Object.getOwnPropertyDescriptors(proto);
-        
+
         for (const propName in descriptors) {
           const descriptor = descriptors[propName];
-          
-          if (propName.startsWith('_') || 
-              propName === 'constructor' ||
-              propName in HTMLElement.prototype) {
+
+          if (
+            propName.startsWith('_') ||
+            propName === 'constructor' ||
+            propName in HTMLElement.prototype
+          ) {
             continue;
           }
 
@@ -363,7 +366,7 @@ export class RenderTracker {
             try {
               const currentValue = elementAsAny[propName];
               const oldValue = oldProperties.get(propName);
-              
+
               if (currentValue !== oldValue) {
                 this.incrementRenderCount(element);
                 this.captureSnapshot(element);
@@ -384,15 +387,15 @@ export class RenderTracker {
   private incrementRenderCount(element: Element): void {
     const now = Date.now();
     const lastTime = this.lastIncrementTime.get(element) || 0;
-    
+
     // Prevent double-counting within 50ms window
     // This handles cases where multiple detection methods fire for the same render
     if (now - lastTime < 50) {
       return;
     }
-    
+
     this.lastIncrementTime.set(element, now);
-    
+
     const current = this.renderCounts.get(element) || { count: 0, lastRenderTime: 0 };
     const newCount = current.count + 1;
     this.renderCounts.set(element, {
@@ -404,7 +407,7 @@ export class RenderTracker {
     if (this.overlay && this.overlay.isEnabled()) {
       this.overlay.updateOverlay(element, newCount);
     }
-    
+
     // Call the render callback if set
     if (this.onRenderCallback) {
       this.onRenderCallback(element, newCount);
@@ -423,7 +426,7 @@ export class RenderTracker {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node as Element;
-              
+
               // Check if it's a web component
               if (element.nodeName.includes('-')) {
                 this.trackElement(element);
@@ -447,10 +450,10 @@ export class RenderTracker {
               const element = node as Element;
               const observerList = this.observers.get(element);
               if (observerList) {
-                observerList.forEach(observer => observer.disconnect());
+                observerList.forEach((observer) => observer.disconnect());
                 this.observers.delete(element);
               }
-              
+
               // Remove overlay if available
               if (this.overlay) {
                 this.overlay.removeOverlay(element);

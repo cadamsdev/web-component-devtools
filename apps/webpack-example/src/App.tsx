@@ -1,4 +1,9 @@
-import { MyButton, MyCard, MyCounter, MyBadge } from '@web-component-dev-tools/react-lit-components';
+import {
+  MyButton,
+  MyCard,
+  MyCounter,
+  MyBadge,
+} from '@web-component-dev-tools/react-lit-components';
 import './App.css';
 
 function App() {

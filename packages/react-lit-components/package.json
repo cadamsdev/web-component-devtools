@@ -2,6 +2,17 @@
   "name": "react-lit-components",
   "version": "0.1.0",
   "description": "React wrapper components for lit-components",
+  "keywords": [
+    "custom-elements",
+    "lit",
+    "react",
+    "react-components",
+    "web-components"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,33 +22,22 @@
       "import": "./dist/index.js"
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
-  "keywords": [
-    "web-components",
-    "lit",
-    "react",
-    "react-components",
-    "custom-elements"
-  ],
   "dependencies": {
     "lit-components": "workspace:*"
-  },
-  "peerDependencies": {
-    "@lit/react": "^1.0.0",
-    "react": "^18.0.0"
   },
   "devDependencies": {
     "@lit/react": "^1.0.0",
     "@types/react": "^18.2.43",
     "react": "^18.2.0",
     "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "@lit/react": "^1.0.0",
+    "react": "^18.0.0"
   }
 }

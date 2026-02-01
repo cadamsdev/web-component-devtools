@@ -24,31 +24,31 @@ export class PropertyEditor {
     switch (expectedType) {
       case 'boolean':
         return this.validateBoolean(trimmed);
-      
+
       case 'number':
         return this.validateNumber(trimmed);
-      
+
       case 'string':
         return { valid: true, value: rawValue };
-      
+
       case 'array':
         return this.validateArray(trimmed);
-      
+
       case 'object':
         return this.validateObject(trimmed);
-      
+
       case 'null':
         if (trimmed.toLowerCase() === 'null') {
           return { valid: true, value: null };
         }
         return { valid: false, error: 'Expected "null"' };
-      
+
       case 'undefined':
         if (trimmed.toLowerCase() === 'undefined') {
           return { valid: true, value: undefined };
         }
         return { valid: false, error: 'Expected "undefined"' };
-      
+
       default:
         // Try to auto-detect type
         return this.autoDetectAndValidate(trimmed);
@@ -62,7 +62,7 @@ export class PropertyEditor {
     element: Element,
     attrName: string,
     newValue: string | null,
-    updateCallback?: () => void
+    updateCallback?: () => void,
   ): boolean {
     const oldValue = element.getAttribute(attrName);
 
@@ -101,7 +101,7 @@ export class PropertyEditor {
     element: Element,
     propName: string,
     newValue: unknown,
-    updateCallback?: () => void
+    updateCallback?: () => void,
   ): boolean {
     const oldValue = (element as any)[propName];
 

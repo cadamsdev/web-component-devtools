@@ -1,7 +1,7 @@
 {
   "name": "vite-example",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,10 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-lit-components": "workspace:*",
+    "@cadamsdev/vite-plugin-wc-devtools": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@cadamsdev/vite-plugin-wc-devtools": "workspace:*"
+    "react-lit-components": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

@@ -36,7 +36,7 @@ export function getValueType(value: unknown): string {
 export function formatTimestamp(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
-  
+
   if (diff < 1000) {
     return 'just now';
   } else if (diff < 60000) {
@@ -54,7 +54,7 @@ export function formatEventDetail(detail: unknown): string {
   if (detail === undefined) return 'undefined';
   if (typeof detail === 'string') return detail;
   if (typeof detail === 'number' || typeof detail === 'boolean') return String(detail);
-  
+
   try {
     return JSON.stringify(detail, null, 2);
   } catch {
@@ -99,7 +99,7 @@ export function createJSONTreeElement(data: unknown, depth: number = 0): HTMLEle
   if (Array.isArray(data)) {
     const header = document.createElement('div');
     header.className = 'wc-json-header wc-json-expandable';
-    
+
     const toggle = document.createElement('span');
     toggle.className = 'wc-json-toggle';
     toggle.textContent = '▶';
@@ -116,17 +116,17 @@ export function createJSONTreeElement(data: unknown, depth: number = 0): HTMLEle
     data.forEach((item, index) => {
       const itemContainer = document.createElement('div');
       itemContainer.className = 'wc-json-item';
-      
+
       const itemLabel = document.createElement('span');
       itemLabel.className = 'wc-json-key';
       itemLabel.textContent = `${index}: `;
       itemContainer.appendChild(itemLabel);
-      
+
       const itemValue = createJSONTreeElement(item, depth + 1);
       itemValue.style.display = 'inline-block';
       itemValue.style.marginLeft = '0';
       itemContainer.appendChild(itemValue);
-      
+
       content.appendChild(itemContainer);
     });
 
@@ -144,10 +144,10 @@ export function createJSONTreeElement(data: unknown, depth: number = 0): HTMLEle
 
   if (dataType === 'object') {
     const entries = Object.entries(data as Record<string, unknown>);
-    
+
     const header = document.createElement('div');
     header.className = 'wc-json-header wc-json-expandable';
-    
+
     const toggle = document.createElement('span');
     toggle.className = 'wc-json-toggle';
     toggle.textContent = '▶';
@@ -164,17 +164,17 @@ export function createJSONTreeElement(data: unknown, depth: number = 0): HTMLEle
     entries.forEach(([key, value]) => {
       const itemContainer = document.createElement('div');
       itemContainer.className = 'wc-json-item';
-      
+
       const itemLabel = document.createElement('span');
       itemLabel.className = 'wc-json-key';
       itemLabel.textContent = `${key}: `;
       itemContainer.appendChild(itemLabel);
-      
+
       const itemValue = createJSONTreeElement(value, depth + 1);
       itemValue.style.display = 'inline-block';
       itemValue.style.marginLeft = '0';
       itemContainer.appendChild(itemValue);
-      
+
       content.appendChild(itemContainer);
     });
 

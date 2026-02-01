@@ -10,14 +10,14 @@ export class EventMonitor {
   private isMonitoring = false;
   private eventListeners = new Map<Element, Map<string, EventListener>>();
   private updateCallback?: () => void;
-  
+
   // Enhanced features
   private eventFilter: EventFilter = {
     eventTypes: [],
     components: [],
     onlyPreventedDefaults: false,
     onlyStoppedPropagation: false,
-    searchText: ''
+    searchText: '',
   };
   private eventBreakpoints = new Map<string, EventBreakpoint>();
   private capturedEvents = new Map<number, Event>(); // Store events for replay
@@ -35,7 +35,7 @@ export class EventMonitor {
   }
 
   getFilteredEventLogs(): EventLog[] {
-    return this.eventLogs.filter(log => this.matchesFilter(log));
+    return this.eventLogs.filter((log) => this.matchesFilter(log));
   }
 
   clearLogs(): void {
@@ -60,7 +60,7 @@ export class EventMonitor {
       components: [],
       onlyPreventedDefaults: false,
       onlyStoppedPropagation: false,
-      searchText: ''
+      searchText: '',
     };
     this.updateCallback?.();
   }
@@ -71,7 +71,7 @@ export class EventMonitor {
     this.eventBreakpoints.set(key, {
       eventType,
       componentTagName,
-      enabled: true
+      enabled: true,
     });
   }
 
@@ -113,8 +113,8 @@ export class EventMonitor {
   // Event replay
   replayEvent(timestamp: number): boolean {
     const originalEvent = this.capturedEvents.get(timestamp);
-    const log = this.eventLogs.find(l => l.timestamp === timestamp);
-    
+    const log = this.eventLogs.find((l) => l.timestamp === timestamp);
+
     if (!originalEvent || !log) {
       console.warn('Event not found for replay:', timestamp);
       return false;
@@ -126,12 +126,12 @@ export class EventMonitor {
         bubbles: log.bubbles,
         cancelable: log.cancelable,
         composed: log.composed,
-        detail: log.detail
+        detail: log.detail,
       };
 
       const replayEvent = new CustomEvent(log.eventType, eventInit);
       log.element.dispatchEvent(replayEvent);
-      
+
       console.log('Event replayed:', log.eventType, 'on', log.tagName);
       return true;
     } catch (error) {
@@ -142,26 +142,30 @@ export class EventMonitor {
 
   toggle(): void {
     this.isMonitoring = !this.isMonitoring;
-    
+
     if (this.isMonitoring) {
       this.startMonitoring();
     } else {
       this.stopMonitoring();
     }
-    
+
     this.updateCallback?.();
   }
 
   private matchesFilter(log: EventLog): boolean {
     // Filter by event type
-    if (this.eventFilter.eventTypes.length > 0 && 
-        !this.eventFilter.eventTypes.includes(log.eventType)) {
+    if (
+      this.eventFilter.eventTypes.length > 0 &&
+      !this.eventFilter.eventTypes.includes(log.eventType)
+    ) {
       return false;
     }
 
     // Filter by component
-    if (this.eventFilter.components.length > 0 && 
-        !this.eventFilter.components.includes(log.tagName)) {
+    if (
+      this.eventFilter.components.length > 0 &&
+      !this.eventFilter.components.includes(log.tagName)
+    ) {
       return false;
     }
 
@@ -179,9 +183,11 @@ export class EventMonitor {
     if (this.eventFilter.searchText) {
       const searchLower = this.eventFilter.searchText.toLowerCase();
       const detailStr = log.detail ? JSON.stringify(log.detail).toLowerCase() : '';
-      if (!log.eventType.toLowerCase().includes(searchLower) &&
-          !log.tagName.toLowerCase().includes(searchLower) &&
-          !detailStr.includes(searchLower)) {
+      if (
+        !log.eventType.toLowerCase().includes(searchLower) &&
+        !log.tagName.toLowerCase().includes(searchLower) &&
+        !detailStr.includes(searchLower)
+      ) {
         return false;
       }
     }
@@ -196,7 +202,7 @@ export class EventMonitor {
     composedPath.forEach((target, index) => {
       if (target instanceof Element) {
         let phase: 'capturing' | 'target' | 'bubbling';
-        
+
         if (target === event.target) {
           phase = 'target';
         } else if (index < composedPath.indexOf(event.target as EventTarget)) {
@@ -208,7 +214,7 @@ export class EventMonitor {
         path.push({
           element: target,
           tagName: target.tagName?.toLowerCase() || 'unknown',
-          phase
+          phase,
         });
       }
     });
@@ -218,25 +224,25 @@ export class EventMonitor {
 
   private startMonitoring(): void {
     const instances = scanWebComponents();
-    
-    instances.forEach(instance => {
+
+    instances.forEach((instance) => {
       const element = instance.element;
-      
+
       // Get all event names from the element's prototype
       const eventNames = this.getCustomEventNames(element);
-      
+
       // Also listen for common custom events
       const commonEvents = ['change', 'input', 'click', 'submit', 'close', 'open', 'load', 'error'];
       const allEvents = new Set([...eventNames, ...commonEvents]);
-      
+
       const listenersMap = new Map<string, EventListener>();
-      
-      allEvents.forEach(eventName => {
+
+      allEvents.forEach((eventName) => {
         // Create a capturing listener to track all phases
         const listener = (event: Event) => {
           const customEvent = event as CustomEvent;
           const tagName = element.tagName.toLowerCase();
-          
+
           // Check for breakpoint
           if (this.checkBreakpoint(event.type, tagName)) {
             // eslint-disable-next-line no-debugger
@@ -245,7 +251,7 @@ export class EventMonitor {
 
           // Build propagation path
           const propagationPath = this.buildPropagationPath(event);
-          
+
           const eventLog: EventLog = {
             timestamp: Date.now(),
             eventType: event.type,
@@ -260,7 +266,7 @@ export class EventMonitor {
             cancelable: event.cancelable,
             composed: event.composed,
             isTrusted: event.isTrusted,
-            currentTarget: event.currentTarget as Element | null
+            currentTarget: event.currentTarget as Element | null,
           };
 
           // Store the event for replay
@@ -269,7 +275,7 @@ export class EventMonitor {
           // Wrap stopPropagation to track when it's called
           const originalStopPropagation = event.stopPropagation.bind(event);
           const originalStopImmediatePropagation = event.stopImmediatePropagation.bind(event);
-          
+
           event.stopPropagation = () => {
             eventLog.propagationStopped = true;
             originalStopPropagation();
@@ -282,26 +288,26 @@ export class EventMonitor {
           };
 
           this.eventLogs.unshift(eventLog);
-          
+
           // Keep only the last MAX_EVENT_LOGS events
           if (this.eventLogs.length > MAX_EVENT_LOGS) {
             const removed = this.eventLogs.splice(MAX_EVENT_LOGS);
             // Clean up stored events
-            removed.forEach(log => this.capturedEvents.delete(log.timestamp));
+            removed.forEach((log) => this.capturedEvents.delete(log.timestamp));
           }
-          
+
           // Update the events list if the events tab is active
           const eventsContent = document.getElementById('wc-devtools-events');
           if (eventsContent && eventsContent.classList.contains('active')) {
             this.updateCallback?.();
           }
         };
-        
+
         // Listen in capturing phase to catch all events
         element.addEventListener(eventName, listener, { capture: true });
         listenersMap.set(eventName, listener);
       });
-      
+
       this.eventListeners.set(element, listenersMap);
     });
   }
@@ -313,18 +319,18 @@ export class EventMonitor {
         element.removeEventListener(eventName, listener, { capture: true });
       });
     });
-    
+
     this.eventListeners.clear();
   }
 
   private getCustomEventNames(element: Element): string[] {
     const eventNames: string[] = [];
-    
+
     // Try to find event names from property descriptors
     const proto = Object.getPrototypeOf(element);
     if (proto && proto !== HTMLElement.prototype) {
       const descriptors = Object.getOwnPropertyDescriptors(proto);
-      
+
       for (const propName in descriptors) {
         // Look for properties that might be event handlers (on* pattern)
         if (propName.startsWith('on') && propName.length > 2) {
@@ -333,21 +339,21 @@ export class EventMonitor {
         }
       }
     }
-    
+
     return eventNames;
   }
 
   // Get unique event types from all logs
   getUniqueEventTypes(): string[] {
     const types = new Set<string>();
-    this.eventLogs.forEach(log => types.add(log.eventType));
+    this.eventLogs.forEach((log) => types.add(log.eventType));
     return Array.from(types).sort();
   }
 
   // Get unique component tags from all logs
   getUniqueComponents(): string[] {
     const components = new Set<string>();
-    this.eventLogs.forEach(log => components.add(log.tagName));
+    this.eventLogs.forEach((log) => components.add(log.tagName));
     return Array.from(components).sort();
   }
 }

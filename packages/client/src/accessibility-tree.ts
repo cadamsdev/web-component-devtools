@@ -39,7 +39,7 @@ export class AccessibilityTree {
       ariaStates: this.getAriaStates(element),
       isFocusable: this.isFocusable(element),
       tabIndex: this.getTabIndex(element),
-      isHidden: this.isHidden(element)
+      isHidden: this.isHidden(element),
     };
 
     // Add level if it's a heading
@@ -58,16 +58,16 @@ export class AccessibilityTree {
       if (shadowRoot) {
         const children = Array.from(shadowRoot.children);
         node.children = children
-          .map(child => this.buildNodeTree(child as Element, false))
-          .filter(child => !child.isHidden || child.children.length > 0);
+          .map((child) => this.buildNodeTree(child as Element, false))
+          .filter((child) => !child.isHidden || child.children.length > 0);
       }
     }
 
     // Also include light DOM children that might be slotted
     const lightChildren = Array.from(element.children);
     const lightChildNodes = lightChildren
-      .map(child => this.buildNodeTree(child as Element, false))
-      .filter(child => !child.isHidden || child.children.length > 0);
+      .map((child) => this.buildNodeTree(child as Element, false))
+      .filter((child) => !child.isHidden || child.children.length > 0);
 
     node.children.push(...lightChildNodes);
 
@@ -84,31 +84,31 @@ export class AccessibilityTree {
 
     // Implicit roles based on tag name
     const implicitRoles: Record<string, string> = {
-      'A': 'link',
-      'ARTICLE': 'article',
-      'ASIDE': 'complementary',
-      'BUTTON': 'button',
-      'DIALOG': 'dialog',
-      'FOOTER': 'contentinfo',
-      'FORM': 'form',
-      'H1': 'heading',
-      'H2': 'heading',
-      'H3': 'heading',
-      'H4': 'heading',
-      'H5': 'heading',
-      'H6': 'heading',
-      'HEADER': 'banner',
-      'IMG': 'img',
-      'INPUT': this.getInputRole(element as HTMLInputElement),
-      'LI': 'listitem',
-      'MAIN': 'main',
-      'NAV': 'navigation',
-      'OL': 'list',
-      'SECTION': 'region',
-      'SELECT': 'combobox',
-      'TABLE': 'table',
-      'TEXTAREA': 'textbox',
-      'UL': 'list'
+      A: 'link',
+      ARTICLE: 'article',
+      ASIDE: 'complementary',
+      BUTTON: 'button',
+      DIALOG: 'dialog',
+      FOOTER: 'contentinfo',
+      FORM: 'form',
+      H1: 'heading',
+      H2: 'heading',
+      H3: 'heading',
+      H4: 'heading',
+      H5: 'heading',
+      H6: 'heading',
+      HEADER: 'banner',
+      IMG: 'img',
+      INPUT: this.getInputRole(element as HTMLInputElement),
+      LI: 'listitem',
+      MAIN: 'main',
+      NAV: 'navigation',
+      OL: 'list',
+      SECTION: 'region',
+      SELECT: 'combobox',
+      TABLE: 'table',
+      TEXTAREA: 'textbox',
+      UL: 'list',
     };
 
     return implicitRoles[element.tagName] || null;
@@ -120,16 +120,16 @@ export class AccessibilityTree {
   private getInputRole(input: HTMLInputElement): string {
     const type = input.type?.toLowerCase() || 'text';
     const roleMap: Record<string, string> = {
-      'button': 'button',
-      'checkbox': 'checkbox',
-      'radio': 'radio',
-      'range': 'slider',
-      'search': 'searchbox',
-      'email': 'textbox',
-      'tel': 'textbox',
-      'url': 'textbox',
-      'text': 'textbox',
-      'number': 'spinbutton'
+      button: 'button',
+      checkbox: 'checkbox',
+      radio: 'radio',
+      range: 'slider',
+      search: 'searchbox',
+      email: 'textbox',
+      tel: 'textbox',
+      url: 'textbox',
+      text: 'textbox',
+      number: 'spinbutton',
     };
     return roleMap[type] || 'textbox';
   }
@@ -143,7 +143,7 @@ export class AccessibilityTree {
     if (labelledBy) {
       const ids = labelledBy.split(/\s+/);
       const labels = ids
-        .map(id => document.getElementById(id)?.textContent?.trim())
+        .map((id) => document.getElementById(id)?.textContent?.trim())
         .filter(Boolean);
       if (labels.length > 0) return labels.join(' ');
     }
@@ -159,13 +159,17 @@ export class AccessibilityTree {
     }
 
     // 4. label element (for inputs)
-    if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
+    if (
+      element.tagName === 'INPUT' ||
+      element.tagName === 'SELECT' ||
+      element.tagName === 'TEXTAREA'
+    ) {
       const id = element.getAttribute('id');
       if (id) {
         const label = document.querySelector(`label[for="${id}"]`);
         if (label?.textContent) return label.textContent.trim();
       }
-      
+
       // Check if wrapped in label
       const parentLabel = element.closest('label');
       if (parentLabel?.textContent) return parentLabel.textContent.trim();
@@ -194,7 +198,7 @@ export class AccessibilityTree {
     if (describedBy) {
       const ids = describedBy.split(/\s+/);
       const descriptions = ids
-        .map(id => document.getElementById(id)?.textContent?.trim())
+        .map((id) => document.getElementById(id)?.textContent?.trim())
         .filter(Boolean);
       if (descriptions.length > 0) return descriptions.join(' ');
     }
@@ -217,17 +221,44 @@ export class AccessibilityTree {
    */
   private getAriaProperties(element: Element): Map<string, string> {
     const properties = new Map<string, string>();
-    
+
     const propertyNames = [
-      'aria-atomic', 'aria-autocomplete', 'aria-colcount', 'aria-colindex',
-      'aria-colspan', 'aria-controls', 'aria-describedby', 'aria-details',
-      'aria-dropeffect', 'aria-errormessage', 'aria-flowto', 'aria-haspopup',
-      'aria-keyshortcuts', 'aria-label', 'aria-labelledby', 'aria-level',
-      'aria-live', 'aria-multiline', 'aria-multiselectable', 'aria-orientation',
-      'aria-owns', 'aria-placeholder', 'aria-posinset', 'aria-readonly',
-      'aria-relevant', 'aria-required', 'aria-roledescription', 'aria-rowcount',
-      'aria-rowindex', 'aria-rowspan', 'aria-setsize', 'aria-sort',
-      'aria-valuemax', 'aria-valuemin', 'aria-valuenow', 'aria-valuetext'
+      'aria-atomic',
+      'aria-autocomplete',
+      'aria-colcount',
+      'aria-colindex',
+      'aria-colspan',
+      'aria-controls',
+      'aria-describedby',
+      'aria-details',
+      'aria-dropeffect',
+      'aria-errormessage',
+      'aria-flowto',
+      'aria-haspopup',
+      'aria-keyshortcuts',
+      'aria-label',
+      'aria-labelledby',
+      'aria-level',
+      'aria-live',
+      'aria-multiline',
+      'aria-multiselectable',
+      'aria-orientation',
+      'aria-owns',
+      'aria-placeholder',
+      'aria-posinset',
+      'aria-readonly',
+      'aria-relevant',
+      'aria-required',
+      'aria-roledescription',
+      'aria-rowcount',
+      'aria-rowindex',
+      'aria-rowspan',
+      'aria-setsize',
+      'aria-sort',
+      'aria-valuemax',
+      'aria-valuemin',
+      'aria-valuenow',
+      'aria-valuetext',
     ];
 
     for (const name of propertyNames) {
@@ -245,11 +276,19 @@ export class AccessibilityTree {
    */
   private getAriaStates(element: Element): Map<string, string> {
     const states = new Map<string, string>();
-    
+
     const stateNames = [
-      'aria-busy', 'aria-checked', 'aria-current', 'aria-disabled',
-      'aria-expanded', 'aria-grabbed', 'aria-hidden', 'aria-invalid',
-      'aria-modal', 'aria-pressed', 'aria-selected'
+      'aria-busy',
+      'aria-checked',
+      'aria-current',
+      'aria-disabled',
+      'aria-expanded',
+      'aria-grabbed',
+      'aria-hidden',
+      'aria-invalid',
+      'aria-modal',
+      'aria-pressed',
+      'aria-selected',
     ];
 
     for (const name of stateNames) {
@@ -325,11 +364,11 @@ export class AccessibilityTree {
    */
   flattenTree(node: A11yTreeNode, depth: number = 0): Array<{ node: A11yTreeNode; depth: number }> {
     const result: Array<{ node: A11yTreeNode; depth: number }> = [{ node, depth }];
-    
+
     for (const child of node.children) {
       result.push(...this.flattenTree(child, depth + 1));
     }
-    
+
     return result;
   }
 

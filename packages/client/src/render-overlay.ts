@@ -47,12 +47,12 @@ export class RenderOverlay {
    */
   updateOverlay(element: Element, renderCount: number): void {
     if (!this.enabled) return;
-    
+
     // Ensure container exists
     if (!this.container) {
       this.createContainer();
     }
-    
+
     if (!this.container) return; // Safety check
 
     let overlay = this.overlays.get(element);
@@ -105,17 +105,13 @@ export class RenderOverlay {
     if (!this.enabled || !this.container) return;
 
     // Get all web components
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          return (node as Element).nodeName.includes('-')
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP;
-        },
-      }
-    );
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) => {
+        return (node as Element).nodeName.includes('-')
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
+      },
+    });
 
     let node: Node | null;
     while ((node = walker.nextNode())) {
@@ -173,7 +169,7 @@ export class RenderOverlay {
     const overlay = document.createElement('div');
     overlay.className = 'wc-render-overlay';
     overlay.setAttribute('data-element-tag', element.tagName.toLowerCase());
-    
+
     if (this.container) {
       this.container.appendChild(overlay);
     }
@@ -186,7 +182,7 @@ export class RenderOverlay {
    */
   private positionOverlay(element: Element, overlay: HTMLDivElement): void {
     const rect = element.getBoundingClientRect();
-    
+
     // Check if element is visible
     const isVisible = rect.width > 0 && rect.height > 0;
 
@@ -196,7 +192,7 @@ export class RenderOverlay {
     }
 
     overlay.style.display = 'flex';
-    
+
     // Position at top-right corner of the element using absolute positioning
     // Add scroll offsets to convert viewport coordinates to document coordinates
     const left = rect.right + window.pageXOffset - 32; // Badge width is ~28px + padding
@@ -211,7 +207,7 @@ export class RenderOverlay {
    */
   private handleScroll = (): void => {
     if (this.updateScheduled) return;
-    
+
     this.updateScheduled = true;
     requestAnimationFrame(() => {
       this.updateAllPositions();
@@ -224,7 +220,7 @@ export class RenderOverlay {
    */
   private handleResize = (): void => {
     if (this.updateScheduled) return;
-    
+
     this.updateScheduled = true;
     requestAnimationFrame(() => {
       this.updateAllPositions();

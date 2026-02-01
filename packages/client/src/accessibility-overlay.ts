@@ -19,17 +19,17 @@ export class AccessibilityOverlay {
     // Create overlay
     const overlay = document.createElement('div');
     overlay.className = `wc-a11y-overlay wc-a11y-overlay-${issue.type}`;
-    
+
     // Position overlay
     this.positionOverlay(overlay, issue.element);
-    
+
     // Add issue badge
     const badge = document.createElement('div');
     badge.className = 'wc-a11y-overlay-badge';
     badge.textContent = this.getIssueIcon(issue.type);
     badge.title = issue.message;
     overlay.appendChild(badge);
-    
+
     // Add tooltip
     const tooltip = document.createElement('div');
     tooltip.className = 'wc-a11y-overlay-tooltip';
@@ -107,7 +107,7 @@ export class AccessibilityOverlay {
    */
   private positionOverlay(overlay: HTMLDivElement, element: Element): void {
     const rect = element.getBoundingClientRect();
-    
+
     overlay.style.position = 'fixed';
     overlay.style.left = `${rect.left}px`;
     overlay.style.top = `${rect.top}px`;
@@ -122,10 +122,14 @@ export class AccessibilityOverlay {
    */
   private getIssueIcon(type: string): string {
     switch (type) {
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'info': return 'ℹ️';
-      default: return '•';
+      case 'error':
+        return '❌';
+      case 'warning':
+        return '⚠️';
+      case 'info':
+        return 'ℹ️';
+      default:
+        return '•';
     }
   }
 
@@ -134,8 +138,8 @@ export class AccessibilityOverlay {
    */
   highlightIssues(issues: A11yIssue[]): void {
     if (!this.enabled) return;
-    
+
     this.clearAll();
-    issues.forEach(issue => this.showIssue(issue));
+    issues.forEach((issue) => this.showIssue(issue));
   }
 }

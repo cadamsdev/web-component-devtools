@@ -1,7 +1,7 @@
 {
   "name": "webpack-example",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "webpack serve --mode development",
@@ -9,10 +9,10 @@
     "preview": "npx serve dist"
   },
   "dependencies": {
-    "react-lit-components": "workspace:*",
+    "@cadamsdev/webpack-plugin-wc-devtools": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@cadamsdev/webpack-plugin-wc-devtools": "workspace:*"
+    "react-lit-components": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",

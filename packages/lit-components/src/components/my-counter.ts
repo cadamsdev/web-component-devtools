@@ -7,7 +7,7 @@ export class MyCounter extends LitElement {
     :host {
       display: block;
     }
-
+    
     .counter {
       display: flex;
       align-items: center;
@@ -17,7 +17,7 @@ export class MyCounter extends LitElement {
       border-radius: 8px;
       width: fit-content;
     }
-
+    
     .count {
       font-size: 32px;
       font-weight: 700;
@@ -25,7 +25,7 @@ export class MyCounter extends LitElement {
       min-width: 60px;
       text-align: center;
     }
-
+    
     button {
       width: 40px;
       height: 40px;
@@ -40,16 +40,16 @@ export class MyCounter extends LitElement {
       align-items: center;
       justify-content: center;
     }
-
+    
     button:hover {
       background: #764ba2;
       transform: scale(1.1);
     }
-
+    
     button:active {
       transform: scale(0.95);
     }
-
+    
     .label {
       font-size: 14px;
       color: #718096;
@@ -92,11 +92,13 @@ export class MyCounter extends LitElement {
   }
 
   private _dispatchChange() {
-    this.dispatchEvent(new CustomEvent('counter-change', {
-      detail: { value: this._count },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('counter-change', {
+        detail: { value: this._count },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   render() {

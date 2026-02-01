@@ -61,26 +61,22 @@ export class ComponentOverlay {
     this.clearAll();
 
     // Get all web components
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          const element = node as Element;
-          // Skip devtools elements
-          if (element.id === 'wc-devtools-btn' || 
-              element.id === 'wc-devtools-panel' ||
-              element.closest('#wc-devtools-panel') ||
-              element.id === 'wc-component-overlay-container' ||
-              element.id === 'wc-render-overlay-container') {
-            return NodeFilter.FILTER_REJECT;
-          }
-          return element.nodeName.includes('-')
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP;
-        },
-      }
-    );
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) => {
+        const element = node as Element;
+        // Skip devtools elements
+        if (
+          element.id === 'wc-devtools-btn' ||
+          element.id === 'wc-devtools-panel' ||
+          element.closest('#wc-devtools-panel') ||
+          element.id === 'wc-component-overlay-container' ||
+          element.id === 'wc-render-overlay-container'
+        ) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return element.nodeName.includes('-') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      },
+    });
 
     let node: Node | null;
     while ((node = walker.nextNode())) {
@@ -94,12 +90,12 @@ export class ComponentOverlay {
    */
   private createOrUpdateOverlay(element: Element): void {
     if (!this.enabled) return;
-    
+
     // Ensure container exists
     if (!this.container) {
       this.createContainer();
     }
-    
+
     if (!this.container) return; // Safety check
 
     let overlay = this.overlays.get(element);
@@ -142,26 +138,22 @@ export class ComponentOverlay {
     if (!this.enabled || !this.container) return;
 
     // Get all web components
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          const element = node as Element;
-          // Skip devtools elements
-          if (element.id === 'wc-devtools-btn' || 
-              element.id === 'wc-devtools-panel' ||
-              element.closest('#wc-devtools-panel') ||
-              element.id === 'wc-component-overlay-container' ||
-              element.id === 'wc-render-overlay-container') {
-            return NodeFilter.FILTER_REJECT;
-          }
-          return element.nodeName.includes('-')
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP;
-        },
-      }
-    );
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (node) => {
+        const element = node as Element;
+        // Skip devtools elements
+        if (
+          element.id === 'wc-devtools-btn' ||
+          element.id === 'wc-devtools-panel' ||
+          element.closest('#wc-devtools-panel') ||
+          element.id === 'wc-component-overlay-container' ||
+          element.id === 'wc-render-overlay-container'
+        ) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return element.nodeName.includes('-') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      },
+    });
 
     let node: Node | null;
     while ((node = walker.nextNode())) {
@@ -226,15 +218,15 @@ export class ComponentOverlay {
   private createOverlay(element: Element): HTMLDivElement {
     const overlay = document.createElement('div');
     overlay.className = 'wc-component-overlay';
-    
+
     const tagName = element.tagName.toLowerCase();
     overlay.setAttribute('data-element-tag', tagName);
     overlay.textContent = `<${tagName}>`;
-    
+
     // Make overlay clickable
     overlay.style.pointerEvents = 'auto';
     overlay.style.cursor = 'pointer';
-    
+
     // Add click handler
     overlay.addEventListener('click', (e) => {
       e.preventDefault();
@@ -243,16 +235,16 @@ export class ComponentOverlay {
         this.onOverlayClick(element);
       }
     });
-    
+
     // Add hover effect
     overlay.addEventListener('mouseenter', () => {
       overlay.style.transform = 'scale(1.05)';
     });
-    
+
     overlay.addEventListener('mouseleave', () => {
       overlay.style.transform = 'scale(1)';
     });
-    
+
     if (this.container) {
       this.container.appendChild(overlay);
     }
@@ -265,7 +257,7 @@ export class ComponentOverlay {
    */
   private positionOverlay(element: Element, overlay: HTMLDivElement): void {
     const rect = element.getBoundingClientRect();
-    
+
     // Check if element is visible
     const isVisible = rect.width > 0 && rect.height > 0;
 
@@ -275,7 +267,7 @@ export class ComponentOverlay {
     }
 
     overlay.style.display = 'flex';
-    
+
     // Position at top-left corner of the element using absolute positioning
     // Add scroll offsets to convert viewport coordinates to document coordinates
     const left = rect.left + window.pageXOffset + 4; // Small offset from left
@@ -290,7 +282,7 @@ export class ComponentOverlay {
    */
   private handleScroll = (): void => {
     if (this.updateScheduled) return;
-    
+
     this.updateScheduled = true;
     requestAnimationFrame(() => {
       this.updateAllPositions();
@@ -303,7 +295,7 @@ export class ComponentOverlay {
    */
   private handleResize = (): void => {
     if (this.updateScheduled) return;
-    
+
     this.updateScheduled = true;
     requestAnimationFrame(() => {
       this.updateAllPositions();

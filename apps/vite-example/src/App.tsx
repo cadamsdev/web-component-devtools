@@ -1,4 +1,9 @@
-import { MyButton, MyCard, MyCounter, MyBadge } from '@web-component-dev-tools/react-lit-components';
+import {
+  MyButton,
+  MyCard,
+  MyCounter,
+  MyBadge,
+} from '@web-component-dev-tools/react-lit-components';
 import './App.css';
 
 function App() {
@@ -17,9 +22,7 @@ function App() {
     <div className="app">
       <header className="header">
         <h1>🎨 Vite + React + Lit Demo</h1>
-        <p className="subtitle">
-          Example application showcasing Lit web components in a React app
-        </p>
+        <p className="subtitle">Example application showcasing Lit web components in a React app</p>
         <div className="badges">
           <MyBadge label="React" variant="primary" />
           <MyBadge label="Lit" variant="info" />

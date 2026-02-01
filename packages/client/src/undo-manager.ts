@@ -20,10 +20,10 @@ export class UndoManager {
    */
   recordChange(change: Change): void {
     this.undoStack.push(change);
-    
+
     // Clear redo stack when a new change is made
     this.redoStack = [];
-    
+
     // Limit stack size
     if (this.undoStack.length > this.maxStackSize) {
       this.undoStack.shift();
@@ -41,10 +41,10 @@ export class UndoManager {
 
     // Apply the old value
     this.applyChange(change.element, change.type, change.name, change.oldValue);
-    
+
     // Move to redo stack
     this.redoStack.push(change);
-    
+
     this.notifyChange();
     return true;
   }
@@ -58,10 +58,10 @@ export class UndoManager {
 
     // Apply the new value
     this.applyChange(change.element, change.type, change.name, change.newValue);
-    
+
     // Move back to undo stack
     this.undoStack.push(change);
-    
+
     this.notifyChange();
     return true;
   }
@@ -117,7 +117,7 @@ export class UndoManager {
     element: Element,
     type: 'attribute' | 'property',
     name: string,
-    value: unknown
+    value: unknown,
   ): void {
     if (type === 'attribute') {
       if (value === null || value === undefined) {

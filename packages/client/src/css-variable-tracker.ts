@@ -33,7 +33,7 @@ export function getCSSVariables(element: Element): CSSVariableCascade {
       if (propName.startsWith('--')) {
         const value = element.style.getPropertyValue(propName).trim();
         const computedValue = computedStyle.getPropertyValue(propName).trim();
-        
+
         variables.push({
           name: propName,
           value,
@@ -65,10 +65,10 @@ export function getCSSVariables(element: Element): CSSVariableCascade {
       currentElement,
       computedStyle,
       seen,
-      inheritanceLevel
+      inheritanceLevel,
     );
     variables.push(...inheritedVars);
-    
+
     currentElement = currentElement.parentElement;
     inheritanceLevel++;
   }
@@ -92,7 +92,7 @@ export function getCSSVariables(element: Element): CSSVariableCascade {
 function extractCSSVariablesFromShadowRoot(
   shadowRoot: ShadowRoot,
   computedStyle: CSSStyleDeclaration,
-  seen: Set<string>
+  seen: Set<string>,
 ): CSSVariableInfo[] {
   const variables: CSSVariableInfo[] = [];
 
@@ -108,7 +108,7 @@ function extractCSSVariablesFromShadowRoot(
               if (prop.startsWith('--') && !seen.has(prop)) {
                 const value = style.getPropertyValue(prop).trim();
                 const computedValue = computedStyle.getPropertyValue(prop).trim();
-                
+
                 variables.push({
                   name: prop,
                   value,
@@ -144,7 +144,7 @@ function extractCSSVariablesFromShadowRoot(
               if (prop.startsWith('--') && !seen.has(prop)) {
                 const value = style.getPropertyValue(prop).trim();
                 const computedValue = computedStyle.getPropertyValue(prop).trim();
-                
+
                 variables.push({
                   name: prop,
                   value,
@@ -173,7 +173,7 @@ function extractCSSVariablesFromShadowRoot(
 function extractCSSVariablesFromElement(
   element: Element,
   computedStyle: CSSStyleDeclaration,
-  seen: Set<string>
+  seen: Set<string>,
 ): CSSVariableInfo[] {
   const variables: CSSVariableInfo[] = [];
 
@@ -191,7 +191,7 @@ function extractCSSVariablesFromElement(
                 if (prop.startsWith('--') && !seen.has(prop)) {
                   const value = style.getPropertyValue(prop).trim();
                   const computedValue = computedStyle.getPropertyValue(prop).trim();
-                  
+
                   variables.push({
                     name: prop,
                     value,
@@ -224,7 +224,7 @@ function extractInheritedVariables(
   element: Element,
   computedStyle: CSSStyleDeclaration,
   seen: Set<string>,
-  inheritanceLevel: number
+  inheritanceLevel: number,
 ): CSSVariableInfo[] {
   const variables: CSSVariableInfo[] = [];
 
@@ -239,7 +239,7 @@ function extractInheritedVariables(
     if (prop.startsWith('--') && !seen.has(prop)) {
       const value = style.getPropertyValue(prop).trim();
       const computedValue = computedStyle.getPropertyValue(prop).trim();
-      
+
       variables.push({
         name: prop,
         value,
@@ -260,7 +260,7 @@ function extractInheritedVariables(
  */
 function extractRootVariables(
   computedStyle: CSSStyleDeclaration,
-  seen: Set<string>
+  seen: Set<string>,
 ): CSSVariableInfo[] {
   const variables: CSSVariableInfo[] = [];
 
@@ -269,15 +269,17 @@ function extractRootVariables(
     Array.from(document.styleSheets).forEach((sheet) => {
       try {
         Array.from(sheet.cssRules).forEach((rule) => {
-          if (rule instanceof CSSStyleRule && 
-              (rule.selectorText === ':root' || rule.selectorText === 'html')) {
+          if (
+            rule instanceof CSSStyleRule &&
+            (rule.selectorText === ':root' || rule.selectorText === 'html')
+          ) {
             const style = rule.style;
             for (let i = 0; i < style.length; i++) {
               const prop = style[i];
               if (prop.startsWith('--') && !seen.has(prop)) {
                 const value = style.getPropertyValue(prop).trim();
                 const computedValue = computedStyle.getPropertyValue(prop).trim();
-                
+
                 variables.push({
                   name: prop,
                   value,
@@ -308,26 +310,26 @@ function extractRootVariables(
  */
 function calculateSpecificity(selector: string): number {
   if (!selector) return 0;
-  
+
   // Simple specificity calculation
   // ID selectors: 100
   // Class selectors, attributes, pseudo-classes: 10
   // Element selectors: 1
-  
+
   let specificity = 0;
-  
+
   // Count IDs
   const idMatches = selector.match(/#/g);
   if (idMatches) specificity += idMatches.length * 100;
-  
+
   // Count classes, attributes, pseudo-classes
   const classMatches = selector.match(/\.|:/g);
   if (classMatches) specificity += classMatches.length * 10;
-  
+
   // Count elements (rough approximation)
   const elements = selector.split(/[\s>+~]/);
   specificity += elements.length;
-  
+
   return specificity;
 }
 
@@ -337,7 +339,7 @@ function calculateSpecificity(selector: string): number {
 export function updateCSSVariable(
   element: Element,
   variableName: string,
-  newValue: string
+  newValue: string,
 ): boolean {
   try {
     if (!(element instanceof HTMLElement)) {
@@ -356,10 +358,7 @@ export function updateCSSVariable(
 /**
  * Remove a CSS variable from an element
  */
-export function removeCSSVariable(
-  element: Element,
-  variableName: string
-): boolean {
+export function removeCSSVariable(element: Element, variableName: string): boolean {
   try {
     if (!(element instanceof HTMLElement)) {
       return false;
