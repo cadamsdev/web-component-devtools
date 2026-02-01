@@ -19,10 +19,15 @@ export interface WebComponentDevToolsOptions {
    * Example: queryParam: 'debug' will show dev tools when ?debug is in the URL
    */
   queryParam?: string;
+  /**
+   * Include the dev tools in production builds (default: false)
+   * By default, dev tools are only included in development mode
+   */
+  includeInProduction?: boolean;
 }
 
 export function webComponentDevTools(options: WebComponentDevToolsOptions = {}): Plugin {
-  const { enabled = true, position = 'bottom-right', queryParam } = options;
+  const { enabled = true, position = 'bottom-right', queryParam, includeInProduction = false } = options;
 
   let isDev = false;
   let clientScript: string | null = null;
@@ -33,8 +38,8 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
     configResolved(config) {
       isDev = config.mode === 'development';
 
-      // Load the client script once when config is resolved
-      if (isDev && enabled) {
+      // Load the client script when enabled (either in dev mode or production if includeInProduction is true)
+      if (enabled && (isDev || includeInProduction)) {
         try {
           // Resolve the client package and read the client.js file
           const clientPackagePath = require.resolve('client/client');
@@ -46,8 +51,8 @@ export function webComponentDevTools(options: WebComponentDevToolsOptions = {}):
     },
 
     transformIndexHtml(html) {
-      // Only inject in development mode if enabled
-      if (!isDev || !enabled || !clientScript) {
+      // Skip if dev tools are disabled, or if in production and not explicitly enabled for production
+      if (!enabled || (!isDev && !includeInProduction) || !clientScript) {
         return html;
       }
 

@@ -1,33 +1,29 @@
-# Webpack Web Component Dev Tools Plugin
+# Vite Web Component Dev Tools Plugin
 
-A Webpack plugin that provides developer tools for inspecting and debugging web components in your application.
+A Vite plugin that provides developer tools for inspecting and debugging web components in your application.
 
 ## Installation
 
 ```bash
-npm install webpack-plugin --save-dev
+npm install vite-plugin --save-dev
 ```
 
 ## Usage
 
-Add the plugin to your Webpack configuration:
+Add the plugin to your Vite configuration:
 
 ```javascript
-// webpack.config.js
-import { WebpackWebComponentDevTools } from 'webpack-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+// vite.config.js
+import { defineConfig } from 'vite';
+import { webComponentDevTools } from 'vite-plugin';
 
-export default {
-  mode: 'development',
+export default defineConfig({
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/index.html'
-    }),
-    new WebpackWebComponentDevTools({
+    webComponentDevTools({
       position: 'bottom-right'
     })
   ]
-};
+});
 ```
 
 ### Options
@@ -40,7 +36,7 @@ export default {
 ### Example with Options
 
 ```javascript
-new WebpackWebComponentDevTools({
+webComponentDevTools({
   enabled: true,
   position: 'top-right',
   queryParam: 'debug',
@@ -53,7 +49,7 @@ new WebpackWebComponentDevTools({
 By default, the dev tools are only included in development builds. If you want to include them in production builds (e.g., for staging environments or internal testing), set `includeInProduction: true`:
 
 ```javascript
-new WebpackWebComponentDevTools({
+webComponentDevTools({
   includeInProduction: true,
   queryParam: 'devtools' // Recommended: use with queryParam to hide by default
 })
@@ -72,8 +68,7 @@ new WebpackWebComponentDevTools({
 
 ## Requirements
 
-- Webpack 5.x
-- HtmlWebpackPlugin (required for HTML injection)
+- Vite 4.x or higher
 
 ## How It Works
 

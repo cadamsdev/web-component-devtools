@@ -19,6 +19,11 @@ export interface WebComponentDevToolsOptions {
    * Example: queryParam: 'debug' will show dev tools when ?debug is in the URL
    */
   queryParam?: string;
+  /**
+   * Include the dev tools in production builds (default: false)
+   * By default, dev tools are only included in development mode
+   */
+  includeInProduction?: boolean;
 }
 
 export class WebpackWebComponentDevTools {
@@ -30,13 +35,15 @@ export class WebpackWebComponentDevTools {
       enabled: options.enabled ?? true,
       position: options.position ?? 'bottom-right',
       queryParam: options.queryParam,
+      includeInProduction: options.includeInProduction ?? false,
     };
   }
 
   apply(compiler: Compiler) {
     const isDev = compiler.options.mode === 'development';
 
-    if (!isDev || !this.options.enabled) {
+    // Skip if dev tools are disabled, or if in production and not explicitly enabled for production
+    if (!this.options.enabled || (!isDev && !this.options.includeInProduction)) {
       return;
     }
 
