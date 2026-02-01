@@ -29,7 +29,8 @@ export function createPanel(
   onUndo?: () => void,
   onRedo?: () => void,
   onToggleRenderTracking?: () => void,
-  onToggleRenderOverlay?: () => void
+  onToggleRenderOverlay?: () => void,
+  onToggleComponentOverlay?: () => void
 ): HTMLDivElement {
   const panel = document.createElement('div');
   panel.id = 'wc-devtools-panel';
@@ -147,6 +148,22 @@ export function createPanel(
     renderOverlayToggle.addEventListener('click', onToggleRenderOverlay);
   }
   undoRedoControls.appendChild(renderOverlayToggle);
+
+  // Add component overlay toggle (show tag names on page)
+  const componentOverlayToggle = document.createElement('button');
+  componentOverlayToggle.className = 'wc-component-overlay-toggle';
+  componentOverlayToggle.title = 'Show component tag names on page';
+  componentOverlayToggle.id = 'wc-component-overlay-toggle';
+  componentOverlayToggle.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <path d="M7 8h10M7 12h10M7 16h6"/>
+    </svg>
+  `;
+  if (onToggleComponentOverlay) {
+    componentOverlayToggle.addEventListener('click', onToggleComponentOverlay);
+  }
+  undoRedoControls.appendChild(componentOverlayToggle);
 
   searchSection.appendChild(undoRedoControls);
 

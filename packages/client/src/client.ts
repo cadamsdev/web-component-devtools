@@ -17,6 +17,7 @@ import { UndoManager } from './undo-manager';
 import { PropertyEditor } from './property-editor';
 import { RenderTracker } from './render-tracker';
 import { RenderOverlay } from './render-overlay';
+import { ComponentOverlay } from './component-overlay';
 
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
@@ -45,6 +46,9 @@ const renderTracker = new RenderTracker();
 // Render overlay instance
 const renderOverlay = new RenderOverlay();
 
+// Component overlay instance
+const componentOverlay = new ComponentOverlay();
+
 // Connect render tracker to overlay
 renderTracker.setOverlay(renderOverlay);
 
@@ -62,7 +66,8 @@ export function initDevTools(config: DevToolsConfig) {
     handleUndo,
     handleRedo,
     handleToggleRenderTracking,
-    handleToggleRenderOverlay
+    handleToggleRenderOverlay,
+    handleToggleComponentOverlay
   );
 
   document.body.appendChild(button);
@@ -173,6 +178,21 @@ function handleToggleRenderOverlay(): void {
     toggleBtn.classList.remove('active');
     toggleBtn.title = 'Show render counts on page';
     renderOverlay.clearAll();
+  }
+}
+
+function handleToggleComponentOverlay(): void {
+  componentOverlay.toggle();
+  
+  const toggleBtn = document.getElementById('wc-component-overlay-toggle');
+  if (!toggleBtn) return;
+
+  if (componentOverlay.isEnabled()) {
+    toggleBtn.classList.add('active');
+    toggleBtn.title = 'Hide component tag names on page';
+  } else {
+    toggleBtn.classList.remove('active');
+    toggleBtn.title = 'Show component tag names on page';
   }
 }
 
@@ -608,6 +628,10 @@ function watchForChanges(panel: HTMLDivElement): void {
       clearTimeout(updateTimeout);
       updateTimeout = setTimeout(() => {
         updateComponentList();
+        // Refresh component overlays if enabled
+        if (componentOverlay.isEnabled()) {
+          componentOverlay.refresh();
+        }
       }, 300);
     }
   });
