@@ -13,6 +13,8 @@ import {
 import type { EventLog } from './types';
 import { PropertyEditor } from './property-editor';
 import { updateCSSVariable } from './css-variable-tracker';
+import type { A11yAuditResult, A11yIssue } from './accessibility-checker';
+import type { A11yTreeNode } from './accessibility-tree';
 
 export function createButton(): HTMLButtonElement {
   const button = document.createElement('button');
@@ -63,6 +65,12 @@ export function createPanel(
   eventsTab.textContent = 'Events';
   eventsTab.dataset.tab = 'events';
   tabsSection.appendChild(eventsTab);
+
+  const a11yTab = document.createElement('button');
+  a11yTab.className = 'wc-devtools-tab';
+  a11yTab.textContent = 'Accessibility';
+  a11yTab.dataset.tab = 'accessibility';
+  tabsSection.appendChild(a11yTab);
 
   // Search bar section (only for components tab)
   const searchSection = document.createElement('div');
@@ -229,6 +237,13 @@ export function createPanel(
   eventsContent.dataset.tab = 'events';
   eventsContent.innerHTML = '<div class="wc-no-events">Start monitoring to see events</div>';
 
+  // Accessibility content
+  const a11yContent = document.createElement('div');
+  a11yContent.className = 'wc-devtools-content wc-devtools-tab-content';
+  a11yContent.id = 'wc-devtools-accessibility';
+  a11yContent.dataset.tab = 'accessibility';
+  a11yContent.innerHTML = '<div class="wc-no-components">Select a component to view accessibility information</div>';
+
   panel.appendChild(header);
   panel.appendChild(tabsSection);
   panel.appendChild(searchSection);
@@ -236,10 +251,12 @@ export function createPanel(
   panel.appendChild(eventsFilters);
   panel.appendChild(componentsContent);
   panel.appendChild(eventsContent);
+  panel.appendChild(a11yContent);
 
   // Tab switching logic
   componentsTab.addEventListener('click', () => onTabSwitch('components'));
   eventsTab.addEventListener('click', () => onTabSwitch('events'));
+  a11yTab.addEventListener('click', () => onTabSwitch('accessibility'));
 
   return panel;
 }
@@ -1915,5 +1932,338 @@ function getSourceDescription(source: string): string {
       return 'Defined at document root level';
     default:
       return source;
+  }
+}
+
+/**
+ * Create accessibility audit view element
+ */
+export function createAccessibilityAuditElement(audit: A11yAuditResult): HTMLDivElement {
+  const auditDiv = document.createElement('div');
+  auditDiv.className = 'wc-a11y-audit';
+
+  // Score header
+  const scoreHeader = document.createElement('div');
+  scoreHeader.className = 'wc-a11y-score-header';
+  
+  const scoreCircle = document.createElement('div');
+  scoreCircle.className = `wc-a11y-score-circle ${getScoreClass(audit.score)}`;
+  scoreCircle.textContent = Math.round(audit.score).toString();
+  scoreHeader.appendChild(scoreCircle);
+  
+  const scoreInfo = document.createElement('div');
+  scoreInfo.className = 'wc-a11y-score-info';
+  
+  const scoreTitle = document.createElement('div');
+  scoreTitle.className = 'wc-a11y-score-title';
+  scoreTitle.textContent = `Accessibility Score`;
+  scoreInfo.appendChild(scoreTitle);
+  
+  const scoreDesc = document.createElement('div');
+  scoreDesc.className = 'wc-a11y-score-desc';
+  scoreDesc.textContent = getScoreDescription(audit.score);
+  scoreInfo.appendChild(scoreDesc);
+  
+  scoreHeader.appendChild(scoreInfo);
+  auditDiv.appendChild(scoreHeader);
+
+  // Quick summary
+  const summary = document.createElement('div');
+  summary.className = 'wc-a11y-summary';
+  
+  const summaryItems = [
+    { 
+      icon: '⌨️', 
+      label: 'Keyboard Support', 
+      value: audit.hasKeyboardSupport ? 'Yes' : 'No',
+      status: audit.hasKeyboardSupport ? 'good' : 'bad'
+    },
+    { 
+      icon: '🎯', 
+      label: 'Focus Management', 
+      value: audit.hasFocusManagement ? 'Yes' : 'No',
+      status: audit.hasFocusManagement ? 'good' : 'bad'
+    },
+    { 
+      icon: '🏷️', 
+      label: 'ARIA Labels', 
+      value: audit.hasAriaLabels ? 'Yes' : 'No',
+      status: audit.hasAriaLabels ? 'good' : 'bad'
+    }
+  ];
+  
+  summaryItems.forEach(item => {
+    const summaryItem = document.createElement('div');
+    summaryItem.className = `wc-a11y-summary-item ${item.status}`;
+    summaryItem.innerHTML = `
+      <span class="wc-a11y-summary-icon">${item.icon}</span>
+      <span class="wc-a11y-summary-label">${item.label}:</span>
+      <span class="wc-a11y-summary-value">${item.value}</span>
+    `;
+    summary.appendChild(summaryItem);
+  });
+  
+  auditDiv.appendChild(summary);
+
+  // Issues section
+  if (audit.issues.length > 0) {
+    const issuesHeader = document.createElement('div');
+    issuesHeader.className = 'wc-a11y-issues-header';
+    issuesHeader.textContent = `Issues Found (${audit.issues.length})`;
+    auditDiv.appendChild(issuesHeader);
+
+    const issuesList = document.createElement('div');
+    issuesList.className = 'wc-a11y-issues-list';
+    
+    audit.issues.forEach(issue => {
+      const issueEl = createAccessibilityIssueElement(issue);
+      issuesList.appendChild(issueEl);
+    });
+    
+    auditDiv.appendChild(issuesList);
+  } else {
+    const noIssues = document.createElement('div');
+    noIssues.className = 'wc-a11y-no-issues';
+    noIssues.textContent = '✓ No accessibility issues detected';
+    auditDiv.appendChild(noIssues);
+  }
+
+  return auditDiv;
+}
+
+/**
+ * Create accessibility issue element
+ */
+function createAccessibilityIssueElement(issue: A11yIssue): HTMLDivElement {
+  const issueDiv = document.createElement('div');
+  issueDiv.className = `wc-a11y-issue wc-a11y-issue-${issue.type}`;
+
+  const issueHeader = document.createElement('div');
+  issueHeader.className = 'wc-a11y-issue-header';
+  
+  const typeIcon = document.createElement('span');
+  typeIcon.className = `wc-a11y-issue-icon wc-a11y-issue-icon-${issue.type}`;
+  typeIcon.textContent = getIssueIcon(issue.type);
+  issueHeader.appendChild(typeIcon);
+  
+  const categoryBadge = document.createElement('span');
+  categoryBadge.className = 'wc-a11y-category-badge';
+  categoryBadge.textContent = issue.category.toUpperCase();
+  issueHeader.appendChild(categoryBadge);
+  
+  if (issue.wcagLevel) {
+    const wcagBadge = document.createElement('span');
+    wcagBadge.className = 'wc-a11y-wcag-badge';
+    wcagBadge.textContent = `WCAG ${issue.wcagLevel}`;
+    issueHeader.appendChild(wcagBadge);
+  }
+  
+  issueDiv.appendChild(issueHeader);
+
+  const issueMessage = document.createElement('div');
+  issueMessage.className = 'wc-a11y-issue-message';
+  issueMessage.textContent = issue.message;
+  issueDiv.appendChild(issueMessage);
+
+  if (issue.recommendation) {
+    const recommendation = document.createElement('div');
+    recommendation.className = 'wc-a11y-issue-recommendation';
+    recommendation.innerHTML = `<strong>Recommendation:</strong> ${issue.recommendation}`;
+    issueDiv.appendChild(recommendation);
+  }
+
+  // Add highlight button if element is provided
+  if (issue.element) {
+    const highlightBtn = document.createElement('button');
+    highlightBtn.className = 'wc-a11y-highlight-btn';
+    highlightBtn.textContent = 'Highlight Element';
+    highlightBtn.addEventListener('click', () => {
+      highlightElement(issue.element!);
+      setTimeout(() => unhighlightElement(issue.element!), 2000);
+    });
+    issueDiv.appendChild(highlightBtn);
+  }
+
+  return issueDiv;
+}
+
+/**
+ * Create accessibility tree view element
+ */
+export function createAccessibilityTreeElement(tree: A11yTreeNode): HTMLDivElement {
+  const treeDiv = document.createElement('div');
+  treeDiv.className = 'wc-a11y-tree';
+
+  const header = document.createElement('div');
+  header.className = 'wc-a11y-tree-header';
+  header.textContent = 'Accessibility Tree';
+  treeDiv.appendChild(header);
+
+  const treeContent = document.createElement('div');
+  treeContent.className = 'wc-a11y-tree-content';
+  
+  const treeNodes = createAccessibilityTreeNodes(tree, 0);
+  treeContent.appendChild(treeNodes);
+  
+  treeDiv.appendChild(treeContent);
+
+  return treeDiv;
+}
+
+/**
+ * Create tree nodes recursively
+ */
+function createAccessibilityTreeNodes(node: A11yTreeNode, depth: number): HTMLDivElement {
+  const nodeDiv = document.createElement('div');
+  nodeDiv.className = 'wc-a11y-tree-node';
+  nodeDiv.style.paddingLeft = `${depth * 20}px`;
+
+  // Node header
+  const nodeHeader = document.createElement('div');
+  nodeHeader.className = 'wc-a11y-tree-node-header';
+  
+  // Expand/collapse icon if has children
+  if (node.children.length > 0) {
+    const expandIcon = document.createElement('span');
+    expandIcon.className = 'wc-a11y-tree-expand-icon';
+    expandIcon.textContent = '▼';
+    nodeHeader.appendChild(expandIcon);
+    
+    nodeHeader.style.cursor = 'pointer';
+    let isExpanded = true;
+    
+    nodeHeader.addEventListener('click', () => {
+      isExpanded = !isExpanded;
+      expandIcon.textContent = isExpanded ? '▼' : '▶';
+      childrenDiv.style.display = isExpanded ? 'block' : 'none';
+    });
+  } else {
+    const spacer = document.createElement('span');
+    spacer.className = 'wc-a11y-tree-spacer';
+    nodeHeader.appendChild(spacer);
+  }
+
+  // Role
+  const roleSpan = document.createElement('span');
+  roleSpan.className = 'wc-a11y-tree-role';
+  roleSpan.textContent = node.role || 'generic';
+  nodeHeader.appendChild(roleSpan);
+
+  // Name
+  if (node.name) {
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'wc-a11y-tree-name';
+    nameSpan.textContent = `"${node.name}"`;
+    nodeHeader.appendChild(nameSpan);
+  }
+
+  // Focusable indicator
+  if (node.isFocusable) {
+    const focusIcon = document.createElement('span');
+    focusIcon.className = 'wc-a11y-tree-focus-icon';
+    focusIcon.textContent = '⌨️';
+    focusIcon.title = 'Focusable';
+    nodeHeader.appendChild(focusIcon);
+  }
+
+  // Hidden indicator
+  if (node.isHidden) {
+    const hiddenIcon = document.createElement('span');
+    hiddenIcon.className = 'wc-a11y-tree-hidden-icon';
+    hiddenIcon.textContent = '👁️‍🗨️';
+    hiddenIcon.title = 'Hidden from accessibility tree';
+    nodeHeader.appendChild(hiddenIcon);
+  }
+
+  nodeDiv.appendChild(nodeHeader);
+
+  // Node details (ARIA properties and states)
+  const hasDetails = node.ariaProperties.size > 0 || node.ariaStates.size > 0 || node.description || node.tabIndex !== null;
+  
+  if (hasDetails) {
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'wc-a11y-tree-node-details';
+    detailsDiv.style.paddingLeft = '24px';
+
+    if (node.description) {
+      const descDiv = document.createElement('div');
+      descDiv.className = 'wc-a11y-tree-detail';
+      descDiv.innerHTML = `<span class="wc-a11y-detail-label">Description:</span> ${node.description}`;
+      detailsDiv.appendChild(descDiv);
+    }
+
+    if (node.tabIndex !== null) {
+      const tabDiv = document.createElement('div');
+      tabDiv.className = 'wc-a11y-tree-detail';
+      tabDiv.innerHTML = `<span class="wc-a11y-detail-label">tabindex:</span> ${node.tabIndex}`;
+      detailsDiv.appendChild(tabDiv);
+    }
+
+    // ARIA states
+    if (node.ariaStates.size > 0) {
+      node.ariaStates.forEach((value, name) => {
+        const stateDiv = document.createElement('div');
+        stateDiv.className = 'wc-a11y-tree-detail wc-a11y-state';
+        stateDiv.innerHTML = `<span class="wc-a11y-detail-label">${name}:</span> ${value}`;
+        detailsDiv.appendChild(stateDiv);
+      });
+    }
+
+    // ARIA properties
+    if (node.ariaProperties.size > 0) {
+      node.ariaProperties.forEach((value, name) => {
+        const propDiv = document.createElement('div');
+        propDiv.className = 'wc-a11y-tree-detail wc-a11y-property';
+        propDiv.innerHTML = `<span class="wc-a11y-detail-label">${name}:</span> ${value}`;
+        detailsDiv.appendChild(propDiv);
+      });
+    }
+
+    nodeDiv.appendChild(detailsDiv);
+  }
+
+  // Children
+  const childrenDiv = document.createElement('div');
+  childrenDiv.className = 'wc-a11y-tree-children';
+  
+  node.children.forEach(child => {
+    const childNode = createAccessibilityTreeNodes(child, depth + 1);
+    childrenDiv.appendChild(childNode);
+  });
+  
+  nodeDiv.appendChild(childrenDiv);
+
+  return nodeDiv;
+}
+
+/**
+ * Get score class for styling
+ */
+function getScoreClass(score: number): string {
+  if (score >= 90) return 'excellent';
+  if (score >= 70) return 'good';
+  if (score >= 50) return 'fair';
+  return 'poor';
+}
+
+/**
+ * Get score description
+ */
+function getScoreDescription(score: number): string {
+  if (score >= 90) return 'Excellent accessibility';
+  if (score >= 70) return 'Good accessibility with minor issues';
+  if (score >= 50) return 'Fair accessibility with some issues';
+  return 'Poor accessibility, needs improvement';
+}
+
+/**
+ * Get issue icon
+ */
+function getIssueIcon(type: string): string {
+  switch (type) {
+    case 'error': return '❌';
+    case 'warning': return '⚠️';
+    case 'info': return 'ℹ️';
+    default: return '•';
   }
 }

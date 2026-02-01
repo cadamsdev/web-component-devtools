@@ -10,7 +10,9 @@ import {
   createInstanceElement,
   createEventLogElement,
   updateUndoRedoButtons,
-  updateEventFiltersUI
+  updateEventFiltersUI,
+  createAccessibilityAuditElement,
+  createAccessibilityTreeElement
 } from './ui';
 import { scanWebComponents } from './scanner';
 import { EventMonitor } from './event-monitor';
@@ -19,6 +21,8 @@ import { PropertyEditor } from './property-editor';
 import { RenderTracker } from './render-tracker';
 import { RenderOverlay } from './render-overlay';
 import { ComponentOverlay } from './component-overlay';
+import { AccessibilityChecker } from './accessibility-checker';
+import { AccessibilityTree } from './accessibility-tree';
 
 // Track expanded state separately to persist across re-renders
 const expandedStates = new Map<Element, boolean>();
@@ -49,6 +53,15 @@ const renderOverlay = new RenderOverlay();
 
 // Component overlay instance
 const componentOverlay = new ComponentOverlay();
+
+// Accessibility checker instance
+const a11yChecker = new AccessibilityChecker();
+
+// Accessibility tree instance
+const a11yTree = new AccessibilityTree();
+
+// Track currently selected component for accessibility view
+let selectedComponentForA11y: Element | null = null;
 
 // Connect render tracker to overlay
 renderTracker.setOverlay(renderOverlay);
@@ -444,6 +457,11 @@ function switchTab(tabName: string): void {
     updateEventsList();
     updateEventFilters();
   }
+  
+  // Refresh content when switching to accessibility tab
+  if (tabName === 'accessibility') {
+    updateAccessibilityView();
+  }
 }
 
 function updateEventsList(): void {
@@ -615,6 +633,124 @@ function updateRenderCountBadge(element: Element, count: number): void {
   setTimeout(() => {
     badge?.classList.remove('wc-render-count-flash');
   }, 500);
+}
+
+/**
+ * Update the accessibility view
+ */
+function updateAccessibilityView(): void {
+  const a11yContent = document.getElementById('wc-devtools-accessibility');
+  if (!a11yContent) return;
+
+  // Get all components
+  const instances = scanWebComponents(renderTracker);
+
+  if (instances.length === 0) {
+    a11yContent.innerHTML = '<div class="wc-no-components">No web components found on this page.</div>';
+    return;
+  }
+
+  a11yContent.innerHTML = '';
+
+  // Create component selector
+  const selectorDiv = document.createElement('div');
+  selectorDiv.className = 'wc-a11y-selector';
+  
+  const selectorLabel = document.createElement('label');
+  selectorLabel.textContent = 'Select component to audit:';
+  selectorLabel.className = 'wc-a11y-selector-label';
+  selectorDiv.appendChild(selectorLabel);
+
+  const selector = document.createElement('select');
+  selector.className = 'wc-a11y-component-select';
+  
+  // Add default option
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = '-- Choose a component --';
+  selector.appendChild(defaultOption);
+
+  // Add component options
+  instances.forEach((instance, index) => {
+    const option = document.createElement('option');
+    option.value = index.toString();
+    option.textContent = `#${index + 1} <${instance.tagName}>`;
+    selector.appendChild(option);
+  });
+
+  selector.addEventListener('change', (e) => {
+    const selectedIndex = parseInt((e.target as HTMLSelectElement).value);
+    if (!isNaN(selectedIndex)) {
+      const instance = instances[selectedIndex];
+      selectedComponentForA11y = instance.element;
+      renderAccessibilityAudit(instance);
+    } else {
+      selectedComponentForA11y = null;
+      const resultsDiv = document.getElementById('wc-a11y-results');
+      if (resultsDiv) {
+        resultsDiv.innerHTML = '<div class="wc-no-components">Select a component to view accessibility information</div>';
+      }
+    }
+  });
+
+  selectorDiv.appendChild(selector);
+  a11yContent.appendChild(selectorDiv);
+
+  // Results container
+  const resultsDiv = document.createElement('div');
+  resultsDiv.id = 'wc-a11y-results';
+  resultsDiv.className = 'wc-a11y-results';
+  resultsDiv.innerHTML = '<div class="wc-no-components">Select a component to view accessibility information</div>';
+  a11yContent.appendChild(resultsDiv);
+
+  // If we had a previously selected component, try to maintain selection
+  if (selectedComponentForA11y) {
+    const instanceIndex = instances.findIndex(inst => inst.element === selectedComponentForA11y);
+    if (instanceIndex !== -1) {
+      selector.value = instanceIndex.toString();
+      renderAccessibilityAudit(instances[instanceIndex]);
+    } else {
+      selectedComponentForA11y = null;
+    }
+  }
+}
+
+/**
+ * Render accessibility audit for a component
+ */
+function renderAccessibilityAudit(instance: any): void {
+  const resultsDiv = document.getElementById('wc-a11y-results');
+  if (!resultsDiv) return;
+
+  resultsDiv.innerHTML = '';
+
+  // Run accessibility audit
+  const audit = a11yChecker.auditComponent(instance);
+  const auditElement = createAccessibilityAuditElement(audit);
+  resultsDiv.appendChild(auditElement);
+
+  // Build and display accessibility tree
+  const tree = a11yTree.buildTree(instance);
+  const treeElement = createAccessibilityTreeElement(tree);
+  resultsDiv.appendChild(treeElement);
+
+  // Add screen reader output section
+  const screenReaderSection = document.createElement('div');
+  screenReaderSection.className = 'wc-a11y-screen-reader';
+  
+  const srHeader = document.createElement('div');
+  srHeader.className = 'wc-a11y-screen-reader-header';
+  srHeader.textContent = 'Screen Reader Output';
+  screenReaderSection.appendChild(srHeader);
+  
+  const srContent = document.createElement('div');
+  srContent.className = 'wc-a11y-screen-reader-content';
+  
+  const srText = a11yTree.getScreenReaderText(tree);
+  srContent.textContent = srText || '(No screen reader output)';
+  screenReaderSection.appendChild(srContent);
+  
+  resultsDiv.appendChild(screenReaderSection);
 }
 
 function watchForChanges(panel: HTMLDivElement): void {
