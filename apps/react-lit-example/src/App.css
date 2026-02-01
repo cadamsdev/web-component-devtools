@@ -1,3 +1,13 @@
+:root {
+  /* Global CSS Variables for components */
+  --primary-gradient-start: #667eea;
+  --primary-gradient-end: #764ba2;
+  --card-bg: white;
+  --card-border-radius: 12px;
+  --text-color-dark: #2d3748;
+  --text-color-light: #4a5568;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -5,7 +15,7 @@ body {
     Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
   min-height: 100vh;
 }
 

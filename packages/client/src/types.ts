@@ -29,6 +29,16 @@ export interface ShadowDOMNode {
   children: ShadowDOMNode[];
 }
 
+export interface CSSVariableInfo {
+  name: string;
+  value: string;
+  computedValue: string;
+  source: 'element' | 'shadow-root' | 'inherited' | 'root';
+  specificity: number;
+  selector?: string;
+  inheritedFrom?: Element;
+}
+
 export interface InstanceInfo {
   element: Element;
   tagName: string;
@@ -37,6 +47,7 @@ export interface InstanceInfo {
   methods: string[];
   slots: Map<string, boolean>;
   shadowDOM: ShadowDOMInfo | null;
+  cssVariables?: CSSVariableInfo[];
 }
 
 export interface EventLog {

@@ -1,6 +1,7 @@
 // Component scanner for Web Component Dev Tools
 
 import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment } from './types';
+import { getCSSVariables } from './css-variable-tracker';
 
 export function scanWebComponents(): InstanceInfo[] {
   const instances: InstanceInfo[] = [];
@@ -89,6 +90,15 @@ export function scanWebComponents(): InstanceInfo[] {
       
       // Collect shadow DOM information
       instanceInfo.shadowDOM = scanShadowDOM(element.shadowRoot);
+    }
+
+    // Collect CSS variables affecting this component
+    try {
+      const cssVarInfo = getCSSVariables(element);
+      instanceInfo.cssVariables = cssVarInfo.variables;
+    } catch (e) {
+      // Handle errors gracefully
+      instanceInfo.cssVariables = [];
     }
 
     instances.push(instanceInfo);

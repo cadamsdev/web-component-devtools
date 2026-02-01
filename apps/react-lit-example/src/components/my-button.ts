@@ -6,32 +6,42 @@ export class MyButton extends LitElement {
   static styles = css`
     :host {
       display: inline-block;
+      --button-padding: 12px 24px;
+      --button-font-size: 16px;
+      --button-border-radius: 8px;
+      --button-gradient-start: #667eea;
+      --button-gradient-end: #764ba2;
+      --button-text-color: white;
+      --button-hover-lift: -2px;
+      --button-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      --button-disabled-bg: #e2e8f0;
+      --button-disabled-color: #a0aec0;
     }
 
     button {
-      padding: 12px 24px;
-      font-size: 16px;
+      padding: var(--button-padding);
+      font-size: var(--button-font-size);
       font-weight: 600;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--button-border-radius);
       cursor: pointer;
       transition: all 0.3s ease;
       font-family: inherit;
     }
 
     button:not(:disabled) {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: linear-gradient(135deg, var(--button-gradient-start) 0%, var(--button-gradient-end) 100%);
+      color: var(--button-text-color);
     }
 
     button:not(:disabled):hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transform: translateY(var(--button-hover-lift));
+      box-shadow: var(--button-shadow);
     }
 
     button:disabled {
-      background: #e2e8f0;
-      color: #a0aec0;
+      background: var(--button-disabled-bg);
+      color: var(--button-disabled-color);
       cursor: not-allowed;
     }
 

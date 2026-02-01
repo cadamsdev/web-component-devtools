@@ -6,19 +6,28 @@ export class MyCard extends LitElement {
   static styles = css`
     :host {
       display: block;
+      --card-bg: white;
+      --card-border-radius: 12px;
+      --card-padding: 24px;
+      --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --card-hover-lift: -4px;
+      --card-title-color: #2d3748;
+      --card-text-color: #4a5568;
+      --card-border-color: #e2e8f0;
     }
 
     .card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: var(--card-bg);
+      border-radius: var(--card-border-radius);
+      padding: var(--card-padding);
+      box-shadow: var(--card-shadow);
       transition: all 0.3s ease;
     }
 
     .card:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(var(--card-hover-lift));
     }
 
     .card-header {
@@ -35,12 +44,12 @@ export class MyCard extends LitElement {
     .card-title {
       font-size: 20px;
       font-weight: 700;
-      color: #2d3748;
+      color: var(--card-title-color);
       margin: 0;
     }
 
     .card-description {
-      color: #4a5568;
+      color: var(--card-text-color);
       line-height: 1.6;
       margin: 0;
     }
@@ -48,7 +57,7 @@ export class MyCard extends LitElement {
     .card-footer {
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid var(--card-border-color);
     }
 
     ::slotted(*) {

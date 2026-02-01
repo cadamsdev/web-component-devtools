@@ -1,6 +1,6 @@
 // UI components for Web Component Dev Tools
 
-import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment } from './types';
+import type { InstanceInfo, ShadowDOMInfo, ShadowDOMNode, SlotAssignment, CSSVariableInfo } from './types';
 import { 
   highlightElement, 
   unhighlightElement, 
@@ -11,6 +11,7 @@ import {
 } from './utils';
 import type { EventLog } from './types';
 import { PropertyEditor } from './property-editor';
+import { updateCSSVariable } from './css-variable-tracker';
 
 export function createButton(): HTMLButtonElement {
   const button = document.createElement('button');
@@ -500,6 +501,16 @@ export function createInstanceElement(
   if (instance.shadowDOM) {
     const shadowSection = createShadowDOMSection(instance.shadowDOM);
     detailsContainer.appendChild(shadowSection);
+  }
+
+  // CSS Variables Section
+  if (instance.cssVariables && instance.cssVariables.length > 0) {
+    const cssVarsSection = createCSSVariablesSection(
+      instance.cssVariables,
+      instance.element,
+      onUpdate
+    );
+    detailsContainer.appendChild(cssVarsSection);
   }
 
   instanceDiv.appendChild(detailsContainer);
@@ -1159,4 +1170,266 @@ function createShadowDOMNodeElement(node: ShadowDOMNode, depth: number): HTMLDiv
   }
   
   return nodeDiv;
+}
+
+/**
+ * Create a CSS Variables section showing all CSS custom properties affecting the component
+ */
+function createCSSVariablesSection(
+  cssVariables: CSSVariableInfo[],
+  element: Element,
+  onUpdate?: () => void
+): HTMLDivElement {
+  const section = document.createElement('div');
+  section.className = 'wc-section';
+  
+  const title = document.createElement('div');
+  title.className = 'wc-section-title';
+  title.textContent = `CSS Variables (${cssVariables.length})`;
+  section.appendChild(title);
+  
+  if (cssVariables.length === 0) {
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'wc-css-variable-empty';
+    emptyDiv.textContent = 'No CSS custom properties found';
+    section.appendChild(emptyDiv);
+    return section;
+  }
+  
+  const varsDiv = document.createElement('div');
+  varsDiv.className = 'wc-css-variables';
+  
+  cssVariables.forEach((cssVar) => {
+    const varDiv = createCSSVariableElement(cssVar, element, onUpdate);
+    varsDiv.appendChild(varDiv);
+  });
+  
+  section.appendChild(varsDiv);
+  
+  return section;
+}
+
+/**
+ * Create a single CSS variable display element
+ */
+function createCSSVariableElement(
+  cssVar: CSSVariableInfo,
+  element: Element,
+  onUpdate?: () => void
+): HTMLDivElement {
+  const varDiv = document.createElement('div');
+  varDiv.className = 'wc-css-variable';
+  
+  // Only make element-level variables editable
+  const isEditable = cssVar.source === 'element' && !cssVar.selector;
+  if (isEditable) {
+    varDiv.classList.add('wc-css-variable-editable');
+  }
+  
+  const header = document.createElement('div');
+  header.className = 'wc-css-variable-header';
+  
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'wc-css-variable-name';
+  nameSpan.textContent = cssVar.name;
+  header.appendChild(nameSpan);
+  
+  header.appendChild(document.createTextNode(': '));
+  
+  const valueSpan = document.createElement('span');
+  valueSpan.className = 'wc-css-variable-value';
+  valueSpan.textContent = cssVar.value || cssVar.computedValue;
+  valueSpan.title = isEditable ? 'Click to edit' : 'Read-only';
+  header.appendChild(valueSpan);
+  
+  if (isEditable) {
+    const editIcon = document.createElement('span');
+    editIcon.className = 'wc-css-variable-edit-icon';
+    editIcon.innerHTML = '✎';
+    header.appendChild(editIcon);
+    
+    // Make editable
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', (e) => {
+      e.stopPropagation();
+      makeCSSVariableEditable(
+        element,
+        cssVar.name,
+        cssVar.value || cssVar.computedValue,
+        valueSpan,
+        onUpdate
+      );
+    });
+  }
+  
+  varDiv.appendChild(header);
+  
+  // Show computed value if different from declared value
+  if (cssVar.value && cssVar.computedValue && cssVar.value !== cssVar.computedValue) {
+    const computedDiv = document.createElement('div');
+    computedDiv.className = 'wc-css-variable-computed';
+    computedDiv.textContent = `Computed: ${cssVar.computedValue}`;
+    varDiv.appendChild(computedDiv);
+  }
+  
+  // Metadata
+  const metaDiv = document.createElement('div');
+  metaDiv.className = 'wc-css-variable-meta';
+  
+  // Source badge
+  const sourceSpan = document.createElement('span');
+  sourceSpan.className = `wc-css-variable-source ${cssVar.source}`;
+  sourceSpan.textContent = cssVar.source;
+  sourceSpan.title = getSourceDescription(cssVar.source);
+  metaDiv.appendChild(sourceSpan);
+  
+  // Selector if present
+  if (cssVar.selector) {
+    const selectorSpan = document.createElement('span');
+    selectorSpan.className = 'wc-css-variable-selector';
+    selectorSpan.textContent = cssVar.selector;
+    selectorSpan.title = 'CSS Selector';
+    metaDiv.appendChild(selectorSpan);
+  }
+  
+  // Inherited from element
+  if (cssVar.inheritedFrom) {
+    const inheritedSpan = document.createElement('span');
+    inheritedSpan.className = 'wc-css-variable-inherited-from';
+    inheritedSpan.textContent = `↑ ${cssVar.inheritedFrom.nodeName.toLowerCase()}`;
+    inheritedSpan.title = 'Inherited from parent element';
+    
+    // Add hover effect to highlight the parent element
+    inheritedSpan.style.cursor = 'pointer';
+    inheritedSpan.addEventListener('mouseenter', () => {
+      if (document.body.contains(cssVar.inheritedFrom!)) {
+        highlightElement(cssVar.inheritedFrom!);
+      }
+    });
+    
+    inheritedSpan.addEventListener('mouseleave', () => {
+      if (document.body.contains(cssVar.inheritedFrom!)) {
+        unhighlightElement(cssVar.inheritedFrom!);
+      }
+    });
+    
+    // Click to scroll to element
+    inheritedSpan.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (document.body.contains(cssVar.inheritedFrom!)) {
+        cssVar.inheritedFrom!.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        highlightElement(cssVar.inheritedFrom!);
+        setTimeout(() => {
+          unhighlightElement(cssVar.inheritedFrom!);
+        }, 3000);
+      }
+    });
+    
+    metaDiv.appendChild(inheritedSpan);
+  }
+  
+  varDiv.appendChild(metaDiv);
+  
+  return varDiv;
+}
+
+/**
+ * Make a CSS variable editable inline
+ */
+function makeCSSVariableEditable(
+  element: Element,
+  variableName: string,
+  currentValue: string,
+  valueSpan: HTMLSpanElement,
+  onUpdate?: () => void
+): void {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'wc-inline-editor';
+  input.value = currentValue;
+  input.style.width = `${Math.max(150, currentValue.length * 8)}px`;
+  input.placeholder = 'Enter CSS value';
+
+  const errorSpan = document.createElement('span');
+  errorSpan.className = 'wc-edit-error';
+  errorSpan.style.display = 'none';
+
+  const save = () => {
+    const newValue = input.value.trim();
+    
+    // Update the CSS variable
+    const success = updateCSSVariable(element, variableName, newValue);
+    
+    if (success) {
+      // Restore display
+      valueSpan.textContent = newValue;
+      valueSpan.style.display = '';
+      input.remove();
+      errorSpan.remove();
+      
+      // Trigger update if callback provided
+      if (onUpdate) {
+        onUpdate();
+      }
+    } else {
+      errorSpan.textContent = 'Failed to update CSS variable';
+      errorSpan.style.display = 'block';
+      input.classList.add('error');
+    }
+  };
+
+  const cancel = () => {
+    valueSpan.style.display = '';
+    input.remove();
+    errorSpan.remove();
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      save();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancel();
+    }
+  });
+
+  input.addEventListener('input', () => {
+    // Clear error on input
+    if (errorSpan.style.display !== 'none') {
+      errorSpan.style.display = 'none';
+      input.classList.remove('error');
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    // Small delay to allow Enter key to process
+    setTimeout(save, 100);
+  });
+
+  // Replace value span with input
+  valueSpan.style.display = 'none';
+  valueSpan.parentNode?.insertBefore(input, valueSpan);
+  valueSpan.parentNode?.insertBefore(errorSpan, valueSpan);
+  
+  input.focus();
+  input.select();
+}
+
+/**
+ * Get a human-readable description of the CSS variable source
+ */
+function getSourceDescription(source: string): string {
+  switch (source) {
+    case 'element':
+      return 'Defined directly on this element';
+    case 'shadow-root':
+      return 'Defined in component\'s Shadow DOM';
+    case 'inherited':
+      return 'Inherited from a parent element';
+    case 'root':
+      return 'Defined at document root level';
+    default:
+      return source;
+  }
 }
