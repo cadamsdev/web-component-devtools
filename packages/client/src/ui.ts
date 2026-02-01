@@ -500,6 +500,28 @@ export function createInstanceElement(
     detailsContainer.appendChild(propertiesSection);
   }
 
+  // Slots Section (from Shadow DOM)
+  if (instance.shadowDOM && instance.shadowDOM.slotAssignments.size > 0) {
+    const slotsSection = document.createElement('div');
+    slotsSection.className = 'wc-section';
+
+    const slotsTitle = document.createElement('div');
+    slotsTitle.className = 'wc-section-title';
+    slotsTitle.textContent = 'Slots';
+    slotsSection.appendChild(slotsTitle);
+
+    const slotsDiv = document.createElement('div');
+    slotsDiv.className = 'wc-shadow-slots';
+
+    instance.shadowDOM.slotAssignments.forEach((assignment, slotName) => {
+      const slotDiv = createSlotAssignmentElement(assignment);
+      slotsDiv.appendChild(slotDiv);
+    });
+
+    slotsSection.appendChild(slotsDiv);
+    detailsContainer.appendChild(slotsSection);
+  }
+
   // Methods Section
   if (instance.methods.length > 0) {
     const methodsSection = document.createElement('div');
@@ -528,14 +550,6 @@ export function createInstanceElement(
     detailsContainer.appendChild(methodsSection);
   }
 
-
-
-  // Shadow DOM Section
-  if (instance.shadowDOM) {
-    const shadowSection = createShadowDOMSection(instance.shadowDOM);
-    detailsContainer.appendChild(shadowSection);
-  }
-
   // CSS Variables Section
   if (instance.cssVariables && instance.cssVariables.length > 0) {
     const cssVarsSection = createCSSVariablesSection(
@@ -544,6 +558,62 @@ export function createInstanceElement(
       onUpdate,
     );
     detailsContainer.appendChild(cssVarsSection);
+  }
+
+  // Shadow DOM Section (info and mode)
+  if (instance.shadowDOM) {
+    const shadowSection = document.createElement('div');
+    shadowSection.className = 'wc-section';
+
+    const title = document.createElement('div');
+    title.className = 'wc-section-title';
+    title.textContent = 'Shadow DOM';
+    shadowSection.appendChild(title);
+
+    // Shadow root info
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'wc-shadow-info';
+
+    const modeSpan = document.createElement('span');
+    modeSpan.className = 'wc-shadow-mode';
+    modeSpan.textContent = `Mode: ${instance.shadowDOM.mode}`;
+    infoDiv.appendChild(modeSpan);
+
+    if (instance.shadowDOM.adoptedStyleSheets > 0) {
+      const stylesSpan = document.createElement('span');
+      stylesSpan.className = 'wc-shadow-stylesheets';
+      stylesSpan.textContent = ` • ${instance.shadowDOM.adoptedStyleSheets} adopted stylesheet${instance.shadowDOM.adoptedStyleSheets > 1 ? 's' : ''}`;
+      infoDiv.appendChild(stylesSpan);
+    }
+
+    shadowSection.appendChild(infoDiv);
+    detailsContainer.appendChild(shadowSection);
+  }
+
+  // Shadow DOM Tree Section
+  if (instance.shadowDOM && instance.shadowDOM.children.length > 0) {
+    const treeSection = document.createElement('div');
+    treeSection.className = 'wc-section';
+
+    const treeTitle = document.createElement('div');
+    treeTitle.className = 'wc-section-title';
+    treeTitle.textContent = 'Shadow DOM Tree';
+    treeSection.appendChild(treeTitle);
+
+    const treeDiv = document.createElement('div');
+    treeDiv.className = 'wc-shadow-tree';
+
+    const treeContainer = document.createElement('div');
+    treeContainer.className = 'wc-shadow-tree-container';
+
+    instance.shadowDOM.children.forEach((node) => {
+      const nodeEl = createShadowDOMNodeElement(node, 0);
+      treeContainer.appendChild(nodeEl);
+    });
+
+    treeDiv.appendChild(treeContainer);
+    treeSection.appendChild(treeDiv);
+    detailsContainer.appendChild(treeSection);
   }
 
   instanceDiv.appendChild(detailsContainer);
