@@ -19,7 +19,7 @@ function getPositionStyles(position: string, isPanel: boolean = false): string {
 export function injectStyles(position: string): void {
   const css = [
     '#wc-devtools-btn {',
-    '  position: absolute;',
+    '  position: fixed;',
     `  ${getPositionStyles(position)}`,
     '  width: 50px;',
     '  height: 50px;',
@@ -48,7 +48,7 @@ export function injectStyles(position: string): void {
     '}',
     '',
     '#wc-devtools-panel {',
-    '  position: absolute;',
+    '  position: fixed;',
     `  ${getPositionStyles(position, true)}`,
     '  width: 500px;',
     '  max-height: 700px;',
