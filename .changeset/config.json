@@ -1,0 +1,12 @@
+{
+  "access": "restricted",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "react-lit-example",
+    "webpack-lit-example",
+    "web-component-dev-tools-monorepo",
+    "@web-component-dev-tools/react-lit-components",
+    "@web-component-dev-tools/lit-components"
+  ]
+}

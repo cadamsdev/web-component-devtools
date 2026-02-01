@@ -15,7 +15,8 @@
     "build:webpack-plugin": "bun run --filter webpack-plugin build",
     "build:client": "bun run --filter client build",
     "build:lit-components": "bun run --filter '@web-component-dev-tools/lit-components' build",
-    "build:react-lit-components": "bun run --filter '@web-component-dev-tools/react-lit-components' build"
+    "build:react-lit-components": "bun run --filter '@web-component-dev-tools/react-lit-components' build",
+    "changeset": "changeset"
   },
   "keywords": [
     "vite",
@@ -27,5 +28,8 @@
   "engines": {
     "node": ">=16.0.0",
     "bun": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@lazy-release/changesets": "^0.5.1"
   }
 }
