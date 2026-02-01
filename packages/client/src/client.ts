@@ -63,6 +63,9 @@ const a11yTree = new AccessibilityTree();
 // Track currently selected component for accessibility view
 let selectedComponentForA11y: Element | null = null;
 
+// Cache for accessibility audit results to ensure consistency
+const a11yAuditCache = new WeakMap<Element, import('./accessibility-checker').A11yAuditResult>();
+
 // Connect render tracker to overlay
 renderTracker.setOverlay(renderOverlay);
 
@@ -208,6 +211,17 @@ function handleToggleComponentOverlay(): void {
     toggleBtn.classList.remove('active');
     toggleBtn.title = 'Show component tag names on page';
   }
+}
+
+function handleA11yBadgeClick(element: Element): void {
+  // Store the selected element
+  selectedComponentForA11y = element;
+  
+  // Switch to accessibility tab
+  switchTab('accessibility');
+  
+  // Update the accessibility view with the selected component
+  updateAccessibilityView();
 }
 
 function setupKeyboardShortcuts(): void {
@@ -579,6 +593,14 @@ function updateComponentList(): void {
   const stats = createStatsElement(componentTypes.size, filteredInstances.length);
   content.appendChild(stats);
 
+  // Pre-compute and cache all accessibility audits for consistency
+  // This ensures the badge and accessibility tab show the same results
+  filteredInstances.forEach((instance) => {
+    // Always recompute on list update to catch any changes to the component
+    const audit = a11yChecker.auditComponent(instance);
+    a11yAuditCache.set(instance.element, audit);
+  });
+
   filteredInstances.forEach((instance, index) => {
     const instanceEl = createInstanceElement(
       instance, 
@@ -586,7 +608,9 @@ function updateComponentList(): void {
       expandedStates,
       propertyEditor,
       updateComponentList,
-      a11yChecker
+      a11yChecker,
+      handleA11yBadgeClick,
+      a11yAuditCache
     );
     content.appendChild(instanceEl);
     
@@ -653,80 +677,63 @@ function updateAccessibilityView(): void {
 
   a11yContent.innerHTML = '';
 
-  // Create component selector
-  const selectorDiv = document.createElement('div');
-  selectorDiv.className = 'wc-a11y-selector';
-  
-  const selectorLabel = document.createElement('label');
-  selectorLabel.textContent = 'Select component to audit:';
-  selectorLabel.className = 'wc-a11y-selector-label';
-  selectorDiv.appendChild(selectorLabel);
-
-  const selector = document.createElement('select');
-  selector.className = 'wc-a11y-component-select';
-  
-  // Add default option
-  const defaultOption = document.createElement('option');
-  defaultOption.value = '';
-  defaultOption.textContent = '-- Choose a component --';
-  selector.appendChild(defaultOption);
-
-  // Add component options
-  instances.forEach((instance, index) => {
-    const option = document.createElement('option');
-    option.value = index.toString();
-    option.textContent = `#${index + 1} <${instance.tagName}>`;
-    selector.appendChild(option);
-  });
-
-  selector.addEventListener('change', (e) => {
-    const selectedIndex = parseInt((e.target as HTMLSelectElement).value);
-    if (!isNaN(selectedIndex)) {
-      const instance = instances[selectedIndex];
-      selectedComponentForA11y = instance.element;
-      renderAccessibilityAudit(instance);
-    } else {
-      selectedComponentForA11y = null;
-      const resultsDiv = document.getElementById('wc-a11y-results');
-      if (resultsDiv) {
-        resultsDiv.innerHTML = '<div class="wc-no-components">Select a component to view accessibility information</div>';
-      }
-    }
-  });
-
-  selectorDiv.appendChild(selector);
-  a11yContent.appendChild(selectorDiv);
-
   // Results container
   const resultsDiv = document.createElement('div');
   resultsDiv.id = 'wc-a11y-results';
   resultsDiv.className = 'wc-a11y-results';
-  resultsDiv.innerHTML = '<div class="wc-no-components">Select a component to view accessibility information</div>';
-  a11yContent.appendChild(resultsDiv);
-
-  // If we had a previously selected component, try to maintain selection
+  
+  // If we have a selected component, show its details
   if (selectedComponentForA11y) {
-    const instanceIndex = instances.findIndex(inst => inst.element === selectedComponentForA11y);
-    if (instanceIndex !== -1) {
-      selector.value = instanceIndex.toString();
-      renderAccessibilityAudit(instances[instanceIndex]);
+    const instance = instances.find(inst => inst.element === selectedComponentForA11y);
+    if (instance) {
+      // Add a header showing which component is being audited
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'wc-a11y-component-header';
+      
+      const componentName = document.createElement('h3');
+      componentName.className = 'wc-a11y-component-name';
+      componentName.textContent = `<${instance.tagName}>`;
+      headerDiv.appendChild(componentName);
+      
+      const backButton = document.createElement('button');
+      backButton.className = 'wc-a11y-back-button';
+      backButton.textContent = '← Back to Components';
+      backButton.title = 'Return to Components tab';
+      backButton.addEventListener('click', () => {
+        selectedComponentForA11y = null;
+        switchTab('components');
+      });
+      headerDiv.appendChild(backButton);
+      
+      resultsDiv.appendChild(headerDiv);
+      
+      // Render the audit
+      renderAccessibilityAudit(instance, resultsDiv);
     } else {
+      // Component no longer exists
       selectedComponentForA11y = null;
+      resultsDiv.innerHTML = '<div class="wc-no-components">Click an accessibility badge in the Components tab to view details</div>';
     }
+  } else {
+    resultsDiv.innerHTML = '<div class="wc-no-components">Click an accessibility badge in the Components tab to view details</div>';
   }
+  
+  a11yContent.appendChild(resultsDiv);
 }
 
 /**
  * Render accessibility audit for a component
  */
-function renderAccessibilityAudit(instance: any): void {
-  const resultsDiv = document.getElementById('wc-a11y-results');
+function renderAccessibilityAudit(instance: any, resultsDiv: HTMLDivElement): void {
   if (!resultsDiv) return;
 
-  resultsDiv.innerHTML = '';
-
-  // Run accessibility audit
-  const audit = a11yChecker.auditComponent(instance);
+  // Use cached audit result if available, otherwise compute new one
+  let audit = a11yAuditCache.get(instance.element);
+  if (!audit) {
+    audit = a11yChecker.auditComponent(instance);
+    a11yAuditCache.set(instance.element, audit);
+  }
+  
   const auditElement = createAccessibilityAuditElement(audit);
   resultsDiv.appendChild(auditElement);
 

@@ -293,7 +293,9 @@ export function createInstanceElement(
   expandedStates: Map<Element, boolean>,
   propertyEditor?: PropertyEditor,
   onUpdate?: () => void,
-  a11yChecker?: import('./accessibility-checker').AccessibilityChecker
+  a11yChecker?: import('./accessibility-checker').AccessibilityChecker,
+  onA11yBadgeClick?: (element: Element) => void,
+  a11yAuditCache?: WeakMap<Element, import('./accessibility-checker').A11yAuditResult>
 ): HTMLDivElement {
   const instanceDiv = document.createElement('div');
   const isExpanded = expandedStates.get(instance.element) || false;
@@ -314,38 +316,52 @@ export function createInstanceElement(
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
   
   // Add accessibility indicator badge
-  if (a11yChecker) {
-    const a11yAudit = a11yChecker.auditComponent(instance);
-    const a11yBadge = document.createElement('span');
-    a11yBadge.className = 'wc-a11y-badge';
+  if (a11yChecker && a11yAuditCache) {
+    // Use cached audit result for consistency
+    const a11yAudit = a11yAuditCache.get(instance.element);
     
-    // Determine badge status based on score and issues
-    let status: 'good' | 'warning' | 'error';
-    let icon: string;
-    let text: string;
-    
-    const errorCount = a11yAudit.issues.filter(i => i.type === 'error').length;
-    const warningCount = a11yAudit.issues.filter(i => i.type === 'warning').length;
-    
-    if (errorCount > 0) {
-      status = 'error';
-      icon = '⚠';
-      text = `${errorCount} issue${errorCount !== 1 ? 's' : ''}`;
-    } else if (warningCount > 0) {
-      status = 'warning';
-      icon = '⚡';
-      text = `${warningCount} warning${warningCount !== 1 ? 's' : ''}`;
-    } else {
-      status = 'good';
-      icon = '✓';
-      text = 'accessible';
+    if (a11yAudit) {
+      const a11yBadge = document.createElement('span');
+      a11yBadge.className = 'wc-a11y-badge';
+      
+      // Determine badge status based on score and issues
+      let status: 'good' | 'warning' | 'error';
+      let icon: string;
+      let text: string;
+      
+      const errorCount = a11yAudit.issues.filter(i => i.type === 'error').length;
+      const warningCount = a11yAudit.issues.filter(i => i.type === 'warning').length;
+      
+      if (errorCount > 0) {
+        status = 'error';
+        icon = '⚠';
+        text = `${errorCount} issue${errorCount !== 1 ? 's' : ''}`;
+      } else if (warningCount > 0) {
+        status = 'warning';
+        icon = '⚡';
+        text = `${warningCount} warning${warningCount !== 1 ? 's' : ''}`;
+      } else {
+        status = 'good';
+        icon = '✓';
+        text = 'accessible';
+      }
+      
+      a11yBadge.classList.add(`wc-a11y-badge-${status}`);
+      a11yBadge.innerHTML = `${icon} ${text}`;
+      a11yBadge.title = `Accessibility Score: ${a11yAudit.score}/100\n${a11yAudit.issues.length} total issue${a11yAudit.issues.length !== 1 ? 's' : ''} found\nClick to view details`;
+      
+      // Make badge clickable
+      a11yBadge.style.cursor = 'pointer';
+      a11yBadge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (onA11yBadgeClick) {
+          onA11yBadgeClick(instance.element);
+        }
+      });
+      
+      nameAndIndex.appendChild(a11yBadge);
     }
-    
-    a11yBadge.classList.add(`wc-a11y-badge-${status}`);
-    a11yBadge.innerHTML = `${icon} ${text}`;
-    a11yBadge.title = `Accessibility Score: ${a11yAudit.score}/100\n${a11yAudit.issues.length} total issue${a11yAudit.issues.length !== 1 ? 's' : ''} found\nClick component for details`;
-    
-    nameAndIndex.appendChild(a11yBadge);
   }
   
   // Add render count badge if available
