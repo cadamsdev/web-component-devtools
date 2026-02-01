@@ -10,6 +10,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@lit/react": "^1.0.0",
+        "@web-component-dev-tools/lit-components": "workspace:*",
         "lit": "^3.1.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -28,6 +29,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@lit/react": "^1.0.0",
+        "@web-component-dev-tools/lit-components": "workspace:*",
         "lit": "^3.1.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -53,15 +55,36 @@
     },
     "packages/client": {
       "name": "client",
-      "version": "1.0.0",
+      "version": "0.0.0",
       "devDependencies": {
         "tsdown": "^0.20.1",
         "typescript": "^5.3.3",
       },
     },
+    "packages/lit-components": {
+      "name": "@web-component-dev-tools/lit-components",
+      "version": "0.1.0",
+      "dependencies": {
+        "lit": "^3.1.0",
+      },
+      "devDependencies": {
+        "@lit/react": "^1.0.0",
+        "@types/react": "^18.2.43",
+        "react": "^18.2.0",
+        "typescript": "^5.3.3",
+      },
+      "peerDependencies": {
+        "@lit/react": "^1.0.0",
+        "react": "^18.0.0",
+      },
+      "optionalPeers": [
+        "@lit/react",
+        "react",
+      ],
+    },
     "packages/vite-plugin": {
       "name": "vite-plugin",
-      "version": "1.0.0",
+      "version": "0.0.0",
       "dependencies": {
         "client": "workspace:*",
       },
@@ -77,7 +100,7 @@
     },
     "packages/webpack-plugin": {
       "name": "webpack-plugin",
-      "version": "1.0.0",
+      "version": "0.0.0",
       "dependencies": {
         "client": "workspace:*",
       },
@@ -520,6 +543,8 @@
     "@types/ws": ["@types/ws@8.18.1", "", { "dependencies": { "@types/node": "*" } }, "sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg=="],
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@4.7.0", "", { "dependencies": { "@babel/core": "^7.28.0", "@babel/plugin-transform-react-jsx-self": "^7.27.1", "@babel/plugin-transform-react-jsx-source": "^7.27.1", "@rolldown/pluginutils": "1.0.0-beta.27", "@types/babel__core": "^7.20.5", "react-refresh": "^0.17.0" }, "peerDependencies": { "vite": "^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0" } }, "sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA=="],
+
+    "@web-component-dev-tools/lit-components": ["@web-component-dev-tools/lit-components@workspace:packages/lit-components"],
 
     "@webassemblyjs/ast": ["@webassemblyjs/ast@1.14.1", "", { "dependencies": { "@webassemblyjs/helper-numbers": "1.13.2", "@webassemblyjs/helper-wasm-bytecode": "1.13.2" } }, "sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ=="],
 

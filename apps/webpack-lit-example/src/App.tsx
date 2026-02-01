@@ -1,5 +1,4 @@
-import './components';
-import { MyButton, MyCard, MyCounter, MyBadge } from './components/react-wrappers';
+import { MyButton, MyCard, MyCounter, MyBadge } from '@web-component-dev-tools/lit-components/react';
 import './App.css';
 
 function App() {

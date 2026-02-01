@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@lit/react": "^1.0.0",
+    "@web-component-dev-tools/lit-components": "workspace:*",
     "lit": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

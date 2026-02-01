@@ -1,0 +1,54 @@
+{
+  "name": "@web-component-dev-tools/lit-components",
+  "version": "0.1.0",
+  "description": "Reusable Lit UI component library",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "web-components",
+    "lit",
+    "ui-components",
+    "custom-elements"
+  ],
+  "dependencies": {
+    "lit": "^3.1.0"
+  },
+  "peerDependencies": {
+    "@lit/react": "^1.0.0",
+    "react": "^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@lit/react": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@lit/react": "^1.0.0",
+    "@types/react": "^18.2.43",
+    "react": "^18.2.0",
+    "typescript": "^5.3.3"
+  }
+}
