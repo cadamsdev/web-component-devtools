@@ -5,7 +5,7 @@ A Webpack plugin that provides developer tools for inspecting and debugging web 
 ## Installation
 
 ```bash
-npm install webpack-plugin --save-dev
+npm install @cadamsdev/webpack-plugin-wc-devtools --save-dev
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ Add the plugin to your Webpack configuration:
 
 ```javascript
 // webpack.config.js
-import { WebpackWebComponentDevTools } from 'webpack-plugin';
+import { WebpackWebComponentDevTools } from '@cadamsdev/webpack-plugin-wc-devtools';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export default {
@@ -32,10 +32,12 @@ export default {
 
 ### Options
 
-- **`enabled`** (boolean, default: `true`): Enable or disable the dev tools.
-- **`position`** (string, default: `'bottom-right'`): Position of the dev tools button. Options: `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`.
-- **`queryParam`** (string, optional): Query parameter name to check for enabling dev tools. If specified, the dev tools button will only show when this query param is present in the URL (e.g., `?debug`).
-- **`includeInProduction`** (boolean, default: `false`): Include the dev tools in production builds. By default, dev tools are only included in development mode.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enabled` | boolean | `true` | Enable or disable the dev tools. |
+| `position` | string | `'bottom-right'` | Position of the dev tools button. Options: `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`. |
+| `queryParam` | string | `undefined` | Query parameter name to check for enabling dev tools. If specified, the dev tools button will only show when this query param is present in the URL (e.g., `?debug`). |
+| `includeInProduction` | boolean | `false` | Include the dev tools in production builds. By default, dev tools are only included in development mode. |
 
 ### Example with Options
 
