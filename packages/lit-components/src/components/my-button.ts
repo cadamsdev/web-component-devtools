@@ -16,7 +16,7 @@ export class MyButton extends LitElement {
       --button-disabled-bg: #e2e8f0;
       --button-disabled-color: #a0aec0;
     }
-    
+
     button {
       padding: var(--button-padding);
       font-size: var(--button-font-size);
@@ -27,7 +27,7 @@ export class MyButton extends LitElement {
       font-family: inherit;
       transition: opacity 0.2s ease;
     }
-    
+
     button:not(:disabled) {
       background: linear-gradient(
         135deg,
@@ -36,11 +36,11 @@ export class MyButton extends LitElement {
       );
       color: var(--button-text-color);
     }
-    
+
     button:not(:disabled):hover {
       opacity: 0.9;
     }
-    
+
     button:disabled {
       background: var(--button-disabled-bg);
       color: var(--button-disabled-color);

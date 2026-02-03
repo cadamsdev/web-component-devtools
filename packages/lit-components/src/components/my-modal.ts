@@ -12,11 +12,11 @@ export class MyModal extends LitElement {
     :host {
       display: none;
     }
-    
+
     :host([open]) {
       display: block;
     }
-    
+
     .overlay {
       position: fixed;
       top: 0;
@@ -28,7 +28,7 @@ export class MyModal extends LitElement {
       z-index: 9998;
       animation: fadeIn 0.2s ease;
     }
-    
+
     .modal {
       position: fixed;
       top: 50%;
@@ -44,19 +44,19 @@ export class MyModal extends LitElement {
       flex-direction: column;
       animation: slideIn 0.3s ease;
     }
-    
+
     .modal.small {
       width: 400px;
     }
-    
+
     .modal.medium {
       width: 600px;
     }
-    
+
     .modal.large {
       width: 800px;
     }
-    
+
     .modal-header {
       padding: 24px;
       border-bottom: 1px solid #e2e8f0;
@@ -64,14 +64,14 @@ export class MyModal extends LitElement {
       justify-content: space-between;
       align-items: center;
     }
-    
+
     .modal-title {
       font-size: 24px;
       font-weight: 700;
       color: #2d3748;
       margin: 0;
     }
-    
+
     .close-button {
       background: none;
       border: none;
@@ -82,17 +82,17 @@ export class MyModal extends LitElement {
       border-radius: 4px;
       transition: background 0.2s ease;
     }
-    
+
     .close-button:hover {
       background: #f7fafc;
     }
-    
+
     .modal-body {
       padding: 24px;
       overflow-y: auto;
       flex: 1;
     }
-    
+
     .modal-footer {
       padding: 16px 24px;
       border-top: 1px solid #e2e8f0;
@@ -100,7 +100,7 @@ export class MyModal extends LitElement {
       justify-content: flex-end;
       gap: 12px;
     }
-    
+
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -109,7 +109,7 @@ export class MyModal extends LitElement {
         opacity: 1;
       }
     }
-    
+
     @keyframes slideIn {
       from {
         opacity: 0;
@@ -214,9 +214,7 @@ export class MyModal extends LitElement {
 
   render() {
     if (!this.open) {
-      return html`
-        
-      `;
+      return html``;
     }
 
     return html`

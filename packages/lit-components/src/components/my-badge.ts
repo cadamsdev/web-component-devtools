@@ -7,7 +7,7 @@ export class MyBadge extends LitElement {
     :host {
       display: inline-block;
     }
-    
+
     .badge {
       display: inline-flex;
       align-items: center;
@@ -18,27 +18,27 @@ export class MyBadge extends LitElement {
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .badge.primary {
       background: #e6f2ff;
       color: #0066cc;
     }
-    
+
     .badge.success {
       background: #e6ffe6;
       color: #00cc00;
     }
-    
+
     .badge.warning {
       background: #fff4e6;
       color: #ff9900;
     }
-    
+
     .badge.danger {
       background: #ffe6e6;
       color: #cc0000;
     }
-    
+
     .badge.info {
       background: #f0e6ff;
       color: #9900cc;

@@ -12,14 +12,14 @@ export class MyTabs extends LitElement {
     :host {
       display: block;
     }
-    
+
     .tabs-container {
       background: white;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
-    
+
     .tabs-header {
       display: flex;
       border-bottom: 2px solid #e2e8f0;
@@ -27,16 +27,16 @@ export class MyTabs extends LitElement {
       overflow-x: auto;
       scrollbar-width: thin;
     }
-    
+
     .tabs-header::-webkit-scrollbar {
       height: 4px;
     }
-    
+
     .tabs-header::-webkit-scrollbar-thumb {
       background: #cbd5e0;
       border-radius: 2px;
     }
-    
+
     .tab {
       padding: 16px 24px;
       cursor: pointer;
@@ -54,41 +54,41 @@ export class MyTabs extends LitElement {
       white-space: nowrap;
       position: relative;
     }
-    
+
     .tab:hover {
       color: #4a5568;
       background: #edf2f7;
     }
-    
+
     .tab.active {
       color: #667eea;
       border-bottom-color: #667eea;
       background: white;
     }
-    
+
     .tab-icon {
       font-size: 18px;
     }
-    
+
     .tab-label {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    
+
     .tabs-content {
       padding: 24px;
     }
-    
+
     .tab-panel {
       display: none;
       animation: fadeIn 0.3s ease;
     }
-    
+
     .tab-panel.active {
       display: block;
     }
-    
+
     @keyframes fadeIn {
       from {
         opacity: 0;

@@ -131,7 +131,11 @@ export class UndoManager {
         }
       } else if (typeof value === 'symbol' || typeof value === 'bigint') {
         element.setAttribute(name, value.toString());
-      } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      } else if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
         element.setAttribute(name, String(value));
       } else {
         // For any other unexpected types

@@ -15,44 +15,44 @@ export class MyCard extends LitElement {
       --card-text-color: #4a5568;
       --card-border-color: #e2e8f0;
     }
-    
+
     .card {
       background: var(--card-bg);
       border-radius: var(--card-border-radius);
       padding: var(--card-padding);
       box-shadow: var(--card-shadow);
     }
-    
+
     .card-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 16px;
     }
-    
+
     .card-icon {
       font-size: 32px;
     }
-    
+
     .card-title {
       font-size: 20px;
       font-weight: 700;
       color: var(--card-title-color);
       margin: 0;
     }
-    
+
     .card-description {
       color: var(--card-text-color);
       line-height: 1.6;
       margin: 0;
     }
-    
+
     .card-footer {
       margin-top: 16px;
       padding-top: 16px;
       border-top: 1px solid var(--card-border-color);
     }
-    
+
     ::slotted(*) {
       margin: 0;
     }

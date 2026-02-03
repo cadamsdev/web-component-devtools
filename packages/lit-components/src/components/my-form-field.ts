@@ -13,19 +13,19 @@ export class MyFormField extends LitElement {
       display: block;
       margin-bottom: 20px;
     }
-    
+
     .form-field {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .label-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    
+
     .label {
       font-size: 14px;
       font-weight: 600;
@@ -34,15 +34,15 @@ export class MyFormField extends LitElement {
       align-items: center;
       gap: 8px;
     }
-    
+
     .required {
       color: #e53e3e;
     }
-    
+
     .input-wrapper {
       position: relative;
     }
-    
+
     input,
     textarea {
       width: 100%;
@@ -54,41 +54,41 @@ export class MyFormField extends LitElement {
       transition: all 0.2s ease;
       box-sizing: border-box;
     }
-    
+
     input:focus,
     textarea:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
-    
+
     input.error,
     textarea.error {
       border-color: #e53e3e;
     }
-    
+
     input.error:focus,
     textarea.error:focus {
       box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
     }
-    
+
     input.success,
     textarea.success {
       border-color: #48bb78;
     }
-    
+
     input:disabled,
     textarea:disabled {
       background: #f7fafc;
       color: #a0aec0;
       cursor: not-allowed;
     }
-    
+
     textarea {
       resize: vertical;
       min-height: 100px;
     }
-    
+
     .input-icon {
       position: absolute;
       right: 12px;
@@ -96,13 +96,13 @@ export class MyFormField extends LitElement {
       transform: translateY(-50%);
       font-size: 18px;
     }
-    
+
     .helper-text {
       font-size: 12px;
       color: #718096;
       margin: 0;
     }
-    
+
     .error-text {
       font-size: 12px;
       color: #e53e3e;
@@ -111,17 +111,17 @@ export class MyFormField extends LitElement {
       align-items: center;
       gap: 4px;
     }
-    
+
     .character-count {
       font-size: 12px;
       color: #718096;
       text-align: right;
     }
-    
+
     .character-count.warning {
       color: #f6ad55;
     }
-    
+
     .character-count.error {
       color: #e53e3e;
     }

@@ -15,39 +15,39 @@ export class MyNotification extends LitElement {
       position: fixed;
       z-index: 10000;
     }
-    
+
     :host([position='top-right']) {
       top: 20px;
       right: 20px;
     }
-    
+
     :host([position='top-left']) {
       top: 20px;
       left: 20px;
     }
-    
+
     :host([position='bottom-right']) {
       bottom: 20px;
       right: 20px;
     }
-    
+
     :host([position='bottom-left']) {
       bottom: 20px;
       left: 20px;
     }
-    
+
     :host([position='top-center']) {
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
     }
-    
+
     :host([position='bottom-center']) {
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
     }
-    
+
     .notification {
       background: white;
       border-radius: 12px;
@@ -57,11 +57,11 @@ export class MyNotification extends LitElement {
       overflow: hidden;
       animation: slideIn 0.3s ease;
     }
-    
+
     .notification.dismissing {
       animation: slideOut 0.3s ease forwards;
     }
-    
+
     .notification-header {
       padding: 16px;
       display: flex;
@@ -69,37 +69,37 @@ export class MyNotification extends LitElement {
       gap: 12px;
       border-left: 4px solid;
     }
-    
+
     .notification.success .notification-header {
       border-left-color: #48bb78;
       background: #f0fff4;
     }
-    
+
     .notification.error .notification-header {
       border-left-color: #e53e3e;
       background: #fff5f5;
     }
-    
+
     .notification.warning .notification-header {
       border-left-color: #f6ad55;
       background: #fffaf0;
     }
-    
+
     .notification.info .notification-header {
       border-left-color: #667eea;
       background: #f0f4ff;
     }
-    
+
     .icon {
       font-size: 24px;
       flex-shrink: 0;
     }
-    
+
     .content {
       flex: 1;
       min-width: 0;
     }
-    
+
     .title-row {
       display: flex;
       justify-content: space-between;
@@ -107,14 +107,14 @@ export class MyNotification extends LitElement {
       gap: 8px;
       margin-bottom: 4px;
     }
-    
+
     .title {
       font-size: 16px;
       font-weight: 700;
       color: #2d3748;
       margin: 0;
     }
-    
+
     .close-button {
       background: none;
       border: none;
@@ -131,25 +131,25 @@ export class MyNotification extends LitElement {
       flex-shrink: 0;
       transition: background 0.2s ease;
     }
-    
+
     .close-button:hover {
       background: rgba(0, 0, 0, 0.05);
     }
-    
+
     .message {
       font-size: 14px;
       color: #4a5568;
       line-height: 1.5;
       margin: 0;
     }
-    
+
     .badges {
       display: flex;
       gap: 6px;
       margin-top: 8px;
       flex-wrap: wrap;
     }
-    
+
     .actions {
       padding: 12px 16px;
       border-top: 1px solid #e2e8f0;
@@ -157,36 +157,36 @@ export class MyNotification extends LitElement {
       gap: 8px;
       justify-content: flex-end;
     }
-    
+
     .progress-bar {
       height: 3px;
       background: #e2e8f0;
       position: relative;
       overflow: hidden;
     }
-    
+
     .progress-fill {
       height: 100%;
       background: currentColor;
       transition: width 0.1s linear;
     }
-    
+
     .notification.success .progress-fill {
       color: #48bb78;
     }
-    
+
     .notification.error .progress-fill {
       color: #e53e3e;
     }
-    
+
     .notification.warning .progress-fill {
       color: #f6ad55;
     }
-    
+
     .notification.info .progress-fill {
       color: #667eea;
     }
-    
+
     @keyframes slideIn {
       from {
         opacity: 0;
@@ -197,7 +197,7 @@ export class MyNotification extends LitElement {
         transform: translateY(0);
       }
     }
-    
+
     @keyframes slideOut {
       from {
         opacity: 1;
@@ -344,9 +344,7 @@ export class MyNotification extends LitElement {
 
   render() {
     if (!this._visible) {
-      return html`
-        
-      `;
+      return html``;
     }
 
     return html`

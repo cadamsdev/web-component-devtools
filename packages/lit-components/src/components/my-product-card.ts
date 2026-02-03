@@ -17,7 +17,7 @@ export class MyProductCard extends LitElement {
       --product-card-border-radius: 16px;
       --product-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    
+
     .product-card {
       background: var(--product-card-bg);
       border-radius: var(--product-card-border-radius);
@@ -25,11 +25,11 @@ export class MyProductCard extends LitElement {
       overflow: hidden;
       transition: box-shadow 0.2s ease;
     }
-    
+
     .product-card:hover {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     }
-    
+
     .image-container {
       position: relative;
       width: 100%;
@@ -37,13 +37,13 @@ export class MyProductCard extends LitElement {
       overflow: hidden;
       background: #f7fafc;
     }
-    
+
     .product-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-    
+
     .badge-container {
       position: absolute;
       top: 12px;
@@ -51,76 +51,76 @@ export class MyProductCard extends LitElement {
       display: flex;
       gap: 8px;
     }
-    
+
     .content {
       padding: 20px;
     }
-    
+
     .header {
       display: flex;
       justify-content: space-between;
       align-items: start;
       margin-bottom: 12px;
     }
-    
+
     .title {
       font-size: 20px;
       font-weight: 700;
       color: #2d3748;
       margin: 0 0 8px 0;
     }
-    
+
     .price {
       font-size: 24px;
       font-weight: 700;
       color: #667eea;
       margin: 0;
     }
-    
+
     .description {
       color: #4a5568;
       line-height: 1.6;
       margin: 0 0 16px 0;
       font-size: 14px;
     }
-    
+
     .rating {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 16px;
     }
-    
+
     .stars {
       color: #fbbf24;
       font-size: 18px;
     }
-    
+
     .rating-text {
       color: #718096;
       font-size: 14px;
     }
-    
+
     .quantity-section {
       margin: 20px 0;
       padding: 16px;
       background: #f7fafc;
       border-radius: 8px;
     }
-    
+
     .quantity-label {
       font-size: 14px;
       font-weight: 600;
       color: #2d3748;
       margin-bottom: 12px;
     }
-    
+
     .actions {
       display: flex;
       gap: 12px;
       margin-top: 20px;
     }
-    
+
     .actions my-button {
       flex: 1;
     }

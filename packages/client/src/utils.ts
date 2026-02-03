@@ -128,7 +128,9 @@ export function formatEventDetail(detail: unknown): string {
     if (typeof detail === 'object' && detail !== null) {
       return '[Object]';
     }
-    return typeof detail === 'symbol' || typeof detail === 'bigint' ? detail.toString() : '[Unknown]';
+    return typeof detail === 'symbol' || typeof detail === 'bigint'
+      ? detail.toString()
+      : '[Unknown]';
   }
 }
 

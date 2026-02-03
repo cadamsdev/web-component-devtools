@@ -13,7 +13,7 @@ export class MyUserProfile extends LitElement {
     :host {
       display: block;
     }
-    
+
     .profile-card {
       background: white;
       border-radius: 16px;
@@ -21,20 +21,20 @@ export class MyUserProfile extends LitElement {
       overflow: hidden;
       max-width: 400px;
     }
-    
+
     .profile-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       padding: 40px 24px 80px;
       position: relative;
     }
-    
+
     .avatar-container {
       position: absolute;
       bottom: -50px;
       left: 50%;
       transform: translateX(-50%);
     }
-    
+
     .avatar {
       width: 100px;
       height: 100px;
@@ -47,39 +47,39 @@ export class MyUserProfile extends LitElement {
       font-size: 48px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    
+
     .avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       border-radius: 50%;
     }
-    
+
     .profile-body {
       padding: 60px 24px 24px;
       text-align: center;
     }
-    
+
     .name {
       font-size: 24px;
       font-weight: 700;
       color: #2d3748;
       margin: 0 0 8px 0;
     }
-    
+
     .title {
       font-size: 14px;
       color: #718096;
       margin: 0 0 16px 0;
     }
-    
+
     .bio {
       font-size: 14px;
       color: #4a5568;
       line-height: 1.6;
       margin: 0 0 20px 0;
     }
-    
+
     .badges {
       display: flex;
       gap: 8px;
@@ -87,7 +87,7 @@ export class MyUserProfile extends LitElement {
       flex-wrap: wrap;
       margin-bottom: 20px;
     }
-    
+
     .stats {
       display: flex;
       justify-content: space-around;
@@ -96,39 +96,39 @@ export class MyUserProfile extends LitElement {
       border-bottom: 1px solid #e2e8f0;
       margin-bottom: 20px;
     }
-    
+
     .stat {
       text-align: center;
     }
-    
+
     .stat-value {
       font-size: 24px;
       font-weight: 700;
       color: #2d3748;
       margin: 0 0 4px 0;
     }
-    
+
     .stat-label {
       font-size: 12px;
       color: #718096;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .actions {
       display: flex;
       gap: 12px;
     }
-    
+
     .actions my-button {
       flex: 1;
     }
-    
+
     .contact-info {
       margin: 20px 0;
       text-align: left;
     }
-    
+
     .contact-item {
       display: flex;
       align-items: center;
@@ -137,7 +137,7 @@ export class MyUserProfile extends LitElement {
       font-size: 14px;
       color: #4a5568;
     }
-    
+
     .contact-icon {
       width: 20px;
       text-align: center;
