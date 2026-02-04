@@ -462,6 +462,9 @@ export function createInstanceElement(
     unhighlightElement(instance.element);
   });
 
+  // Track if details have been rendered
+  let detailsRendered = false;
+
   // Toggle expand/collapse on header click only
   header.style.cursor = 'pointer';
   header.addEventListener('click', (e) => {
@@ -470,6 +473,21 @@ export function createInstanceElement(
     const newExpandedState = !expandedStates.get(instance.element);
     expandedStates.set(instance.element, newExpandedState);
     instanceDiv.classList.toggle('expanded');
+
+    // Lazy render details only when expanded for the first time
+    if (newExpandedState && !detailsRendered) {
+      renderInstanceDetails(
+        instance,
+        detailsContainer,
+        propertyEditor,
+        onUpdate,
+        a11yChecker,
+        onA11yBadgeClick,
+        a11yAuditCache,
+        expandedStates,
+      );
+      detailsRendered = true;
+    }
   });
 
   // Prevent clicks on details from bubbling up
@@ -484,6 +502,39 @@ export function createInstanceElement(
     instance.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
+  // If already expanded, render details immediately
+  if (isExpanded) {
+    renderInstanceDetails(
+      instance,
+      detailsContainer,
+      propertyEditor,
+      onUpdate,
+      a11yChecker,
+      onA11yBadgeClick,
+      a11yAuditCache,
+      expandedStates,
+    );
+    detailsRendered = true;
+  }
+
+  instanceDiv.appendChild(detailsContainer);
+
+  return instanceDiv;
+}
+
+/**
+ * Render instance details sections (lazy rendering optimization)
+ */
+function renderInstanceDetails(
+  instance: InstanceInfo,
+  detailsContainer: HTMLDivElement,
+  propertyEditor?: PropertyEditor,
+  onUpdate?: () => void,
+  a11yChecker?: import('./accessibility-checker').AccessibilityChecker,
+  onA11yBadgeClick?: (element: Element) => void,
+  a11yAuditCache?: WeakMap<Element, import('./accessibility-checker').A11yAuditResult>,
+  expandedStates?: Map<Element, boolean>,
+): void {
   // Attributes Section
   if (instance.attributes.size > 0) {
     const attributesSection = document.createElement('div');
@@ -653,7 +704,7 @@ export function createInstanceElement(
   }
 
   // Nested Components Section
-  if (instance.nestedComponents && instance.nestedComponents.length > 0) {
+  if (instance.nestedComponents && instance.nestedComponents.length > 0 && expandedStates) {
     const nestedSection = document.createElement('div');
     nestedSection.className = 'wc-section';
 
@@ -682,10 +733,6 @@ export function createInstanceElement(
     nestedSection.appendChild(nestedContainer);
     detailsContainer.appendChild(nestedSection);
   }
-
-  instanceDiv.appendChild(detailsContainer);
-
-  return instanceDiv;
 }
 
 /**
@@ -857,6 +904,9 @@ function createNestedComponentElement(
     unhighlightElement(instance.element);
   });
 
+  // Track if details have been rendered
+  let detailsRendered = false;
+
   // Toggle expand/collapse
   header.style.cursor = 'pointer';
   header.addEventListener('click', (e) => {
@@ -865,12 +915,60 @@ function createNestedComponentElement(
     const newExpandedState = !expandedStates.get(instance.element);
     expandedStates.set(instance.element, newExpandedState);
     nestedDiv.classList.toggle('expanded');
+
+    // Lazy render details only when expanded for the first time
+    if (newExpandedState && !detailsRendered) {
+      renderNestedInstanceDetails(
+        instance,
+        detailsContainer,
+        expandedStates,
+        propertyEditor,
+        onUpdate,
+        a11yChecker,
+        onA11yBadgeClick,
+        a11yAuditCache,
+      );
+      detailsRendered = true;
+    }
   });
 
   detailsContainer.addEventListener('click', (e) => {
     e.stopPropagation();
   });
 
+  // If already expanded, render details immediately
+  if (isExpanded) {
+    renderNestedInstanceDetails(
+      instance,
+      detailsContainer,
+      expandedStates,
+      propertyEditor,
+      onUpdate,
+      a11yChecker,
+      onA11yBadgeClick,
+      a11yAuditCache,
+    );
+    detailsRendered = true;
+  }
+
+  nestedDiv.appendChild(detailsContainer);
+
+  return nestedDiv;
+}
+
+/**
+ * Render nested instance details sections (lazy rendering optimization)
+ */
+function renderNestedInstanceDetails(
+  instance: InstanceInfo,
+  detailsContainer: HTMLDivElement,
+  expandedStates: Map<Element, boolean>,
+  propertyEditor?: PropertyEditor,
+  onUpdate?: () => void,
+  a11yChecker?: import('./accessibility-checker').AccessibilityChecker,
+  onA11yBadgeClick?: (element: Element) => void,
+  a11yAuditCache?: WeakMap<Element, import('./accessibility-checker').A11yAuditResult>,
+): void {
   // Attributes Section
   if (instance.attributes.size > 0) {
     const attributesSection = document.createElement('div');
@@ -981,10 +1079,6 @@ function createNestedComponentElement(
     nestedNestedSection.appendChild(nestedNestedContainer);
     detailsContainer.appendChild(nestedNestedSection);
   }
-
-  nestedDiv.appendChild(detailsContainer);
-
-  return nestedDiv;
 }
 
 export function createEventLogElement(
