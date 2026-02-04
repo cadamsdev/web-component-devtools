@@ -2008,12 +2008,12 @@ function createCSSVariableElement(
 
   // Add color swatch if variable name contains "color"
   const isColorVariable = cssVar.name.toLowerCase().includes('color');
-  if (isColorVariable) {
-    const colorValue = cssVar.value || cssVar.computedValue;
+  if (isColorVariable && cssVar.computedValue) {
+    // Always use computedValue for the swatch to handle var() references
     const colorSwatch = document.createElement('span');
     colorSwatch.className = 'wc-css-variable-color-swatch';
-    colorSwatch.style.backgroundColor = colorValue;
-    colorSwatch.title = `Color preview: ${colorValue}`;
+    colorSwatch.style.backgroundColor = cssVar.computedValue;
+    colorSwatch.title = `Color preview: ${cssVar.computedValue}`;
     header.appendChild(colorSwatch);
   }
 
