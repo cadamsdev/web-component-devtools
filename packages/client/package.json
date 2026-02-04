@@ -1,6 +1,6 @@
 {
   "name": "@cadamsdev/wc-devtools-client",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Client-side script for web component developer tools",
   "keywords": [
     "custom-elements",
