@@ -2006,6 +2006,17 @@ function createCSSVariableElement(
 
   header.appendChild(document.createTextNode(': '));
 
+  // Add color swatch if variable name contains "color"
+  const isColorVariable = cssVar.name.toLowerCase().includes('color');
+  if (isColorVariable) {
+    const colorValue = cssVar.value || cssVar.computedValue;
+    const colorSwatch = document.createElement('span');
+    colorSwatch.className = 'wc-css-variable-color-swatch';
+    colorSwatch.style.backgroundColor = colorValue;
+    colorSwatch.title = `Color preview: ${colorValue}`;
+    header.appendChild(colorSwatch);
+  }
+
   const valueSpan = document.createElement('span');
   valueSpan.className = 'wc-css-variable-value';
   valueSpan.textContent = cssVar.value || cssVar.computedValue;
