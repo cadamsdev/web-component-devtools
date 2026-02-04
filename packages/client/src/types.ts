@@ -51,6 +51,7 @@ export interface InstanceInfo {
   renderCount?: number;
   nestedComponents?: InstanceInfo[];
   parentComponent?: Element | null;
+  isInShadowDOM?: boolean; // True if this component is inside a shadow DOM
 }
 
 export interface EventPropagationPath {

@@ -323,6 +323,15 @@ export function createInstanceElement(
 
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
 
+  // Add shadow DOM badge if component is in shadow DOM
+  if (instance.isInShadowDOM) {
+    const shadowBadge = document.createElement('span');
+    shadowBadge.className = 'wc-shadow-dom-badge';
+    shadowBadge.textContent = 'Shadow DOM';
+    shadowBadge.title = 'This component is nested inside a shadow DOM';
+    nameAndIndex.appendChild(shadowBadge);
+  }
+
   // Add render count badge if available
   if (instance.renderCount !== undefined && instance.renderCount > 0) {
     const renderBadge = document.createElement('span');
@@ -709,6 +718,15 @@ function createNestedComponentElement(
   nameAndBadge.appendChild(indexBadge);
 
   nameAndBadge.appendChild(document.createTextNode(` <${instance.tagName}>`));
+
+  // Add shadow DOM badge if component is in shadow DOM
+  if (instance.isInShadowDOM) {
+    const shadowBadge = document.createElement('span');
+    shadowBadge.className = 'wc-shadow-dom-badge';
+    shadowBadge.textContent = 'Shadow DOM';
+    shadowBadge.title = 'This component is nested inside a shadow DOM';
+    nameAndBadge.appendChild(shadowBadge);
+  }
 
   // Add render count badge if available
   if (instance.renderCount !== undefined && instance.renderCount > 0) {

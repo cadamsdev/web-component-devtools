@@ -32,6 +32,7 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
       shadowDOM: null,
       nestedComponents: [],
       parentComponent: null,
+      isInShadowDOM: false, // Root components are not in shadow DOM
     };
 
     // Collect attributes with their values
@@ -137,9 +138,28 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
     }
 
     instances.push(instanceInfo);
+    
+    // Also add all nested components to the flat list
+    if (instanceInfo.nestedComponents && instanceInfo.nestedComponents.length > 0) {
+      flattenNestedComponents(instanceInfo.nestedComponents, instances);
+    }
   }
 
   return instances;
+}
+
+/**
+ * Recursively flatten nested components and add them to the instances array
+ */
+function flattenNestedComponents(nestedComponents: InstanceInfo[], instances: InstanceInfo[]): void {
+  for (const nested of nestedComponents) {
+    instances.push(nested);
+    
+    // Recursively flatten deeper nesting levels
+    if (nested.nestedComponents && nested.nestedComponents.length > 0) {
+      flattenNestedComponents(nested.nestedComponents, instances);
+    }
+  }
 }
 
 /**
@@ -177,6 +197,7 @@ function scanNestedWebComponents(
       shadowDOM: null,
       nestedComponents: [],
       parentComponent: parentElement,
+      isInShadowDOM: true, // This component is inside a shadow DOM
     };
 
     // Collect attributes with their values
