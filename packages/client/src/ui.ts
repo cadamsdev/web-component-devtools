@@ -1396,14 +1396,16 @@ function createEditableAttribute(
 
   attrRow.appendChild(document.createTextNode('="'));
 
-  const attrValueContainer = document.createElement('span');
-  attrValueContainer.className = 'wc-editable-value-container';
-
   const attrValueSpan = document.createElement('span');
   attrValueSpan.className = 'wc-attribute-value wc-editable-value';
   attrValueSpan.textContent = value || '';
   attrValueSpan.title = 'Click to edit';
-  attrValueContainer.appendChild(attrValueSpan);
+  attrRow.appendChild(attrValueSpan);
+
+  attrRow.appendChild(document.createTextNode('"'));
+
+  const attrValueContainer = document.createElement('span');
+  attrValueContainer.className = 'wc-editable-value-container';
 
   const editIcon = document.createElement('span');
   editIcon.className = 'wc-edit-icon';
@@ -1412,7 +1414,6 @@ function createEditableAttribute(
   attrValueContainer.appendChild(editIcon);
 
   attrRow.appendChild(attrValueContainer);
-  attrRow.appendChild(document.createTextNode('"'));
 
   // Make it editable
   if (propertyEditor) {
