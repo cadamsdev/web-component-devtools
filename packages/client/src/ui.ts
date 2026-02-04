@@ -323,55 +323,6 @@ export function createInstanceElement(
 
   nameAndIndex.appendChild(document.createTextNode(` <${instance.tagName}>`));
 
-  // Add accessibility indicator badge
-  if (a11yChecker && a11yAuditCache) {
-    // Use cached audit result for consistency
-    const a11yAudit = a11yAuditCache.get(instance.element);
-
-    if (a11yAudit) {
-      const a11yBadge = document.createElement('span');
-      a11yBadge.className = 'wc-a11y-badge';
-
-      // Determine badge status based on score and issues
-      let status: 'good' | 'warning' | 'error';
-      let icon: string;
-      let text: string;
-
-      const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
-      const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
-
-      if (errorCount > 0) {
-        status = 'error';
-        icon = '⚠';
-        text = `${errorCount} issue${errorCount !== 1 ? 's' : ''}`;
-      } else if (warningCount > 0) {
-        status = 'warning';
-        icon = '⚡';
-        text = `${warningCount} warning${warningCount !== 1 ? 's' : ''}`;
-      } else {
-        status = 'good';
-        icon = '✓';
-        text = 'accessible';
-      }
-
-      a11yBadge.classList.add(`wc-a11y-badge-${status}`);
-      a11yBadge.innerHTML = `${icon} ${text}`;
-      a11yBadge.title = `Accessibility Score: ${a11yAudit.score}/100\n${a11yAudit.issues.length} total issue${a11yAudit.issues.length !== 1 ? 's' : ''} found\nClick to view details`;
-
-      // Make badge clickable
-      a11yBadge.style.cursor = 'pointer';
-      a11yBadge.addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (onA11yBadgeClick) {
-          onA11yBadgeClick(instance.element);
-        }
-      });
-
-      nameAndIndex.appendChild(a11yBadge);
-    }
-  }
-
   // Add render count badge if available
   if (instance.renderCount !== undefined && instance.renderCount > 0) {
     const renderBadge = document.createElement('span');
@@ -424,6 +375,62 @@ export function createInstanceElement(
     console.log(`[Web Component Dev Tools] <${instance.tagName}> stored as $wc`, instance.element);
   });
   header.appendChild(consoleBtn);
+
+  // Add accessibility button
+  if (a11yChecker && onA11yBadgeClick && a11yAuditCache) {
+    const a11yAudit = a11yAuditCache.get(instance.element);
+    if (a11yAudit) {
+      const a11yBtn = document.createElement('button');
+      a11yBtn.className = 'wc-a11y-btn';
+      
+      // Determine status based on audit result
+      const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
+      const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
+      
+      let status: 'good' | 'warning' | 'error';
+      if (errorCount > 0) {
+        status = 'error';
+      } else if (warningCount > 0) {
+        status = 'warning';
+      } else {
+        status = 'good';
+      }
+      
+      a11yBtn.classList.add(`wc-a11y-btn-${status}`);
+      a11yBtn.title = 'View accessibility details';
+      
+      // Create SVG icon
+      const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svgIcon.setAttribute('viewBox', '0 0 24 24');
+      svgIcon.setAttribute('fill', 'none');
+      svgIcon.setAttribute('stroke', 'currentColor');
+      svgIcon.setAttribute('stroke-width', '2');
+      svgIcon.setAttribute('stroke-linecap', 'round');
+      svgIcon.setAttribute('stroke-linejoin', 'round');
+      svgIcon.innerHTML = `
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4"/>
+        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+      `;
+      a11yBtn.appendChild(svgIcon);
+      
+      // Add issue count
+      const issueCount = errorCount + warningCount;
+      if (issueCount > 0) {
+        const countSpan = document.createElement('span');
+        countSpan.className = 'wc-a11y-btn-count';
+        countSpan.textContent = issueCount.toString();
+        a11yBtn.appendChild(countSpan);
+      }
+      
+      a11yBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onA11yBadgeClick(instance.element);
+      });
+      header.appendChild(a11yBtn);
+    }
+  }
 
   // Add expand/collapse indicator
   const expandIndicator = document.createElement('span');
@@ -703,52 +710,6 @@ function createNestedComponentElement(
 
   nameAndBadge.appendChild(document.createTextNode(` <${instance.tagName}>`));
 
-  // Add accessibility indicator badge
-  if (a11yChecker && a11yAuditCache) {
-    const a11yAudit = a11yAuditCache.get(instance.element);
-
-    if (a11yAudit) {
-      const a11yBadge = document.createElement('span');
-      a11yBadge.className = 'wc-a11y-badge';
-
-      const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
-      const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
-
-      let status: 'good' | 'warning' | 'error';
-      let icon: string;
-      let text: string;
-
-      if (errorCount > 0) {
-        status = 'error';
-        icon = '⚠';
-        text = `${errorCount} issue${errorCount !== 1 ? 's' : ''}`;
-      } else if (warningCount > 0) {
-        status = 'warning';
-        icon = '⚡';
-        text = `${warningCount} warning${warningCount !== 1 ? 's' : ''}`;
-      } else {
-        status = 'good';
-        icon = '✓';
-        text = 'accessible';
-      }
-
-      a11yBadge.classList.add(`wc-a11y-badge-${status}`);
-      a11yBadge.innerHTML = `${icon} ${text}`;
-      a11yBadge.title = `Accessibility Score: ${a11yAudit.score}/100\nClick to view details`;
-
-      a11yBadge.style.cursor = 'pointer';
-      a11yBadge.addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (onA11yBadgeClick) {
-          onA11yBadgeClick(instance.element);
-        }
-      });
-
-      nameAndBadge.appendChild(a11yBadge);
-    }
-  }
-
   // Add render count badge if available
   if (instance.renderCount !== undefined && instance.renderCount > 0) {
     const renderBadge = document.createElement('span');
@@ -800,6 +761,62 @@ function createNestedComponentElement(
     console.log(`[Web Component Dev Tools] <${instance.tagName}> stored as $wc`, instance.element);
   });
   header.appendChild(consoleBtn);
+
+  // Add accessibility button
+  if (a11yChecker && onA11yBadgeClick && a11yAuditCache) {
+    const a11yAudit = a11yAuditCache.get(instance.element);
+    if (a11yAudit) {
+      const a11yBtn = document.createElement('button');
+      a11yBtn.className = 'wc-a11y-btn';
+      
+      // Determine status based on audit result
+      const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
+      const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
+      
+      let status: 'good' | 'warning' | 'error';
+      if (errorCount > 0) {
+        status = 'error';
+      } else if (warningCount > 0) {
+        status = 'warning';
+      } else {
+        status = 'good';
+      }
+      
+      a11yBtn.classList.add(`wc-a11y-btn-${status}`);
+      a11yBtn.title = 'View accessibility details';
+      
+      // Create SVG icon
+      const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svgIcon.setAttribute('viewBox', '0 0 24 24');
+      svgIcon.setAttribute('fill', 'none');
+      svgIcon.setAttribute('stroke', 'currentColor');
+      svgIcon.setAttribute('stroke-width', '2');
+      svgIcon.setAttribute('stroke-linecap', 'round');
+      svgIcon.setAttribute('stroke-linejoin', 'round');
+      svgIcon.innerHTML = `
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4"/>
+        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+      `;
+      a11yBtn.appendChild(svgIcon);
+      
+      // Add issue count
+      const issueCount = errorCount + warningCount;
+      if (issueCount > 0) {
+        const countSpan = document.createElement('span');
+        countSpan.className = 'wc-a11y-btn-count';
+        countSpan.textContent = issueCount.toString();
+        a11yBtn.appendChild(countSpan);
+      }
+      
+      a11yBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onA11yBadgeClick(instance.element);
+      });
+      header.appendChild(a11yBtn);
+    }
+  }
 
   // Add expand/collapse indicator
   const expandIndicator = document.createElement('span');
