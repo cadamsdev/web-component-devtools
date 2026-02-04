@@ -91,6 +91,80 @@ function App() {
       </header>
 
       <main className="main">
+        <section className="section">
+          <h2>🔧 Try the Dev Tools</h2>
+          <MyCard
+            title="Web Component Inspector"
+            description="Click the purple button in the bottom-right corner to inspect all web components on this page!"
+            elevated
+          >
+            <div style={{ marginTop: '16px' }}>
+              <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
+                The dev tools will show you:
+              </p>
+              <ul style={{ marginTop: '8px', color: '#4a5568', fontSize: '14px' }}>
+                <li>All web components used on the page (including nested ones!)</li>
+                <li>Number of instances for each component</li>
+                <li>Attributes and properties used by each component</li>
+                <li>Real-time updates as components change</li>
+              </ul>
+            </div>
+            <span slot="footer">
+              <MyBadge label="Dev Tools" variant="info" />
+            </span>
+          </MyCard>
+        </section>
+
+        {/* Basic Components Demo */}
+        <section className="section">
+          <h2>🧩 Basic Components</h2>
+          <div className="grid">
+            <MyCard
+              title="Button Component"
+              description="Interactive buttons with various states and styles"
+            >
+              <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <MyButton label="Click Me" onButtonClick={handleButtonClick} />
+                <MyButton label="Disabled" disabled />
+                <MyButton label="Primary" variant="primary" />
+              </div>
+              <span slot="footer">
+                <MyBadge label="Interactive" variant="success" />
+              </span>
+            </MyCard>
+
+            <MyCard
+              title="Counter Component"
+              description="Stateful counter with min/max constraints"
+            >
+              <div style={{ marginTop: '16px' }}>
+                <MyCounter
+                  value={5}
+                  min={0}
+                  max={10}
+                  label="Items"
+                  onCounterChange={handleCounterChange}
+                />
+              </div>
+              <span slot="footer">
+                <MyBadge label="Stateful" variant="info" />
+              </span>
+            </MyCard>
+
+            <MyCard title="Badge Component" description="Small labels for status and categories">
+              <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <MyBadge label="New" variant="primary" />
+                <MyBadge label="Active" variant="success" />
+                <MyBadge label="Pending" variant="warning" />
+                <MyBadge label="Error" variant="danger" />
+              </div>
+              <span slot="footer">
+                <MyBadge label="Visual" variant="primary" />
+              </span>
+            </MyCard>
+          </div>
+        </section>
+
         {/* Nested Components Demo */}
         <section className="section">
           <h2>🎨 Complex Components (Using Nested Web Components)</h2>
@@ -322,80 +396,6 @@ function App() {
               />
             </div>
           </div>
-        </section>
-
-        {/* Basic Components Demo */}
-        <section className="section">
-          <h2>🧩 Basic Components</h2>
-          <div className="grid">
-            <MyCard
-              title="Button Component"
-              description="Interactive buttons with various states and styles"
-            >
-              <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <MyButton label="Click Me" onButtonClick={handleButtonClick} />
-                <MyButton label="Disabled" disabled />
-                <MyButton label="Primary" variant="primary" />
-              </div>
-              <span slot="footer">
-                <MyBadge label="Interactive" variant="success" />
-              </span>
-            </MyCard>
-
-            <MyCard
-              title="Counter Component"
-              description="Stateful counter with min/max constraints"
-            >
-              <div style={{ marginTop: '16px' }}>
-                <MyCounter
-                  value={5}
-                  min={0}
-                  max={10}
-                  label="Items"
-                  onCounterChange={handleCounterChange}
-                />
-              </div>
-              <span slot="footer">
-                <MyBadge label="Stateful" variant="info" />
-              </span>
-            </MyCard>
-
-            <MyCard title="Badge Component" description="Small labels for status and categories">
-              <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <MyBadge label="New" variant="primary" />
-                <MyBadge label="Active" variant="success" />
-                <MyBadge label="Pending" variant="warning" />
-                <MyBadge label="Error" variant="danger" />
-              </div>
-              <span slot="footer">
-                <MyBadge label="Visual" variant="primary" />
-              </span>
-            </MyCard>
-          </div>
-        </section>
-
-        <section className="section">
-          <h2>🔧 Try the Dev Tools</h2>
-          <MyCard
-            title="Web Component Inspector"
-            description="Click the purple lightning button in the bottom-right corner to inspect all web components on this page!"
-            elevated
-          >
-            <div style={{ marginTop: '16px' }}>
-              <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
-                The dev tools will show you:
-              </p>
-              <ul style={{ marginTop: '8px', color: '#4a5568', fontSize: '14px' }}>
-                <li>All web components used on the page (including nested ones!)</li>
-                <li>Number of instances for each component</li>
-                <li>Attributes and properties used by each component</li>
-                <li>Real-time updates as components change</li>
-              </ul>
-            </div>
-            <span slot="footer">
-              <MyBadge label="Dev Tools" variant="info" />
-            </span>
-          </MyCard>
         </section>
       </main>
 

@@ -2,6 +2,19 @@
 
 This example application demonstrates how to use the `webpack-plugin` package to integrate web component developer tools into a Webpack + React application.
 
+## 🔍 Using the Dev Tools
+
+1. Start the development server
+2. Open the app in your browser
+3. Look for the purple button in the bottom-right corner
+4. Click it to open the Web Component Inspector
+5. Explore all web components on the page:
+   - View component hierarchy
+   - Inspect properties and attributes
+   - Monitor events
+   - Check accessibility
+   - View CSS custom properties
+
 ## 🚀 Features
 
 - **Webpack 5**: Modern build tool configuration
@@ -57,7 +70,7 @@ Small label for status and categories.
 - `label` (string): Badge text
 - `variant` (string): Badge color variant (primary, success, info, warning, danger)
 
-## 🛠️ Getting Started
+## 📁 Project Structure
 
 ### Install Dependencies
 
@@ -91,20 +104,7 @@ Preview the production build:
 bun run preview
 ```
 
-## 🔍 Using the Dev Tools
-
-1. Start the development server
-2. Open the app in your browser
-3. Look for the purple lightning button (⚡) in the bottom-right corner
-4. Click it to open the Web Component Inspector
-5. Explore all web components on the page:
-   - View component hierarchy
-   - Inspect properties and attributes
-   - Monitor events
-   - Check accessibility
-   - View CSS custom properties
-
-## 📁 Project Structure
+## 📦 Web Components
 
 ```
 webpack-example/
@@ -123,6 +123,40 @@ webpack-example/
 ├── webpack.config.js          # Webpack configuration
 ├── tsconfig.json              # TypeScript configuration
 └── package.json               # Package metadata
+```
+
+## 🛠️ Getting Started
+
+### Install Dependencies
+
+```bash
+bun install
+```
+
+### Development
+
+Start the development server with hot reload:
+
+```bash
+bun run dev
+```
+
+The app will open at http://localhost:3001
+
+### Build
+
+Build the production bundle:
+
+```bash
+bun run build
+```
+
+### Preview
+
+Preview the production build:
+
+```bash
+bun run preview
 ```
 
 ## ⚙️ Webpack Configuration

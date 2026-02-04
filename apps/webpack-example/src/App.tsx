@@ -35,6 +35,30 @@ function App() {
 
       <main className="main">
         <section className="section">
+          <h2>Try the Dev Tools</h2>
+          <MyCard
+            title="Web Component Inspector"
+            description="Click the purple button in the bottom-right corner to inspect all web components on this page!"
+            elevated
+          >
+            <div style={{ marginTop: '16px' }}>
+              <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
+                The dev tools will show you:
+              </p>
+              <ul style={{ marginTop: '8px', color: '#4a5568', fontSize: '14px' }}>
+                <li>All web components used on the page</li>
+                <li>Number of instances for each component</li>
+                <li>Attributes used by each component</li>
+                <li>Real-time updates as components change</li>
+              </ul>
+            </div>
+            <span slot="footer">
+              <MyBadge label="Dev Tools" variant="info" />
+            </span>
+          </MyCard>
+        </section>
+
+        <section className="section">
           <h2>Card Components</h2>
           <div className="grid">
             <MyCard
@@ -81,30 +105,6 @@ function App() {
               </span>
             </MyCard>
           </div>
-        </section>
-
-        <section className="section">
-          <h2>Try the Dev Tools</h2>
-          <MyCard
-            title="Web Component Inspector"
-            description="Click the purple lightning button in the bottom-right corner to inspect all web components on this page!"
-            elevated
-          >
-            <div style={{ marginTop: '16px' }}>
-              <p style={{ margin: 0, color: '#4a5568', fontSize: '14px' }}>
-                The dev tools will show you:
-              </p>
-              <ul style={{ marginTop: '8px', color: '#4a5568', fontSize: '14px' }}>
-                <li>All web components used on the page</li>
-                <li>Number of instances for each component</li>
-                <li>Attributes used by each component</li>
-                <li>Real-time updates as components change</li>
-              </ul>
-            </div>
-            <span slot="footer">
-              <MyBadge label="Dev Tools" variant="info" />
-            </span>
-          </MyCard>
         </section>
 
         <section className="section">

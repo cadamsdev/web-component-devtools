@@ -2,6 +2,15 @@
 
 This is an example application demonstrating how to use Lit web components in a React application with the Vite Web Component Dev Tools plugin.
 
+## Using the Dev Tools
+
+Once the app is running:
+
+1. Click the button in the bottom right to open the dev tools panel
+2. View all web components on the page
+3. See instance counts and attributes for each component
+4. The panel updates automatically as components are added/removed
+
 ## Features
 
 - React 18 with TypeScript
@@ -98,16 +107,7 @@ npm install
 npm run dev
 ```
 
-3. Open your browser and click the purple lightning button (⚡) in the bottom-right corner to open the Web Component Dev Tools!
-
-## Using the Dev Tools
-
-Once the app is running:
-
-1. Click the ⚡ button to open the dev tools panel
-2. View all web components on the page
-3. See instance counts and attributes for each component
-4. The panel updates automatically as components are added/removed
+1. Open your browser and click the purple button in the bottom-right corner to open the Web Component Dev Tools!
 
 ## Project Structure
 
