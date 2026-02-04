@@ -77,7 +77,7 @@ export class PropertyEditor {
     };
 
     // Apply the change
-    if (newValue === null || newValue === '') {
+    if (newValue === null) {
       element.removeAttribute(attrName);
     } else {
       element.setAttribute(attrName, newValue);
