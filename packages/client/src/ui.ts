@@ -406,6 +406,25 @@ export function createInstanceElement(
   });
   header.appendChild(locateBtn);
 
+  // Add console.log button
+  const consoleBtn = document.createElement('button');
+  consoleBtn.className = 'wc-console-btn';
+  consoleBtn.title = 'Store as $wc and log to console';
+  consoleBtn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 17 10 11 4 5"/>
+      <line x1="12" y1="19" x2="20" y2="19"/>
+    </svg>
+  `;
+  consoleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // Store element in global variable for console access
+    (window as any).$wc = instance.element;
+    console.log(`[Web Component Dev Tools] <${instance.tagName}> stored as $wc`, instance.element);
+  });
+  header.appendChild(consoleBtn);
+
   // Add expand/collapse indicator
   const expandIndicator = document.createElement('span');
   expandIndicator.className = 'wc-expand-indicator';
@@ -762,6 +781,25 @@ function createNestedComponentElement(
     }, 3000);
   });
   header.appendChild(locateBtn);
+
+  // Add console.log button
+  const consoleBtn = document.createElement('button');
+  consoleBtn.className = 'wc-console-btn';
+  consoleBtn.title = 'Store as $wc and log to console';
+  consoleBtn.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 17 10 11 4 5"/>
+      <line x1="12" y1="19" x2="20" y2="19"/>
+    </svg>
+  `;
+  consoleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // Store element in global variable for console access
+    (window as any).$wc = instance.element;
+    console.log(`[Web Component Dev Tools] <${instance.tagName}> stored as $wc`, instance.element);
+  });
+  header.appendChild(consoleBtn);
 
   // Add expand/collapse indicator
   const expandIndicator = document.createElement('span');
