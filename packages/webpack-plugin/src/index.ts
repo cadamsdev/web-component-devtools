@@ -67,7 +67,7 @@ export class WebpackWebComponentDevTools {
     compiler.hooks.compilation.tap('WebpackWebComponentDevTools', (compilation) => {
       // Get HtmlWebpackPlugin hooks
       const hooks = (compilation.hooks as any).htmlWebpackPluginAfterHtmlProcessing;
-      
+
       if (!hooks) {
         // Try alternative hook for newer versions of HtmlWebpackPlugin
         const HtmlWebpackPlugin = compiler.options.plugins?.find(
@@ -83,7 +83,7 @@ export class WebpackWebComponentDevTools {
 
         // Use the newer HtmlWebpackPlugin v4+ hook
         const htmlPluginHooks = HtmlWebpackPlugin.constructor.getHooks(compilation);
-        
+
         if (htmlPluginHooks && htmlPluginHooks.beforeEmit) {
           htmlPluginHooks.beforeEmit.tapAsync(
             'WebpackWebComponentDevTools',
