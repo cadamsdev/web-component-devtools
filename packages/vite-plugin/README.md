@@ -5,7 +5,7 @@ A Vite plugin that provides developer tools for inspecting and debugging web com
 ## Installation
 
 ```bash
-npm install vite-plugin --save-dev
+npm install @cadamsdev/vite-plugin-wc-devtools --save-dev
 ```
 
 ## Usage
@@ -18,28 +18,26 @@ import { defineConfig } from 'vite';
 import { webComponentDevTools } from 'vite-plugin';
 
 export default defineConfig({
-  plugins: [
-    webComponentDevTools({
-      position: 'bottom-right'
-    })
-  ]
+  plugins: [webComponentDevTools()]
 });
 ```
 
 ### Options
 
-- **`enabled`** (boolean, default: `true`): Enable or disable the dev tools.
-- **`position`** (string, default: `'bottom-right'`): Position of the dev tools button. Options: `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`.
-- **`queryParam`** (string, optional): Query parameter name to check for enabling dev tools. If specified, the dev tools button will only show when this query param is present in the URL (e.g., `?debug`).
-- **`includeInProduction`** (boolean, default: `false`): Include the dev tools in production builds. By default, dev tools are only included in development mode.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enabled` | boolean | `true` | Enable or disable the dev tools. |
+| `position` | string | `'bottom-right'` | Position of the dev tools button. Options: `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`. |
+| `queryParam` | string | optional | Query parameter name to check for enabling dev tools. If specified, the dev tools button will only show when this query param is present in the URL (e.g., `?debug`). |
+| `includeInProduction` | boolean | `false` | Include the dev tools in production builds. By default, dev tools are only included in development mode. |
 
 ### Example with Options
 
 ```javascript
 webComponentDevTools({
   enabled: true,
-  position: 'top-right',
-  queryParam: 'debug',
+  position: 'bottom-right',
+  queryParam: 'wc-devtools',
   includeInProduction: false
 })
 ```
@@ -51,24 +49,15 @@ By default, the dev tools are only included in development builds. If you want t
 ```javascript
 webComponentDevTools({
   includeInProduction: true,
-  queryParam: 'devtools' // Recommended: use with queryParam to hide by default
+  queryParam: 'wc-devtools' // Recommended: use with queryParam to hide by default
 })
 ```
 
 **Note:** When using in production, it's recommended to combine `includeInProduction` with `queryParam` to ensure the dev tools are only visible when explicitly requested via a URL parameter.
 
-## Features
-
-- 🔍 Inspect web component properties and attributes
-- 🎨 View and edit CSS custom properties
-- 📊 Monitor component lifecycle events
-- ♿ Check accessibility compliance
-- 🔄 Track component renders and performance
-- 🌳 Visualize component hierarchy
-
 ## Requirements
 
-- Vite 4.x or higher
+- Vite 7.x or higher
 
 ## How It Works
 

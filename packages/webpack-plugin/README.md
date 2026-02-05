@@ -23,9 +23,7 @@ export default {
     new HtmlWebpackPlugin({
       template: './src/index.html'
     }),
-    new WebpackWebComponentDevTools({
-      position: 'bottom-right'
-    })
+    new WebpackWebComponentDevTools()
   ]
 };
 ```
@@ -44,8 +42,8 @@ export default {
 ```javascript
 new WebpackWebComponentDevTools({
   enabled: true,
-  position: 'top-right',
-  queryParam: 'debug',
+  position: 'bottom-right',
+  queryParam: 'wc-devtools',
   includeInProduction: false
 })
 ```
@@ -57,20 +55,11 @@ By default, the dev tools are only included in development builds. If you want t
 ```javascript
 new WebpackWebComponentDevTools({
   includeInProduction: true,
-  queryParam: 'devtools' // Recommended: use with queryParam to hide by default
+  queryParam: 'wc-devtools' // Recommended: use with queryParam to hide by default
 })
 ```
 
 **Note:** When using in production, it's recommended to combine `includeInProduction` with `queryParam` to ensure the dev tools are only visible when explicitly requested via a URL parameter.
-
-## Features
-
-- 🔍 Inspect web component properties and attributes
-- 🎨 View and edit CSS custom properties
-- 📊 Monitor component lifecycle events
-- ♿ Check accessibility compliance
-- 🔄 Track component renders and performance
-- 🌳 Visualize component hierarchy
 
 ## Requirements
 
