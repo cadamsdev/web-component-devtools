@@ -3,7 +3,7 @@ import {
   MyCard,
   MyCounter,
   MyBadge,
-} from '@web-component-dev-tools/react-lit-components';
+} from 'react-lit-components';
 import './App.css';
 
 function App() {
