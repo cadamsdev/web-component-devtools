@@ -55,7 +55,7 @@ export class WebpackWebComponentDevTools {
     // Load the client script once
     if (!this.clientScript) {
       try {
-        const clientScriptPath = require.resolve('client/client');
+        const clientScriptPath = require.resolve('@cadamsdev/wc-devtools-client/client');
         this.clientScript = readFileSync(clientScriptPath, 'utf-8');
       } catch (error) {
         console.error('[webpack-plugin] Failed to load client script:', error);
@@ -65,31 +65,29 @@ export class WebpackWebComponentDevTools {
 
     // Hook into the compilation process
     compiler.hooks.compilation.tap('WebpackWebComponentDevTools', (compilation) => {
-      // Check if HtmlWebpackPlugin is available
-      const HtmlWebpackPlugin = compiler.options.plugins?.find(
-        (plugin) => plugin?.constructor?.name === 'HtmlWebpackPlugin',
-      );
+      // Get HtmlWebpackPlugin hooks
+      const hooks = (compilation.hooks as any).htmlWebpackPluginAfterHtmlProcessing;
 
-      if (!HtmlWebpackPlugin) {
-        console.warn(
-          '[webpack-plugin] HtmlWebpackPlugin not found. The dev tools will not be injected.',
-        );
-        return;
-      }
+      if (!hooks) {
+        // Try alternative hook for newer versions of HtmlWebpackPlugin
+        const HtmlWebpackPlugin = compiler.options.plugins?.find(
+          (plugin) => plugin?.constructor?.name === 'HtmlWebpackPlugin',
+        ) as any;
 
-      // Use the processAssets hook to modify HTML files
-      compilation.hooks.processAssets.tap(
-        {
-          name: 'WebpackWebComponentDevTools',
-          stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
-        },
-        () => {
-          // Find HTML files in assets
-          for (const filename in compilation.assets) {
-            if (filename.endsWith('.html')) {
-              const asset = compilation.assets[filename];
-              let html = asset.source().toString();
+        if (!HtmlWebpackPlugin) {
+          console.warn(
+            '[webpack-plugin] HtmlWebpackPlugin not found. The dev tools will not be injected.',
+          );
+          return;
+        }
 
+        // Use the newer HtmlWebpackPlugin v4+ hook
+        const htmlPluginHooks = HtmlWebpackPlugin.constructor.getHooks(compilation);
+
+        if (htmlPluginHooks && htmlPluginHooks.beforeEmit) {
+          htmlPluginHooks.beforeEmit.tapAsync(
+            'WebpackWebComponentDevTools',
+            (data: any, cb: any) => {
               // Inject the dev tools script before closing body tag
               const script = `
     <script type="module">
@@ -98,22 +96,12 @@ export class WebpackWebComponentDevTools {
     </script>
   `;
 
-              html = html.replace('</body>', `${script}</body>`);
-
-              // Update the asset with proper Source interface
-              const newSource = Buffer.from(html, 'utf-8');
-              compilation.assets[filename] = {
-                source: () => html,
-                size: () => html.length,
-                buffer: () => newSource,
-                map: () => null,
-                sourceAndMap: () => ({ source: html, map: null }),
-                updateHash: (hash: any) => hash.update(html),
-              };
-            }
-          }
-        },
-      );
+              data.html = data.html.replace('</body>', `${script}</body>`);
+              cb(null, data);
+            },
+          );
+        }
+      }
     });
   }
 }

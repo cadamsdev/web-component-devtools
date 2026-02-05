@@ -138,7 +138,7 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
     }
 
     instances.push(instanceInfo);
-    
+
     // Also add all nested components to the flat list
     if (instanceInfo.nestedComponents && instanceInfo.nestedComponents.length > 0) {
       flattenNestedComponents(instanceInfo.nestedComponents, instances);
@@ -151,10 +151,13 @@ export function scanWebComponents(renderTracker?: RenderTracker): InstanceInfo[]
 /**
  * Recursively flatten nested components and add them to the instances array
  */
-function flattenNestedComponents(nestedComponents: InstanceInfo[], instances: InstanceInfo[]): void {
+function flattenNestedComponents(
+  nestedComponents: InstanceInfo[],
+  instances: InstanceInfo[],
+): void {
   for (const nested of nestedComponents) {
     instances.push(nested);
-    
+
     // Recursively flatten deeper nesting levels
     if (nested.nestedComponents && nested.nestedComponents.length > 0) {
       flattenNestedComponents(nested.nestedComponents, instances);

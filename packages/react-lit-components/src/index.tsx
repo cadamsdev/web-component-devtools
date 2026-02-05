@@ -1,15 +1,15 @@
 import { createComponent } from '@lit/react';
 import React from 'react';
-import { MyButton as MyButtonWC } from '@web-component-dev-tools/lit-components';
-import { MyCard as MyCardWC } from '@web-component-dev-tools/lit-components';
-import { MyCounter as MyCounterWC } from '@web-component-dev-tools/lit-components';
-import { MyBadge as MyBadgeWC } from '@web-component-dev-tools/lit-components';
-import { MyProductCard as MyProductCardWC } from '@web-component-dev-tools/lit-components';
-import { MyUserProfile as MyUserProfileWC } from '@web-component-dev-tools/lit-components';
-import { MyModal as MyModalWC } from '@web-component-dev-tools/lit-components';
-import { MyTabs as MyTabsWC } from '@web-component-dev-tools/lit-components';
-import { MyFormField as MyFormFieldWC } from '@web-component-dev-tools/lit-components';
-import { MyNotification as MyNotificationWC } from '@web-component-dev-tools/lit-components';
+import { MyButton as MyButtonWC } from 'lit-components';
+import { MyCard as MyCardWC } from 'lit-components';
+import { MyCounter as MyCounterWC } from 'lit-components';
+import { MyBadge as MyBadgeWC } from 'lit-components';
+import { MyProductCard as MyProductCardWC } from 'lit-components';
+import { MyUserProfile as MyUserProfileWC } from 'lit-components';
+import { MyModal as MyModalWC } from 'lit-components';
+import { MyTabs as MyTabsWC } from 'lit-components';
+import { MyFormField as MyFormFieldWC } from 'lit-components';
+import { MyNotification as MyNotificationWC } from 'lit-components';
 
 // React wrappers for Lit web components
 export const MyButton = createComponent({

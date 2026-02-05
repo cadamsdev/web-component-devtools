@@ -391,11 +391,11 @@ export function createInstanceElement(
     if (a11yAudit) {
       const a11yBtn = document.createElement('button');
       a11yBtn.className = 'wc-a11y-btn';
-      
+
       // Determine status based on audit result
       const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
       const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
-      
+
       let status: 'good' | 'warning' | 'error';
       if (errorCount > 0) {
         status = 'error';
@@ -404,10 +404,10 @@ export function createInstanceElement(
       } else {
         status = 'good';
       }
-      
+
       a11yBtn.classList.add(`wc-a11y-btn-${status}`);
       a11yBtn.title = 'View accessibility details';
-      
+
       // Create SVG icon
       const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svgIcon.setAttribute('viewBox', '0 0 24 24');
@@ -422,7 +422,7 @@ export function createInstanceElement(
         <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
       `;
       a11yBtn.appendChild(svgIcon);
-      
+
       // Add issue count
       const issueCount = errorCount + warningCount;
       if (issueCount > 0) {
@@ -431,7 +431,7 @@ export function createInstanceElement(
         countSpan.textContent = issueCount.toString();
         a11yBtn.appendChild(countSpan);
       }
-      
+
       a11yBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -833,11 +833,11 @@ function createNestedComponentElement(
     if (a11yAudit) {
       const a11yBtn = document.createElement('button');
       a11yBtn.className = 'wc-a11y-btn';
-      
+
       // Determine status based on audit result
       const errorCount = a11yAudit.issues.filter((i) => i.type === 'error').length;
       const warningCount = a11yAudit.issues.filter((i) => i.type === 'warning').length;
-      
+
       let status: 'good' | 'warning' | 'error';
       if (errorCount > 0) {
         status = 'error';
@@ -846,10 +846,10 @@ function createNestedComponentElement(
       } else {
         status = 'good';
       }
-      
+
       a11yBtn.classList.add(`wc-a11y-btn-${status}`);
       a11yBtn.title = 'View accessibility details';
-      
+
       // Create SVG icon
       const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svgIcon.setAttribute('viewBox', '0 0 24 24');
@@ -864,7 +864,7 @@ function createNestedComponentElement(
         <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
       `;
       a11yBtn.appendChild(svgIcon);
-      
+
       // Add issue count
       const issueCount = errorCount + warningCount;
       if (issueCount > 0) {
@@ -873,7 +873,7 @@ function createNestedComponentElement(
         countSpan.textContent = issueCount.toString();
         a11yBtn.appendChild(countSpan);
       }
-      
+
       a11yBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();

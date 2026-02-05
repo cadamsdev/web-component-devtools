@@ -249,7 +249,7 @@ import { readFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 
 // Resolve and load the client script
-const clientScriptPath = require.resolve('client/client');
+const clientScriptPath = require.resolve('@cadamsdev/wc-devtools-client/client');
 const clientScript = readFileSync(clientScriptPath, 'utf-8');
 
 // Inject into HTML with configuration

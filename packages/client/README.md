@@ -15,7 +15,7 @@ import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
-const clientScriptPath = require.resolve('client/client');
+const clientScriptPath = require.resolve('@cadamsdev/wc-devtools-client/client');
 const clientScript = readFileSync(clientScriptPath, 'utf-8');
 ```
 

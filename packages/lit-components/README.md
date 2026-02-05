@@ -1,4 +1,4 @@
-# @web-component-dev-tools/lit-components
+# lit-components
 
 A reusable Lit component library with React wrappers.
 
@@ -12,7 +12,7 @@ A reusable Lit component library with React wrappers.
 ## Installation
 
 ```bash
-npm install @web-component-dev-tools/lit-components
+npm install lit-components
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ npm install @web-component-dev-tools/lit-components
 ### Vanilla JavaScript / HTML
 
 ```typescript
-import '@web-component-dev-tools/lit-components';
+import 'lit-components';
 
 // Components are automatically registered
 // Use them directly in HTML
@@ -38,7 +38,7 @@ import '@web-component-dev-tools/lit-components';
 ### React
 
 ```typescript
-import { MyButton, MyCounter, MyBadge, MyCard } from '@web-component-dev-tools/lit-components/react';
+import { MyButton, MyCounter, MyBadge, MyCard } from 'lit-components/react';
 
 function App() {
   return (

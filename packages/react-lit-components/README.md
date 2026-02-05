@@ -1,19 +1,19 @@
-# @web-component-dev-tools/react-lit-components
+# react-lit-components
 
-React wrapper components for `@web-component-dev-tools/lit-components`.
+React wrapper components for `lit-components`.
 
 ## Installation
 
 ```bash
-npm install @web-component-dev-tools/react-lit-components
+npm install react-lit-components
 ```
 
-This package automatically installs `@web-component-dev-tools/lit-components` as a dependency.
+This package automatically installs `lit-components` as a dependency.
 
 ## Usage
 
 ```typescript
-import { MyButton, MyCounter, MyBadge, MyCard } from '@web-component-dev-tools/react-lit-components';
+import { MyButton, MyCounter, MyBadge, MyCard } from 'react-lit-components';
 
 function App() {
   const handleButtonClick = (e: CustomEvent) => {
@@ -52,7 +52,7 @@ function App() {
 
 ## Components
 
-All components from `@web-component-dev-tools/lit-components` are wrapped for React:
+All components from `lit-components` are wrapped for React:
 
 - **MyButton** - Interactive button with events
   - Props: `label`, `disabled`, `variant`
