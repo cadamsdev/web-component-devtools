@@ -10,6 +10,49 @@ A tool that allows you to inspect and debug web components in your app.
 | [@cadamsdev/webpack-plugin-wc-devtools](./packages/webpack-plugin) | Webpack plugin | ![npm](https://img.shields.io/npm/v/@cadamsdev/webpack-plugin-wc-devtools) |
 | [@cadamsdev/wc-devtools-client](./packages/client) | Client-side script | ![npm](https://img.shields.io/npm/v/@cadamsdev/wc-devtools-client) |
 
+## Screenshots
+
+<details>
+<summary>Click to view screenshots</summary>
+
+### Panel Overview
+![Panel](./media/panel.png)
+
+### Panel Open
+![Panel Open](./media/panel-open.png)
+
+### Component Details
+![Component Details](./media/component-details.png)
+
+### Component Details with Nested Components
+![Component Details - Nested Components](./media/component-details-nested-components.png)
+
+### Component Overlays
+![Component Overlays](./media/component-overlays.png)
+
+### Highlight Component
+![Highlight Component](./media/highlight-component.png)
+
+### Log Element to Console
+![Log Element to Console](./media/log-element-to-console.png)
+
+### Monitor Events
+![Monitor Events](./media/monitor-events.png)
+
+### Scroll to Element
+![Scroll to Element](./media/scroll-to-element.png)
+
+### Shadow DOM Indicator, Overlay and Badge
+![Shadow DOM Indicator, Overlay and Badge](./media/shadow-dom-indicator-overlay-and-badge.png)
+
+### View Accessibility Issues
+![View Accessibility Issues](./media/view-accessibility-issues.png)
+
+### View Re-renders
+![View Re-renders](./media/view-rerenders.png)
+
+</details>
+
 ## ❤️ Sponsors
 
 Support development by becoming a sponsor! Your avatar or company logo will appear below.
