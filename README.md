@@ -10,6 +10,14 @@ A tool that allows you to inspect and debug web components in your app.
 | [@cadamsdev/webpack-plugin-wc-devtools](./packages/webpack-plugin) | Webpack plugin | ![npm](https://img.shields.io/npm/v/@cadamsdev/webpack-plugin-wc-devtools) |
 | [@cadamsdev/wc-devtools-client](./packages/client) | Client-side script | ![npm](https://img.shields.io/npm/v/@cadamsdev/wc-devtools-client) |
 
+## ❤️ Sponsors
+
+Support development by becoming a sponsor! Your avatar or company logo will appear below.
+
+[Become a Sponsor](https://github.com/sponsors/cadamsdev)
+
+<!-- Sponsors will appear here -->
+
 ## Quick Start
 
 ### Vite
@@ -52,24 +60,4 @@ export default {
 
 ## License
 
-[MIT](./LICENSE) © Chad Adams and contributors
-
-## Acknowledgments
-
-Built with:
-- [Lit](https://lit.dev) - For building the dev tools UI components
-- [TypeScript](https://www.typescriptlang.org/) - For type-safe development
-- [Bun](https://bun.sh) - For fast package management and builds
-- [tsdown](https://github.com/rolldown/tsdown) - For bundling packages
-
-## Support
-
-If you find this project helpful, please consider:
-- Giving it a ⭐️ on GitHub
-- Reporting bugs or requesting features via [GitHub Issues](https://github.com/cadamsdev/web-component-dev-tools/issues)
-- Contributing code or documentation improvements
-
----
-
-Made with ❤️ for the web components community
-
+[MIT](./LICENSE)
