@@ -9,6 +9,9 @@ export { MyModal } from './components/my-modal.js';
 export { MyTabs } from './components/my-tabs.js';
 export { MyFormField } from './components/my-form-field.js';
 export { MyNotification } from './components/my-notification.js';
+export { MyToggle } from './components/my-toggle.js';
+export { MyProgressBar } from './components/my-progress-bar.js';
+export { MyAccordion } from './components/my-accordion.js';
 
 // Side-effect imports to register custom elements
 import './components/my-button.js';
@@ -21,3 +24,6 @@ import './components/my-modal.js';
 import './components/my-tabs.js';
 import './components/my-form-field.js';
 import './components/my-notification.js';
+import './components/my-toggle.js';
+import './components/my-progress-bar.js';
+import './components/my-accordion.js';

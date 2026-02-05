@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   MyButton,
   MyCard,
@@ -9,11 +9,16 @@ import {
   MyModal,
   MyTabs,
   MyFormField,
+  MyToggle,
+  MyProgressBar,
+  MyAccordion,
 } from 'react-lit-components';
 import './App.css';
 
 function App() {
   const modalRef = useRef<any>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const downloadProgress = 45;
 
   const handleButtonClick = (e: Event) => {
     const customEvent = e as CustomEvent;
@@ -162,6 +167,90 @@ function App() {
                 <MyBadge label="Visual" variant="primary" />
               </span>
             </MyCard>
+
+            <MyCard
+              title="Toggle Component"
+              description="Switch controls for binary options"
+            >
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <MyToggle
+                  label="Enable notifications"
+                  onToggleChange={(e: Event) => {
+                    const customEvent = e as CustomEvent;
+                    console.log('Toggle:', customEvent.detail);
+                  }}
+                />
+                <MyToggle label="Dark mode" checked size="small" />
+                <MyToggle label="Disabled toggle" disabled />
+              </div>
+              <span slot="footer">
+                <MyBadge label="Interactive" variant="info" />
+              </span>
+            </MyCard>
+
+            <MyCard
+              title="Progress Bar Component"
+              description="Visual indicators for task completion"
+            >
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <MyProgressBar label="Upload" value={uploadProgress} variant="info" />
+                <MyProgressBar
+                  label="Download"
+                  value={downloadProgress}
+                  variant="success"
+                  striped
+                  animated
+                />
+                <MyProgressBar value={75} variant="warning" size="small" />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <MyButton
+                    label="Simulate Upload"
+                    onButtonClick={() => {
+                      setUploadProgress(0);
+                      const interval = setInterval(() => {
+                        setUploadProgress((prev) => {
+                          if (prev >= 100) {
+                            clearInterval(interval);
+                            return 100;
+                          }
+                          return prev + 10;
+                        });
+                      }, 200);
+                    }}
+                  />
+                </div>
+              </div>
+              <span slot="footer">
+                <MyBadge label="Animated" variant="success" />
+              </span>
+            </MyCard>
+
+            <MyCard
+              title="Accordion Component"
+              description="Collapsible content sections"
+              style={{ gridColumn: '1 / -1' }}
+            >
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <MyAccordion title="What are Web Components?" open>
+                  Web Components are a set of web platform APIs that allow you to create custom,
+                  reusable, encapsulated HTML tags. They work across modern browsers and can be
+                  used with any JavaScript framework.
+                </MyAccordion>
+                <MyAccordion title="Why use Lit?">
+                  Lit is a simple library for building fast, lightweight web components. It provides
+                  a declarative template syntax, reactive state management, and excellent TypeScript
+                  support.
+                </MyAccordion>
+                <MyAccordion title="How does composition work?">
+                  Web components can be composed together like regular HTML elements. Complex
+                  components can use simpler components internally, creating a hierarchy of reusable
+                  pieces.
+                </MyAccordion>
+              </div>
+              <span slot="footer">
+                <MyBadge label="Expandable" variant="primary" />
+              </span>
+            </MyCard>
           </div>
         </section>
 
@@ -224,7 +313,7 @@ function App() {
 
           <div style={{ marginBottom: '32px' }}>
             <h3>User Profile (uses Badge, Button)</h3>
-            <div className="grid">
+            <div style={{ maxWidth: '600px' }}>
               <MyUserProfile
                 userName="Sarah Johnson"
                 userTitle="Senior Software Engineer"
@@ -239,23 +328,6 @@ function App() {
                 email="sarah@example.com"
                 location="San Francisco, CA"
                 website="sarahjohnson.dev"
-                onFollow={handleFollow}
-                onMessage={handleMessage}
-              />
-
-              <MyUserProfile
-                userName="Alex Chen"
-                userTitle="UX Designer"
-                bio="Creating beautiful and intuitive user experiences. Coffee enthusiast ☕"
-                avatarUrl=""
-                skills={['Figma', 'UI/UX', 'Design Systems']}
-                followers={2800}
-                following={567}
-                posts={156}
-                verified={true}
-                online={false}
-                location="New York, NY"
-                website="alexchen.design"
                 onFollow={handleFollow}
                 onMessage={handleMessage}
               />

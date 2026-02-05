@@ -10,6 +10,9 @@ import { MyModal as MyModalWC } from 'lit-components';
 import { MyTabs as MyTabsWC } from 'lit-components';
 import { MyFormField as MyFormFieldWC } from 'lit-components';
 import { MyNotification as MyNotificationWC } from 'lit-components';
+import { MyToggle as MyToggleWC } from 'lit-components';
+import { MyProgressBar as MyProgressBarWC } from 'lit-components';
+import { MyAccordion as MyAccordionWC } from 'lit-components';
 
 // React wrappers for Lit web components
 export const MyButton = createComponent({
@@ -100,5 +103,29 @@ export const MyNotification = createComponent({
   events: {
     onNotificationDismiss: 'notification-dismiss',
     onNotificationAction: 'notification-action',
+  },
+});
+
+export const MyToggle = createComponent({
+  tagName: 'my-toggle',
+  elementClass: MyToggleWC,
+  react: React,
+  events: {
+    onToggleChange: 'toggle-change',
+  },
+});
+
+export const MyProgressBar = createComponent({
+  tagName: 'my-progress-bar',
+  elementClass: MyProgressBarWC,
+  react: React,
+});
+
+export const MyAccordion = createComponent({
+  tagName: 'my-accordion',
+  elementClass: MyAccordionWC,
+  react: React,
+  events: {
+    onAccordionToggle: 'accordion-toggle',
   },
 });
