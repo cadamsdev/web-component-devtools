@@ -1,3 +1,9 @@
+## 0.0.5 (2026-02-06)
+
+### 📚 docs
+- Updated README
+
+
 ## 0.0.4 (2026-02-04)
 
 No changes recorded.

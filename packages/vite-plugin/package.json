@@ -1,6 +1,6 @@
 {
   "name": "@cadamsdev/vite-plugin-wc-devtools",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Vite plugin that provides developer tools for inspecting web components",
   "keywords": [
     "custom-elements",

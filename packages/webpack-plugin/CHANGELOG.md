@@ -1,3 +1,12 @@
+## 0.1.2 (2026-02-06)
+
+### 🐛 fix
+- Fix webpack plugin
+
+### 📚 docs
+- Updated README
+
+
 ## 0.1.1 (2026-02-04)
 
 No changes recorded.
