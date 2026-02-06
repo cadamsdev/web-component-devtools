@@ -1,3 +1,9 @@
+## 0.0.6 (2026-02-06)
+
+### 🐛 fix
+- Fix issue where the dep wc-devtools-client was using the wrong version
+
+
 ## 0.0.5 (2026-02-06)
 
 ### 📚 docs

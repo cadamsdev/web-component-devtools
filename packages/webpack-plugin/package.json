@@ -1,6 +1,6 @@
 {
   "name": "@cadamsdev/webpack-plugin-wc-devtools",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A Webpack plugin that provides developer tools for inspecting web components",
   "keywords": [
     "custom-elements",
