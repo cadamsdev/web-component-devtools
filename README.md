@@ -46,19 +46,13 @@
 <details>
 <summary>Click to view screenshots</summary>
 
-### Panel Overview
-![Panel](./media/panel.png)
-
-### Panel Open
-![Panel Open](./media/panel-open.png)
-
-### Component Details
+### View Component Details
 ![Component Details](./media/component-details.png)
 
-### Component Details with Nested Components
+### View Nested Components
 ![Component Details - Nested Components](./media/component-details-nested-components.png)
 
-### Component Overlays
+### Overlays
 ![Component Overlays](./media/component-overlays.png)
 
 ### Highlight Component
