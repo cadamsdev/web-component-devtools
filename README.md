@@ -1,4 +1,4 @@
-# Web Component Dev Tools
+<h1 align="center">Web Component Dev Tools</h1>
 
 <p align="center">
   <strong>Comprehensive developer tools for inspecting, debugging, and monitoring web components<strong>
