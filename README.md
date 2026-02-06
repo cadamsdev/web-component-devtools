@@ -2,6 +2,13 @@
 
 A tool that allows you to inspect and debug web components in your app.
 
+## Features
+- View attributes, properties, public methods, slots, css variables, nested components.
+- Show overlay of components on the page.
+- Monitor events and viewing custom event detail objects.
+- Check for accessibility issues.
+- Check for component re-renders.
+
 ## Packages
 
 | Package | Description | Version |
