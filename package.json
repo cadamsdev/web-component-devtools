@@ -10,19 +10,15 @@
     "vite",
     "web-components"
   ],
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
   "scripts": {
-    "build": "bun run --filter '*' build",
-    "dev": "bun run --filter vite-example dev",
-    "dev:webpack": "bun run --filter webpack-example dev",
-    "build:plugin": "bun run --filter vite-plugin build",
-    "build:webpack-plugin": "bun run --filter webpack-plugin build",
-    "build:client": "bun run --filter client build",
-    "build:lit-components": "bun run --filter 'lit-components' build",
-    "build:react-lit-components": "bun run --filter 'react-lit-components' build",
+    "build": "pnpm --filter '*' build",
+    "dev": "pnpm --filter vite-example dev",
+    "dev:webpack": "pnpm --filter webpack-example dev",
+    "build:plugin": "pnpm --filter vite-plugin build",
+    "build:webpack-plugin": "pnpm --filter webpack-plugin build",
+    "build:client": "pnpm --filter client build",
+    "build:lit-components": "pnpm --filter 'lit-components' build",
+    "build:react-lit-components": "pnpm --filter 'react-lit-components' build",
     "changeset": "changeset",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
@@ -36,8 +32,8 @@
     "oxlint-tsgolint": "^0.11.4"
   },
   "engines": {
-    "bun": ">=1.0.0",
+    "pnpm": ">=8.0.0",
     "node": ">=16.0.0"
   },
-  "packageManager": "bun@1.3.8"
+  "packageManager": "pnpm@9.15.4"
 }

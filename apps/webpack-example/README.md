@@ -75,7 +75,7 @@ Small label for status and categories.
 ### Install Dependencies
 
 ```bash
-bun install
+pnpm install
 ```
 
 ### Development
@@ -83,7 +83,7 @@ bun install
 Start the development server with hot reload:
 
 ```bash
-bun run dev
+pnpm dev
 ```
 
 The app will open at http://localhost:3001
@@ -93,7 +93,7 @@ The app will open at http://localhost:3001
 Build the production bundle:
 
 ```bash
-bun run build
+pnpm build
 ```
 
 ### Preview
@@ -101,7 +101,7 @@ bun run build
 Preview the production build:
 
 ```bash
-bun run preview
+pnpm preview
 ```
 
 ## 📦 Web Components
@@ -130,7 +130,7 @@ webpack-example/
 ### Install Dependencies
 
 ```bash
-bun install
+pnpm install
 ```
 
 ### Development
@@ -138,7 +138,7 @@ bun install
 Start the development server with hot reload:
 
 ```bash
-bun run dev
+pnpm dev
 ```
 
 The app will open at http://localhost:3001
@@ -148,7 +148,7 @@ The app will open at http://localhost:3001
 Build the production bundle:
 
 ```bash
-bun run build
+pnpm build
 ```
 
 ### Preview
@@ -156,7 +156,7 @@ bun run build
 Preview the production build:
 
 ```bash
-bun run preview
+pnpm preview
 ```
 
 ## ⚙️ Webpack Configuration

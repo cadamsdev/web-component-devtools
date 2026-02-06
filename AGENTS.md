@@ -4,7 +4,7 @@ This document provides guidelines for AI coding agents working in this repositor
 
 ## Project Overview
 
-This is a **monorepo** for developer tools that help inspect web components. It uses **Bun** as the package manager with workspace support.
+This is a **monorepo** for developer tools that help inspect web components. It uses **pnpm** as the package manager with workspace support.
 
 **Structure:**
 - `packages/client/` - The client-side script (build-tool agnostic)
@@ -22,35 +22,35 @@ The project is split into multiple packages:
 ## Build, Lint, and Test Commands
 
 ### Package Manager
-This project uses **Bun**. Use `bun install` for dependencies.
+This project uses **pnpm**. Use `pnpm install` for dependencies.
 
 ### Build Commands
 ```bash
 # Build all workspaces
-bun run build
+pnpm build
 
 # Build only the client package
-bun run build:client
+pnpm build:client
 
 # Build only the Vite plugin
-bun run build:plugin
+pnpm build:plugin
 
 # Build in watch mode
-cd packages/client && bun run dev
-cd packages/vite-plugin && bun run dev
+cd packages/client && pnpm dev
+cd packages/vite-plugin && pnpm dev
 ```
 
 ### Development Commands
 ```bash
 # Run the Vite example app in dev mode
-bun run dev
+pnpm dev
 
 # Run the Webpack example app in dev mode
-bun run dev:webpack
+pnpm dev:webpack
 
 # Preview production build
-cd apps/vite-example && bun run preview
-cd apps/webpack-example && bun run preview
+cd apps/vite-example && pnpm preview
+cd apps/webpack-example && pnpm preview
 ```
 
 ### Linting and Formatting

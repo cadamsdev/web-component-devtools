@@ -25,11 +25,11 @@ Before contributing, please:
 
 ## Development Setup
 
-This project uses [Bun](https://bun.sh) as the package manager and build tool.
+This project uses [pnpm](https://pnpm.io) as the package manager.
 
 ### Prerequisites
 
-- [Bun](https://bun.sh) >= 1.0.0
+- [pnpm](https://pnpm.io) >= 8.0.0
 - [Node.js](https://nodejs.org/) >= 16.0.0
 - [Git](https://git-scm.com/)
 
@@ -41,7 +41,7 @@ git clone https://github.com/cadamsdev/web-component-dev-tools.git
 cd web-component-dev-tools
 
 # Install dependencies
-bun install
+pnpm install
 ```
 
 ## Project Structure
@@ -82,14 +82,14 @@ The example apps are the best way to test your changes during development:
 
 ```bash
 # Run Vite example in dev mode
-bun run dev
+pnpm dev
 
 # Run Webpack example in dev mode
-bun run dev:webpack
+pnpm dev:webpack
 
 # Preview production build
-cd apps/vite-example && bun run preview
-cd apps/webpack-example && bun run preview
+cd apps/vite-example && pnpm preview
+cd apps/webpack-example && pnpm preview
 ```
 
 ### Watch Mode
@@ -98,13 +98,13 @@ For active development, use watch mode to automatically rebuild on changes:
 
 ```bash
 # Watch client package
-cd packages/client && bun run dev
+cd packages/client && pnpm dev
 
 # Watch Vite plugin
-cd packages/vite-plugin && bun run dev
+cd packages/vite-plugin && pnpm dev
 
 # Watch Webpack plugin
-cd packages/webpack-plugin && bun run dev
+cd packages/webpack-plugin && pnpm dev
 ```
 
 Then run one of the example apps in a separate terminal to see your changes in action.
@@ -113,12 +113,12 @@ Then run one of the example apps in a separate terminal to see your changes in a
 
 ```bash
 # Build all packages
-bun run build
+pnpm build
 
 # Build specific packages
-bun run build:client
-bun run build:plugin
-bun run build:webpack-plugin
+pnpm build:client
+pnpm build:plugin
+pnpm build:webpack-plugin
 ```
 
 **Note:** The client package must be built before the plugin packages, but this is handled automatically by workspace dependencies.
@@ -135,16 +135,16 @@ This project uses [oxlint](https://oxc.rs/) for linting and [oxfmt](https://oxc.
 
 ```bash
 # Format code
-bun run fmt
+pnpm fmt
 
 # Check formatting (CI)
-bun run fmt:check
+pnpm fmt:check
 
 # Lint code
-bun run lint
+pnpm lint
 
 # Lint with auto-fix
-bun run lint:fix
+pnpm lint:fix
 ```
 
 **Important:** Always run linting and formatting before committing your changes.
@@ -175,8 +175,8 @@ For now, manual testing using the example apps is required.
 
 4. **Run linting and formatting**:
    ```bash
-   bun run fmt
-   bun run lint:fix
+   pnpm fmt
+   pnpm lint:fix
    ```
 
 5. **Commit your changes** following the commit convention (see below)
@@ -308,7 +308,7 @@ When making changes that should trigger a version bump:
 
 ```bash
 # Add a changeset
-bun run changeset
+pnpm changeset
 
 # Follow the prompts to describe your changes
 ```
