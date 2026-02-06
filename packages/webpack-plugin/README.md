@@ -2,13 +2,13 @@
 
 A Webpack plugin that provides developer tools for inspecting and debugging web components in your application.
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install @cadamsdev/webpack-plugin-wc-devtools --save-dev
 ```
 
-## Usage
+## 🚀 Usage
 
 Add the plugin to your Webpack configuration:
 
@@ -28,7 +28,7 @@ export default {
 };
 ```
 
-### Options
+### ⚙️ Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -37,7 +37,7 @@ export default {
 | `queryParam` | string | `undefined` | Query parameter name to check for enabling dev tools. If specified, the dev tools button will only show when this query param is present in the URL (e.g., `?debug`). |
 | `includeInProduction` | boolean | `false` | Include the dev tools in production builds. By default, dev tools are only included in development mode. |
 
-### Example with Options
+### 💡 Example with Options
 
 ```javascript
 new WebpackWebComponentDevTools({
@@ -48,7 +48,7 @@ new WebpackWebComponentDevTools({
 })
 ```
 
-### Production Usage
+### 🏭 Production Usage
 
 By default, the dev tools are only included in development builds. If you want to include them in production builds (e.g., for staging environments or internal testing), set `includeInProduction: true`:
 
@@ -61,15 +61,15 @@ new WebpackWebComponentDevTools({
 
 **Note:** When using in production, it's recommended to combine `includeInProduction` with `queryParam` to ensure the dev tools are only visible when explicitly requested via a URL parameter.
 
-## Requirements
+## ✅ Requirements
 
 - Webpack 5.x
 - HtmlWebpackPlugin (required for HTML injection)
 
-## How It Works
+## 🔧 How It Works
 
 The plugin automatically injects the dev tools client script into your HTML during the build process when in development mode. The dev tools will appear as a floating button in your browser that you can click to open the inspection panel.
 
-## License
+## 📄 License
 
 MIT
