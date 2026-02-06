@@ -1,8 +1,21 @@
 # Web Component Dev Tools
 
-A tool that allows you to inspect and debug web components in your app.
+<p align="center">
+  <strong>Comprehensive developer tools for inspecting, debugging, and monitoring web components<strong>
+</p>
 
-![Preview](./media/preview.png)
+<p align="center">
+  <a href="https://github.com/cadamsdev/web-component-dev-tools/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" />
+  </a>
+  <a href="https://github.com/cadamsdev/web-component-dev-tools/pulls">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="./media/preview.png" alt="Web Component Dev Tools Preview" width="800" />
+</p>
 
 ## Features
 - View attributes, properties, public methods, slots, css variables, nested components.
