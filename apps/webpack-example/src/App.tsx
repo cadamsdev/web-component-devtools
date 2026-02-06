@@ -168,11 +168,10 @@ function App() {
               </span>
             </MyCard>
 
-            <MyCard
-              title="Toggle Component"
-              description="Switch controls for binary options"
-            >
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <MyCard title="Toggle Component" description="Switch controls for binary options">
+              <div
+                style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+              >
                 <MyToggle
                   label="Enable notifications"
                   onToggleChange={(e: Event) => {
@@ -192,7 +191,9 @@ function App() {
               title="Progress Bar Component"
               description="Visual indicators for task completion"
             >
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div
+                style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
                 <MyProgressBar label="Upload" value={uploadProgress} variant="info" />
                 <MyProgressBar
                   label="Download"
@@ -230,11 +231,13 @@ function App() {
               description="Collapsible content sections"
               style={{ gridColumn: '1 / -1' }}
             >
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div
+                style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+              >
                 <MyAccordion title="What are Web Components?" open>
                   Web Components are a set of web platform APIs that allow you to create custom,
-                  reusable, encapsulated HTML tags. They work across modern browsers and can be
-                  used with any JavaScript framework.
+                  reusable, encapsulated HTML tags. They work across modern browsers and can be used
+                  with any JavaScript framework.
                 </MyAccordion>
                 <MyAccordion title="Why use Lit?">
                   Lit is a simple library for building fast, lightweight web components. It provides

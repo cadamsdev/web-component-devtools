@@ -30,7 +30,10 @@ export class MyProgressBar extends LitElement {
   static styles = css`
     :host {
       display: block;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
     }
 
     .container {
@@ -140,16 +143,26 @@ export class MyProgressBar extends LitElement {
 
     return html`
       <div class="container">
-        ${this.label || this.showPercentage
-          ? html`
+        ${
+          this.label || this.showPercentage
+            ? html`
               <div class="header">
-                ${this.label ? html`<span class="label">${this.label}</span>` : html`<span></span>`}
-                ${this.showPercentage
-                  ? html`<span class="percentage">${Math.round(percentage)}%</span>`
-                  : ''}
+                ${
+                  this.label
+                    ? html`<span class="label">${this.label}</span>`
+                    : html`
+                        <span></span>
+                      `
+                }
+                ${
+                  this.showPercentage
+                    ? html`<span class="percentage">${Math.round(percentage)}%</span>`
+                    : ''
+                }
               </div>
             `
-          : ''}
+            : ''
+        }
         <div class="progress-track">
           <div class="progress-bar" style="width: ${percentage}%"></div>
         </div>

@@ -20,7 +20,10 @@ export class MyToggle extends LitElement {
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
       cursor: pointer;
       user-select: none;
     }
@@ -110,7 +113,7 @@ export class MyToggle extends LitElement {
         detail: { checked: this.checked },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 

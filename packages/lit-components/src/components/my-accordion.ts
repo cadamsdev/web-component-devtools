@@ -24,7 +24,10 @@ export class MyAccordion extends LitElement {
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       overflow: hidden;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
     }
 
     :host([disabled]) {
@@ -95,7 +98,7 @@ export class MyAccordion extends LitElement {
         detail: { open: this.open },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
