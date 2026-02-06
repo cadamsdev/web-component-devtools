@@ -3,4 +3,4 @@
 "@cadamsdev/webpack-plugin-wc-devtools": fix
 ---
 
-Fix issue where dep @cadamsdev/wc-devtools-client using wrong version
+Fix issue where the dep wc-devtools-client was using the wrong version
