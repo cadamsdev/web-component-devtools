@@ -2,6 +2,8 @@
 
 A tool that allows you to inspect and debug web components in your app.
 
+![Preview](./media/preview.png)
+
 ## Features
 - View attributes, properties, public methods, slots, css variables, nested components.
 - Show overlay of components on the page.
