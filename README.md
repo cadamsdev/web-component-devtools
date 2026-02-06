@@ -17,14 +17,14 @@
   <img src="./media/preview.png" alt="Web Component Dev Tools Preview" width="800" />
 </p>
 
-## Features
+## ✨ Features
 - View attributes, properties, public methods, slots, css variables, nested components.
 - Show overlay of components on the page.
 - Monitor events and viewing custom event detail objects.
 - Check for accessibility issues.
 - Check for component re-renders.
 
-## Packages
+## 📦 Packages
 
 | Package | Description | Version |
 |---------|-------------|---------|
@@ -32,7 +32,7 @@
 | [@cadamsdev/webpack-plugin-wc-devtools](./packages/webpack-plugin) | Webpack plugin | ![npm](https://img.shields.io/npm/v/@cadamsdev/webpack-plugin-wc-devtools) |
 | [@cadamsdev/wc-devtools-client](./packages/client) | Client-side script | ![npm](https://img.shields.io/npm/v/@cadamsdev/wc-devtools-client) |
 
-## Screenshots
+## 📸 Screenshots
 
 <details>
 <summary>Click to view screenshots</summary>
@@ -83,7 +83,7 @@ Support development by becoming a sponsor! Your avatar or company logo will appe
 
 <!-- Sponsors will appear here -->
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Vite
 
@@ -123,6 +123,6 @@ export default {
 };
 ```
 
-## License
+## 📄 License
 
 [MIT](./LICENSE)
