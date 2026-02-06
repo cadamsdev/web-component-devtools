@@ -11,6 +11,15 @@
   <a href="https://github.com/cadamsdev/web-component-dev-tools/pulls">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" />
   </a>
+  <a href="https://www.webcomponents.org">
+    <img src="https://img.shields.io/badge/Web%20Components-ready-29ABE2?logo=webcomponents.org" alt="Web Components Ready" />
+  </a>
+  <a href="https://www.npmjs.com/package/@cadamsdev/vite-plugin-wc-devtools">
+    <img src="https://img.shields.io/npm/v/@cadamsdev/vite-plugin-wc-devtools?label=vite-plugin" alt="Vite Plugin Version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@cadamsdev/webpack-plugin-wc-devtools">
+    <img src="https://img.shields.io/npm/v/@cadamsdev/webpack-plugin-wc-devtools?label=webpack-plugin" alt="Webpack Plugin Version" />
+  </a>
 </p>
 
 <p align="center">
